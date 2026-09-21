@@ -32,12 +32,9 @@
                     <span class="service-detail__price--old">{{ variant.staraCena }}</span>
                   }
                 </p>
-                <button mat-stroked-button color="primary" type="button" (click)="toggleBooking(variant)">
-                  {{ bookingVariant()?.id === variant.id ? 'Zatvori' : 'Zakaži termin' }}
+                <button mat-stroked-button color="primary" type="button" (click)="openBookingDialog(variant)">
+                  Zakaži termin
                 </button>
-                @if (bookingVariant()?.id === variant.id) {
-                  <app-booking-widget [serviceSlug]="s.slug" [servicePackageId]="variant.id" [variantName]="variant.naziv" />
-                }
               </mat-card-content>
             </mat-card>
           }
@@ -48,12 +45,16 @@
     @if (s.faq.length) {
       <section class="service-detail__faq">
         <h2>Pitanja i odgovori</h2>
-        @for (item of s.faq; track item.pitanje) {
-          <details>
-            <summary>{{ item.pitanje }}</summary>
-            <p>{{ item.odgovor }}</p>
-          </details>
-        }
+        <mat-accordion>
+          @for (item of s.faq; track item.pitanje) {
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>{{ item.pitanje }}</mat-panel-title>
+              </mat-expansion-panel-header>
+              <p>{{ item.odgovor }}</p>
+            </mat-expansion-panel>
+          }
+        </mat-accordion>
       </section>
     }
   </article>

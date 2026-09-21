@@ -5,7 +5,7 @@
 // shape (only workingHours is writable from here - name/email/phone/services stay
 // admin-managed), not the full create/edit payload.
 
-import { EmployeeWeekDay, EmployeeWorkingHoursEntry } from '../../employees/models/employee';
+import { EmployeeAdminWorkingHoursDisplay, EmployeeWeekDay, EmployeeWorkingHoursEntry } from '../../employees/models/employee';
 
 export interface EmployeeSelfProfile {
   id: string;
@@ -14,11 +14,14 @@ export interface EmployeeSelfProfile {
   telefon: string | null;
   /** Service NAMES, read-only display - not editable here. */
   usluge: string[];
-  /** Pre-formatted display summary, read-only. */
-  radnoVreme: string;
-  /** Feed directly into the same working-hours editor pattern as
-   * admin-employee-form (see EmployeeWorkingHoursEntry's own comment for the
-   * single-slot-per-day v1 limitation this reuses). */
+  /** Mirrors mapEmployeeForEmployeeDetail() on the backend - one entry per day
+   * that has hours, each with its already-translated/formatted slot strings
+   * (e.g. "09:00 - 13:00"). NOT a pre-formatted string (that was a wrong
+   * assumed shape - the backend always sent the same array shape used by
+   * EmployeeAdminDetail.radnoVreme, see employee.mapper.js). */
+  radnoVreme: EmployeeAdminWorkingHoursDisplay[];
+  /** Feed directly into the working-hours editor (FormArray of slots per day,
+   * same pattern as admin-employee-form). */
   workingHoursRaw: EmployeeWorkingHoursEntry[];
   isCommissionBased: boolean;
 }

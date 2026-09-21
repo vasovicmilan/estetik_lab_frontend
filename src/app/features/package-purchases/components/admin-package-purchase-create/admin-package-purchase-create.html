@@ -1,0 +1,80 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="package-purchase-create">
+  <div class="package-purchase-create__header">
+    <h2>Novi kupljeni paket</h2>
+    <a mat-button routerLink="/admin/kupljeni-paketi">Otkaži</a>
+  </div>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Korisnik</mat-label>
+    <input matInput formControlName="userSearch" placeholder="Pretraga po imenu ili email-u..." [matAutocomplete]="userAuto" />
+    <mat-autocomplete #userAuto="matAutocomplete" (optionSelected)="onUserSelected($event.option.value)">
+      @for (u of userOptions(); track u.id) {
+        <mat-option [value]="u">{{ u.imePrezime }} ({{ u.email }})</mat-option>
+      }
+    </mat-autocomplete>
+    @if (searchingUsers()) {
+      <mat-hint>Pretraga...</mat-hint>
+    } @else if (!selectedUserId() && form.controls.userSearch.value) {
+      <mat-hint>Izaberite korisnika iz liste predloga.</mat-hint>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Paket</mat-label>
+    <mat-select formControlName="packageId">
+      @for (p of packageOptions(); track p.id) {
+        <mat-option [value]="p.id">{{ p.naziv }} ({{ p.cena }})</mat-option>
+      }
+    </mat-select>
+    @if (loadingPackages()) {
+      <mat-hint>Učitavanje paketa...</mat-hint>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Ističe (opciono)</mat-label>
+    <input matInput type="date" formControlName="expiresAt" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Plaćena cena (opciono - podrazumevana cena paketa ako se ne unese)</mat-label>
+    <input matInput type="number" min="0" formControlName="pricePaid" />
+  </mat-form-field>
+
+  <div class="package-purchase-create__coupon">
+    <mat-form-field appearance="outline">
+      <mat-label>Kod kupona (opciono)</mat-label>
+      <input matInput formControlName="couponCode" (blur)="checkCoupon()" />
+    </mat-form-field>
+    <button
+      mat-stroked-button
+      type="button"
+      [disabled]="checkingCoupon() || !form.value.packageId || !form.value.couponCode"
+      (click)="checkCoupon()"
+    >
+      {{ checkingCoupon() ? 'Provera...' : 'Proveri kupon' }}
+    </button>
+  </div>
+
+  @if (couponPreview(); as preview) {
+    <div class="package-purchase-create__coupon-preview">
+      <p>Originalna cena: {{ preview.originalPrice }} RSD</p>
+      <p>Popust: {{ preview.discountAmount }} RSD</p>
+      <p><strong>Cena sa popustom: {{ preview.finalPrice }} RSD</strong></p>
+    </div>
+  }
+  @if (couponError(); as err) {
+    <p class="package-purchase-create__coupon-error">{{ err }}</p>
+  }
+
+  <mat-form-field appearance="outline">
+    <mat-label>Napomena (opciono)</mat-label>
+    <textarea matInput formControlName="notes" rows="3"></textarea>
+  </mat-form-field>
+
+  <div class="package-purchase-create__actions">
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+      {{ saving() ? 'Kreiranje...' : 'Kreiraj' }}
+    </button>
+  </div>
+</form>

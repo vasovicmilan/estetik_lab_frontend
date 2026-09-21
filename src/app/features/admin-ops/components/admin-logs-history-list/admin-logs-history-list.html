@@ -1,0 +1,52 @@
+<div class="admin-logs-history-list">
+  <div class="admin-logs-history-list__header">
+    <h1>Istorija izveštaja o logovima</h1>
+    <a mat-button routerLink="/admin/logovi">Nazad na logove</a>
+  </div>
+
+  <table mat-table [dataSource]="rows()" class="admin-logs-history-list__table">
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef>Datum</th>
+      <td mat-cell *matCellDef="let row">{{ row.date }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="total">
+      <th mat-header-cell *matHeaderCellDef>Ukupno zahteva</th>
+      <td mat-cell *matCellDef="let row">{{ row.requests.total }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="errors">
+      <th mat-header-cell *matHeaderCellDef>Greške</th>
+      <td mat-cell *matCellDef="let row">{{ row.logs.errorCount }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="avgMs">
+      <th mat-header-cell *matHeaderCellDef>Prosečno vreme (ms)</th>
+      <td mat-cell *matCellDef="let row">{{ row.perf.avgResponseTimeMs | number: '1.0-1' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="akcije">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <a mat-button [routerLink]="['/admin/logovi/istorija', row.date]">Pregled</a>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  @if (!loading() && rows().length === 0) {
+    <p class="admin-logs-history-list__empty">Nema sačuvanih izveštaja.</p>
+  }
+
+  @if (loading()) {
+    <div class="admin-logs-history-list__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (meta(); as m) {
+    <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" (page)="onPage($event)" />
+  }
+</div>

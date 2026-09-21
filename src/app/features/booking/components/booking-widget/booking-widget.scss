@@ -1,12 +1,31 @@
 .booking-widget {
-  border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
-  border-radius: 8px;
   padding: 1.25rem;
-  margin-top: 1rem;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  &__title {
+    margin: 0;
+  }
 
   &__success {
     color: var(--mat-sys-primary, #386a20);
     font-weight: 600;
+  }
+
+  &__employees {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin-bottom: 1rem;
+  }
+
+  &__employees-label {
+    font-size: 0.875rem;
   }
 
   &__error {
@@ -49,6 +68,35 @@
       color: var(--mat-sys-on-primary, #fff);
       border-color: transparent;
     }
+  }
+
+  &__package-toggle {
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+
+  &__coupon {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    max-width: 400px;
+    margin-bottom: 0.25rem;
+  }
+
+  &__coupon-input {
+    flex: 1;
+  }
+
+  &__coupon-success {
+    color: var(--mat-sys-primary, #386a20);
+    font-size: 0.875rem;
+    margin: 0 0 0.75rem;
+  }
+
+  &__coupon-error {
+    color: var(--mat-sys-error, #b3261e);
+    font-size: 0.875rem;
+    margin: 0 0 0.75rem;
   }
 
   &__form {

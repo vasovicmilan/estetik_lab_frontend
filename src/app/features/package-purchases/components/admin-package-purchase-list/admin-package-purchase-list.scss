@@ -1,0 +1,33 @@
+.admin-package-purchase-list {
+  padding: 1.5rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  &__table {
+    width: 100%;
+  }
+
+  &__empty {
+    padding: 1.5rem 0;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+}

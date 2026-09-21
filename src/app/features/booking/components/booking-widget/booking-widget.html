@@ -1,11 +1,17 @@
 <div class="booking-widget">
+  <div class="booking-widget__header">
+    <h3 class="booking-widget__title">Zakažite termin @if (variantName) { - {{ variantName }} }</h3>
+    <button mat-icon-button type="button" aria-label="Zatvori" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
   @if (confirmedAppointmentId()) {
     <p class="booking-widget__success">
       Termin je uspešno zakazan! Poslaćemo vam potvrdu na email.
     </p>
+    <button mat-flat-button color="primary" type="button" (click)="close()">Zatvori</button>
   } @else {
-    <h3>Zakažite termin @if (variantName()) { - {{ variantName() }} }</h3>
-
     @if (errorMessage()) {
       <p class="booking-widget__error">{{ errorMessage() }}</p>
     }
@@ -21,14 +27,30 @@
       />
     </label>
 
+    @if (slotsResponse()?.employees?.length) {
+      <div class="booking-widget__employees">
+        <span class="booking-widget__employees-label">Terapeut</span>
+        <mat-button-toggle-group
+          [value]="selectedEmployeeId()"
+          (change)="onEmployeeChange($event.value)"
+          aria-label="Izbor terapeuta"
+        >
+          <mat-button-toggle [value]="anyEmployee">Bilo koji terapeut</mat-button-toggle>
+          @for (employee of slotsResponse()!.employees; track employee.id) {
+            <mat-button-toggle [value]="employee.id">{{ employee.imePrezime }}</mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </div>
+    }
+
     @if (loadingSlots()) {
       <mat-spinner diameter="28" />
     } @else if (slotsResponse()) {
-      @if (slotsResponse()!.slots.length === 0) {
+      @if (visibleSlots().length === 0) {
         <p>Nema slobodnih termina za izabrani datum.</p>
       } @else {
         <div class="booking-widget__slots">
-          @for (slot of slotsResponse()!.slots; track slot.startTime) {
+          @for (slot of visibleSlots(); track slot.startTime) {
             <button
               type="button"
               class="booking-widget__slot"
@@ -43,27 +65,89 @@
     }
 
     @if (selectedSlot()) {
+      @if (slotsResponse()?.usablePackagePurchase) {
+        <mat-checkbox
+          class="booking-widget__package-toggle"
+          [checked]="usePackagePurchase()"
+          (change)="togglePackagePurchase($event.checked)"
+        >
+          Iskoristi kupljeni paket koji već imate za ovu uslugu (umesto plaćanja)
+        </mat-checkbox>
+      }
+
+      @if (!usePackagePurchase()) {
+        <div class="booking-widget__coupon">
+          <mat-form-field appearance="outline" class="booking-widget__field booking-widget__coupon-input">
+            <mat-label>Kod kupona (opciono)</mat-label>
+            <input
+              matInput
+              [value]="couponCode()"
+              (input)="couponCode.set($any($event.target).value); couponResult.set(null); couponError.set(null)"
+            />
+          </mat-form-field>
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="checkCoupon()"
+            [disabled]="couponChecking() || !couponCode().trim()"
+          >
+            @if (couponChecking()) {
+              <mat-spinner diameter="18" />
+            } @else {
+              Primeni kod
+            }
+          </button>
+        </div>
+        @if (couponResult(); as coupon) {
+          <p class="booking-widget__coupon-success">
+            Kupon primenjen - popust {{ coupon.discountAmount }} RSD (cena: {{ coupon.finalPrice }} RSD).
+            <button mat-button type="button" (click)="clearCoupon()">Ukloni</button>
+          </p>
+        }
+        @if (couponError()) {
+          <p class="booking-widget__coupon-error">{{ couponError() }}</p>
+        }
+      }
+
       <form [formGroup]="contactForm" (ngSubmit)="submit()" class="booking-widget__form">
         <input type="text" formControlName="nickname" class="booking-widget__honeypot" tabindex="-1" autocomplete="off" />
 
         <mat-form-field appearance="outline" class="booking-widget__field">
           <mat-label>Ime</mat-label>
-          <input matInput formControlName="firstName" />
+          <input matInput formControlName="firstName" autocomplete="given-name" />
+          @if (contactForm.controls.firstName.hasError('required') && contactForm.controls.firstName.touched) {
+            <mat-error>Ime je obavezno.</mat-error>
+          }
+          @if (contactForm.controls.firstName.hasError('minlength') && contactForm.controls.firstName.touched) {
+            <mat-error>Ime mora imati najmanje 2 karaktera.</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="booking-widget__field">
           <mat-label>Prezime (opciono)</mat-label>
-          <input matInput formControlName="lastName" />
+          <input matInput formControlName="lastName" autocomplete="family-name" />
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="booking-widget__field">
           <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" />
+          <input matInput type="email" formControlName="email" autocomplete="email" />
+          @if (contactForm.controls.email.hasError('required') && contactForm.controls.email.touched) {
+            <mat-error>Email je obavezan.</mat-error>
+          }
+          @if (contactForm.controls.email.hasError('email') && contactForm.controls.email.touched) {
+            <mat-error>Unesite ispravan email.</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="booking-widget__field">
           <mat-label>Telefon</mat-label>
-          <input matInput type="tel" formControlName="phone" />
+          <input matInput type="tel" formControlName="phone" autocomplete="tel" />
+          @if (contactForm.controls.phone.hasError('required') && contactForm.controls.phone.touched) {
+            <mat-error>Telefon je obavezan.</mat-error>
+          }
+          @if (contactForm.controls.phone.hasError('minlength') && contactForm.controls.phone.touched) {
+            <mat-error>Unesite ispravan broj telefona.</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="booking-widget__field">

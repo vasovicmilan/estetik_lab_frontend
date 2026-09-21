@@ -3,11 +3,13 @@
 // then confirm with everything included) rather than the web's 4-step session
 // wizard - see booking.controller.js's own header comment.
 
+// Matches mapEmployeeForPublic() (see employee.mapper.js on the backend) - the
+// only employee shape ever sent over this endpoint.
 export interface BookingEmployee {
   id: string;
-  firstName?: string;
-  lastName?: string;
-  [key: string]: unknown;
+  imePrezime: string;
+  usluge: string[];
+  radnoVreme: unknown;
 }
 
 export interface BookingSlot {
@@ -54,4 +56,21 @@ export interface BookingConfirmResponse {
     [key: string]: unknown;
   };
   accountJustCreated: boolean;
+}
+
+// GET /api/v1/booking/referral-code - the referral code captured from a
+// ?code= link, if any (see coupon-capture.middleware.js on the backend). The
+// cookie it lives in is httpOnly on purpose, so this is the only way the
+// frontend can find out a code was captured, to pre-fill (not silently
+// apply) the coupon field.
+export interface BookingReferralCodeResponse {
+  code: string | null;
+}
+
+// POST /api/v1/booking/coupon/check - read-only discount preview, does not
+// redeem the coupon (that only happens inside confirmBooking's transaction).
+export interface BookingCouponCheckResponse {
+  originalPrice: number;
+  discountAmount: number;
+  finalPrice: number;
 }

@@ -1,21 +1,25 @@
 <div class="partner-shell">
   <h1 class="partner-shell__title">Panel partnera</h1>
 
-  <nav class="partner-shell__nav">
+  <nav mat-tab-nav-bar [tabPanel]="partnerTabPanel" class="partner-shell__nav">
     <a
+      mat-tab-link
       routerLink="/partner-panel"
-      routerLinkActive="partner-shell__link--active"
+      routerLinkActive
+      #pregledLink="routerLinkActive"
       [routerLinkActiveOptions]="{ exact: true }"
-      class="partner-shell__link"
+      [active]="pregledLink.isActive"
       >Pregled</a
     >
-    <a routerLink="/partner-panel/zarade" routerLinkActive="partner-shell__link--active" class="partner-shell__link"
+    <a mat-tab-link routerLink="/partner-panel/zarade" routerLinkActive #zaradeLink="routerLinkActive" [active]="zaradeLink.isActive"
       >Provizije i isplate</a
     >
-    <a routerLink="/partner-panel/katalog" routerLinkActive="partner-shell__link--active" class="partner-shell__link">Katalog</a>
+    <a mat-tab-link routerLink="/partner-panel/katalog" routerLinkActive #katalogLink="routerLinkActive" [active]="katalogLink.isActive"
+      >Katalog</a
+    >
   </nav>
 
-  <div class="partner-shell__body">
+  <mat-tab-nav-panel #partnerTabPanel class="partner-shell__body">
     <router-outlet />
-  </div>
+  </mat-tab-nav-panel>
 </div>

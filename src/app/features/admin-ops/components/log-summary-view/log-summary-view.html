@@ -1,0 +1,149 @@
+<div class="log-summary">
+  <div class="log-summary__meta">
+    <span>Datum: <strong>{{ summary().date }}</strong></span>
+    <span>Generisano: {{ formatDate(summary().generatedAt) }}</span>
+    @if (summary().isLive) {
+      <span class="log-summary__live">Uživo</span>
+    }
+  </div>
+
+  <div class="log-summary__cards">
+    <div class="log-summary__card">
+      <div class="log-summary__card-label">Ukupno zahteva</div>
+      <div class="log-summary__card-value">{{ summary().requests.total }}</div>
+    </div>
+    <div class="log-summary__card">
+      <div class="log-summary__card-label">Jedinstvenih IP</div>
+      <div class="log-summary__card-value">{{ summary().requests.uniqueIPs }}</div>
+    </div>
+    <div class="log-summary__card">
+      <div class="log-summary__card-label">Info / Warn / Error</div>
+      <div class="log-summary__card-value">{{ summary().logs.infoCount }} / {{ summary().logs.warnCount }} / {{ summary().logs.errorCount }}</div>
+    </div>
+    <div class="log-summary__card">
+      <div class="log-summary__card-label">Prosečno vreme odgovora</div>
+      <div class="log-summary__card-value">{{ summary().perf.avgResponseTimeMs | number: '1.0-1' }} ms</div>
+    </div>
+    <div class="log-summary__card">
+      <div class="log-summary__card-label">Najduže vreme odgovora</div>
+      <div class="log-summary__card-value">{{ summary().perf.maxResponseTimeMs | number: '1.0-1' }} ms</div>
+      @if (summary().perf.maxResponseTimeUrl) {
+        <div class="log-summary__card-sub">{{ summary().perf.maxResponseTimeUrl }}</div>
+      }
+    </div>
+  </div>
+
+  <div class="log-summary__status-classes">
+    <h3>Statusi odgovora</h3>
+    <dl>
+      <dt>2xx</dt>
+      <dd>{{ summary().requests.byStatusClass['2xx'] }}</dd>
+      <dt>3xx</dt>
+      <dd>{{ summary().requests.byStatusClass['3xx'] }}</dd>
+      <dt>4xx</dt>
+      <dd>{{ summary().requests.byStatusClass['4xx'] }}</dd>
+      <dt>5xx</dt>
+      <dd>{{ summary().requests.byStatusClass['5xx'] }}</dd>
+    </dl>
+  </div>
+
+  <div class="log-summary__tables">
+    <section class="log-summary__table-section">
+      <h3>Najsporije rute</h3>
+      @if (summary().perf.slowestRoutes.length) {
+        <table class="log-summary__table">
+          <thead>
+            <tr>
+              <th>Ruta</th>
+              <th>Prosek (ms)</th>
+              <th>Broj</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of summary().perf.slowestRoutes; track r.label) {
+              <tr>
+                <td>{{ r.label }}</td>
+                <td>{{ r.avgMs | number: '1.0-1' }}</td>
+                <td>{{ r.count }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="log-summary__empty">Nema podataka.</p>
+      }
+    </section>
+
+    <section class="log-summary__table-section">
+      <h3>Najčešće greške</h3>
+      @if (summary().topErrors.length) {
+        <table class="log-summary__table">
+          <thead>
+            <tr>
+              <th>Greška</th>
+              <th>Broj</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of summary().topErrors; track e.label) {
+              <tr>
+                <td>{{ e.label }}</td>
+                <td>{{ e.count }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="log-summary__empty">Nema grešaka.</p>
+      }
+    </section>
+
+    <section class="log-summary__table-section">
+      <h3>Najposećenije rute</h3>
+      @if (summary().topUrls.length) {
+        <table class="log-summary__table">
+          <thead>
+            <tr>
+              <th>Ruta</th>
+              <th>Broj</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of summary().topUrls; track u.label) {
+              <tr>
+                <td>{{ u.label }}</td>
+                <td>{{ u.count }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="log-summary__empty">Nema podataka.</p>
+      }
+    </section>
+
+    <section class="log-summary__table-section">
+      <h3>Rute sa najviše grešaka</h3>
+      @if (summary().topErrorUrls.length) {
+        <table class="log-summary__table">
+          <thead>
+            <tr>
+              <th>Ruta</th>
+              <th>Broj</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of summary().topErrorUrls; track u.label) {
+              <tr>
+                <td>{{ u.label }}</td>
+                <td>{{ u.count }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="log-summary__empty">Nema podataka.</p>
+      }
+    </section>
+  </div>
+</div>

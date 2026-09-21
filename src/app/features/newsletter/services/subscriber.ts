@@ -3,12 +3,15 @@ import { Observable } from 'rxjs';
 import { Api } from '../../../core/services/api';
 import { ApiMeta } from '../../../core/models/api-response';
 import { FilterParams } from '../../../core/models/filter-params';
-import { SubscriberAdminDetail, SubscriberAdminListItem } from '../models/subscriber';
+import { SubscriberAdminDetail, SubscriberAdminListItem, SubscriberSubmitPayload } from '../models/subscriber';
 
 /** Method names mirror the backend's admin-newsletter-subscribers routes (see
  * category.ts for the same convention). Permission `manage_marketing`, NOT
- * module-gated. No create/update here - subscribers sign themselves up
- * publicly and unsubscribe themselves; admin can only view and delete. */
+ * module-gated. No admin create/update here - subscribers sign themselves up
+ * publicly (see subscribe() below, hitting the separate unauthenticated
+ * POST /newsletter-subscribe) and unsubscribe themselves; admin can only view
+ * and delete. Same "one service, admin + public sections" split as
+ * features/blog/services/post.ts's Post service. */
 @Injectable({ providedIn: 'root' })
 export class Subscriber {
   private api = inject(Api);
@@ -23,5 +26,11 @@ export class Subscriber {
 
   delete(id: string): Observable<{ message: string }> {
     return this.api.delete<{ message: string }>(`admin/newsletter-subscribers/${id}`);
+  }
+
+  // ---- Public ----
+
+  subscribe(payload: SubscriberSubmitPayload): Observable<{ message: string }> {
+    return this.api.post<{ message: string }>('newsletter-subscribe', payload);
   }
 }

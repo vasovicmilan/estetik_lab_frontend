@@ -17,6 +17,7 @@
         }
         @if (auth.hasPermission('manage_packages')) {
           <a mat-list-item routerLink="/admin/paketi" routerLinkActive="admin-shell__link--active">Paketi</a>
+          <a mat-list-item routerLink="/admin/kupljeni-paketi" routerLinkActive="admin-shell__link--active">Kupljeni paketi</a>
         }
         @if (auth.hasPermission('manage_products')) {
           <a mat-list-item routerLink="/admin/prodavnica" routerLinkActive="admin-shell__link--active">Prodavnica</a>
@@ -78,6 +79,27 @@
         <a mat-list-item routerLink="/admin/utisci" routerLinkActive="admin-shell__link--active">Utisci</a>
         <a mat-list-item routerLink="/admin/poruke" routerLinkActive="admin-shell__link--active">Poruke</a>
       }
+
+      @if (auth.hasPermission('manage_payouts') || auth.hasPermission('view_logs') || auth.hasPermission('view_business_reports') || auth.hasPermission('manage_site_content')) {
+        <div class="admin-shell__group-label">Sistem</div>
+
+        @if (auth.hasPermission('manage_payouts')) {
+          <a mat-list-item routerLink="/admin/isplate" routerLinkActive="admin-shell__link--active">Isplate</a>
+        }
+        @if (auth.hasPermission('view_logs')) {
+          <a mat-list-item routerLink="/admin/audit-log" routerLinkActive="admin-shell__link--active">Audit log</a>
+          <a mat-list-item routerLink="/admin/logovi" routerLinkActive="admin-shell__link--active">Logovi</a>
+        }
+        @if (auth.hasPermission('view_business_reports')) {
+          <a mat-list-item routerLink="/admin/izvestaji" routerLinkActive="admin-shell__link--active">Izveštaji</a>
+        }
+        @if (auth.hasPermission('manage_site_content')) {
+          <a mat-list-item routerLink="/admin/podesavanja-sajta" routerLinkActive="admin-shell__link--active">Podešavanja sajta</a>
+        }
+      }
+
+      <div class="admin-shell__group-label">Nalog</div>
+      <a mat-list-item routerLink="/admin/profil" routerLinkActive="admin-shell__link--active">Moj profil</a>
     </mat-nav-list>
 
     <a routerLink="/" class="admin-shell__back">

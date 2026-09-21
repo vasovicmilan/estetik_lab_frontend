@@ -1,0 +1,27 @@
+<div class="business-partner-list">
+  <h1>Saradnici</h1>
+
+  @if (loading()) {
+    <div class="business-partner-list__spinner">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (partners().length === 0) {
+    <p>Trenutno nemamo istaknutih saradnika.</p>
+  } @else {
+    <div class="business-partner-list__grid">
+      @for (partner of partners(); track partner.slug) {
+        <a [routerLink]="['/saradnici', partner.slug]" class="business-partner-list__card-link">
+          <mat-card class="business-partner-list__card">
+            @if (partner.slika?.url) {
+              <img [src]="partner.slika!.url | imageUrl" [alt]="partner.slika!.alt || partner.naziv" class="business-partner-list__image" />
+            }
+            <mat-card-title>{{ partner.naziv }}</mat-card-title>
+            <mat-card-content>
+              <p>{{ partner.kratakOpis }}</p>
+            </mat-card-content>
+          </mat-card>
+        </a>
+      }
+    </div>
+  }
+</div>

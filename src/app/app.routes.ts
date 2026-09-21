@@ -35,6 +35,25 @@ export const routes: Routes = [
     loadChildren: () => import('./features/blog/blog.routes').then((m) => m.BLOG_ROUTES),
   },
   {
+    path: 'saradnici',
+    loadChildren: () => import('./features/business-partners/business-partners.routes').then((m) => m.BUSINESS_PARTNERS_ROUTES),
+  },
+  {
+    path: 'kontakt',
+    loadComponent: () => import('./features/contacts/components/contact-page/contact-page').then((m) => m.ContactPage),
+  },
+  /**
+   * Standalone public testimonial-submission form - no dedicated public
+   * testimonials LIST page exists yet (see home.ts's own comment on why it was
+   * left out), so this is reachable from the footer only, not from a
+   * read-only display section. Any visitor may submit, no guard.
+   */
+  {
+    path: 'utisci/ostavi',
+    loadComponent: () =>
+      import('./features/testimonials/components/testimonial-submit/testimonial-submit').then((m) => m.TestimonialSubmit),
+  },
+  {
     path: 'prodavnica',
     loadChildren: () => import('./features/shop/shop.routes').then((m) => m.SHOP_ROUTES),
   },
@@ -217,6 +236,12 @@ export const routes: Routes = [
         loadChildren: () => import('./features/coupons/coupons.routes').then((m) => m.COUPONS_ADMIN_ROUTES),
       },
       {
+        path: 'kupljeni-paketi',
+        canActivate: [permissionGuard],
+        data: { permission: 'manage_packages' },
+        loadChildren: () => import('./features/package-purchases/package-purchases.routes').then((m) => m.PACKAGE_PURCHASES_ADMIN_ROUTES),
+      },
+      {
         path: 'pretplatnici',
         canActivate: [permissionGuard],
         data: { permission: 'manage_marketing' },
@@ -239,6 +264,48 @@ export const routes: Routes = [
         canActivate: [permissionGuard],
         data: { permission: 'manage_marketing' },
         loadChildren: () => import('./features/contacts/contacts.routes').then((m) => m.CONTACTS_ADMIN_ROUTES),
+      },
+      /**
+       * Admin "Ops" module - six sections with no home elsewhere: payout
+       * request management, audit log, traffic/error log digests, business
+       * reports, site settings, and the admin's own profile. All new, all in
+       * one shared feature folder (features/admin-ops/) split into one
+       * *.routes.ts per section, same "one feature folder, multiple routes
+       * files" pattern as newsletter's subscribers.routes.ts/campaigns.routes.ts.
+       */
+      {
+        path: 'isplate',
+        canActivate: [permissionGuard],
+        data: { permission: 'manage_payouts' },
+        loadChildren: () => import('./features/admin-ops/payouts.routes').then((m) => m.PAYOUTS_ADMIN_ROUTES),
+      },
+      {
+        path: 'audit-log',
+        canActivate: [permissionGuard],
+        data: { permission: 'view_logs' },
+        loadChildren: () => import('./features/admin-ops/audit-log.routes').then((m) => m.AUDIT_LOG_ADMIN_ROUTES),
+      },
+      {
+        path: 'logovi',
+        canActivate: [permissionGuard],
+        data: { permission: 'view_logs' },
+        loadChildren: () => import('./features/admin-ops/logs.routes').then((m) => m.LOGS_ADMIN_ROUTES),
+      },
+      {
+        path: 'izvestaji',
+        canActivate: [permissionGuard],
+        data: { permission: 'view_business_reports' },
+        loadChildren: () => import('./features/admin-ops/business-reports.routes').then((m) => m.BUSINESS_REPORTS_ADMIN_ROUTES),
+      },
+      {
+        path: 'podesavanja-sajta',
+        canActivate: [permissionGuard],
+        data: { permission: 'manage_site_content' },
+        loadChildren: () => import('./features/admin-ops/site-settings.routes').then((m) => m.SITE_SETTINGS_ADMIN_ROUTES),
+      },
+      {
+        path: 'profil',
+        loadChildren: () => import('./features/admin-ops/admin-profile.routes').then((m) => m.ADMIN_PROFILE_ROUTES),
       },
     ],
   },

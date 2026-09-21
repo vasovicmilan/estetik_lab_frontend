@@ -4,12 +4,24 @@ import { Api } from '../../../core/services/api';
 import { ApiMeta } from '../../../core/models/api-response';
 import { ImageReference } from '../../../core/models/upload';
 import { FilterParams } from '../../../core/models/filter-params';
-import { BusinessPartnerAdminDetail, BusinessPartnerAdminListItem, BusinessPartnerEditPayload, BusinessPartnerWritePayload } from '../models/business-partner';
+import {
+  BusinessPartnerAdminDetail,
+  BusinessPartnerAdminListItem,
+  BusinessPartnerEditPayload,
+  BusinessPartnerPublicDetail,
+  BusinessPartnerPublicListItem,
+  BusinessPartnerWritePayload,
+} from '../models/business-partner';
 
 /** Method names mirror the backend's admin-business-partners routes - listAdmin ⇄
  * listBusinessPartners, getForEdit ⇄ getBusinessPartnerForEdit, etc. (see
  * category.ts for the same convention). Permission `manage_marketing`, NOT
- * module-gated. */
+ * module-gated.
+ *
+ * listPublic()/getPublicBySlug() below hit the separate unauthenticated
+ * catalog.routes.js endpoints (GET /business-partners, /business-partners/:slug -
+ * NOT under /admin), same "one service, admin + public sections" split as
+ * features/blog/services/post.ts's Post service. */
 @Injectable({ providedIn: 'root' })
 export class BusinessPartner {
   private api = inject(Api);
@@ -46,5 +58,16 @@ export class BusinessPartner {
    * shape/flow as Category.uploadImage(). */
   uploadImage(file: File): Observable<ImageReference> {
     return this.api.upload<ImageReference>('admin/uploads/business-partners', file, 'file');
+  }
+
+  // ---- Public ----
+
+  /** GET /business-partners - no pagination, returns every active partner. */
+  listPublic(): Observable<BusinessPartnerPublicListItem[]> {
+    return this.api.get<BusinessPartnerPublicListItem[]>('business-partners');
+  }
+
+  getPublicBySlug(slug: string): Observable<BusinessPartnerPublicDetail> {
+    return this.api.get<BusinessPartnerPublicDetail>(`business-partners/${slug}`);
   }
 }

@@ -1,0 +1,107 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled kupljenog paketa</h1>
+    <div class="admin-detail__actions">
+      @if (detail()?.statusRaw === 'active') {
+        <button mat-stroked-button type="button" [disabled]="acting()" (click)="cancelPurchase()">Otkaži</button>
+      }
+      <button mat-stroked-button color="warn" type="button" [disabled]="acting()" (click)="remove()">Obriši</button>
+      <a mat-button routerLink="/admin/kupljeni-paketi">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      <section class="admin-detail__section">
+        <h2>Osnovno</h2>
+        <dl class="admin-detail__list">
+          <dt>Korisnik</dt>
+          <dd>{{ d.korisnik }}</dd>
+          <dt>Email</dt>
+          <dd>{{ d.korisnikEmail ?? '-' }}</dd>
+          <dt>Paket</dt>
+          <dd>{{ d.paket }}</dd>
+          <dt>Status</dt>
+          <dd>{{ d.status }}</dd>
+        </dl>
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Stavke</h2>
+        <table class="admin-detail__table">
+          <thead>
+            <tr>
+              <th>Usluga</th>
+              <th>Varijanta</th>
+              <th>Ukupno seansi</th>
+              <th>Iskorišćeno</th>
+              <th>Rezervisano</th>
+              <th>Preostalo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (stavka of d.stavke; track $index) {
+              <tr>
+                <td>{{ stavka.usluga }}</td>
+                <td>{{ stavka.varijanta }}</td>
+                <td>{{ stavka.ukupnoSeansi }}</td>
+                <td>{{ stavka.iskorisceno }}</td>
+                <td>{{ stavka.rezervisano }}</td>
+                <td>{{ stavka.preostalo }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Cena</h2>
+        <dl class="admin-detail__list">
+          <dt>Originalna cena</dt>
+          <dd>{{ d.originalnaCena }} RSD</dd>
+          <dt>Popust</dt>
+          <dd>{{ d.popust }} RSD</dd>
+          <dt>Plaćeno</dt>
+          <dd>{{ d.placeno }} RSD</dd>
+        </dl>
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Vreme</h2>
+        <dl class="admin-detail__list">
+          <dt>Kupljeno</dt>
+          <dd>{{ d.vreme.kupljeno }}</dd>
+          <dt>Ističe</dt>
+          <dd>{{ d.vreme.istice }}</dd>
+        </dl>
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Izmena napomene i datuma isteka</h2>
+        <p class="admin-detail__hint">Ovo su jedina polja koja se mogu izmeniti nakon kreiranja.</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Ističe</mat-label>
+          <input matInput type="date" [ngModel]="expiresAtEdit()" (ngModelChange)="expiresAtEdit.set($event)" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Napomena</mat-label>
+          <textarea matInput rows="3" [ngModel]="notesEdit()" (ngModelChange)="notesEdit.set($event)"></textarea>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="saveEdits()">
+          {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+        </button>
+      </section>
+    </div>
+  } @else if (!loading()) {
+    <p>Kupljeni paket nije pronađen.</p>
+  }
+</div>

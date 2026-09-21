@@ -1,0 +1,111 @@
+<div class="admin-audit-log">
+  <h1>Audit log</h1>
+
+  <form [formGroup]="filterForm" class="admin-audit-log__filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Pretraga</mat-label>
+      <input matInput formControlName="search" placeholder="email, entitet..." />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Akcija</mat-label>
+      <mat-select formControlName="action">
+        <mat-option value="">Sve</mat-option>
+        @for (action of availableActions(); track action) {
+          <mat-option [value]="action">{{ humanizeAction(action) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Uspešnost</mat-label>
+      <mat-select formControlName="success">
+        @for (option of successOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Od datuma</mat-label>
+      <input matInput type="date" formControlName="dateFrom" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Do datuma</mat-label>
+      <input matInput type="date" formControlName="dateTo" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Redosled</mat-label>
+      <mat-select formControlName="sortOrder">
+        <mat-option value="desc">Najnovije prvo</mat-option>
+        <mat-option value="asc">Najstarije prvo</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+
+  @if (loading()) {
+    <div class="admin-audit-log__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (rows().length === 0) {
+    <p class="admin-audit-log__empty">Nema unosa koji odgovaraju filterima.</p>
+  } @else {
+    <mat-accordion class="admin-audit-log__list" multi>
+      @for (row of rows(); track row._id) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title class="admin-audit-log__row-title">
+              <span class="admin-audit-log__action">{{ humanizeAction(row.action) }}</span>
+              <span class="admin-audit-log__actor">{{ row.actor.email ?? 'Sistem' }}</span>
+              <span class="admin-audit-log__time">{{ formatDate(row.timestamp) }}</span>
+              <span class="admin-audit-log__success" [class.admin-audit-log__success--fail]="!row.success">
+                {{ row.success ? 'Uspešno' : 'Neuspešno' }}
+              </span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <dl class="admin-audit-log__detail">
+            <dt>Entitet</dt>
+            <dd>{{ row.entity.type ?? '-' }} @if (row.entity.id) { ({{ row.entity.id }}) }</dd>
+
+            <dt>Uloga aktera</dt>
+            <dd>{{ row.actor.role ?? '-' }}</dd>
+
+            <dt>IP adresa</dt>
+            <dd>{{ row.ip ?? '-' }}</dd>
+
+            <dt>User agent</dt>
+            <dd>{{ row.userAgent ?? '-' }}</dd>
+
+            <dt>Request ID</dt>
+            <dd>{{ row.requestId ?? '-' }}</dd>
+
+            @if (row.errorMessage) {
+              <dt>Greška</dt>
+              <dd>{{ row.errorMessage }}</dd>
+            }
+          </dl>
+
+          @if (changeEntries(row.changes).length) {
+            <div class="admin-audit-log__changes">
+              <h4>Izmene</h4>
+              <ul>
+                @for (change of changeEntries(row.changes); track change.field) {
+                  <li>
+                    <strong>{{ change.field }}</strong>: {{ formatChangeValue(change.old) }} &rarr; {{ formatChangeValue(change.new) }}
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+
+  @if (meta(); as m) {
+    <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" (page)="onPage($event)" />
+  }
+</div>

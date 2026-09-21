@@ -71,7 +71,11 @@ export class Auth {
       this.hasPermission('manage_resources') ||
       this.hasPermission('manage_partners') ||
       this.hasPermission('manage_marketing') ||
-      this.hasPermission('manage_coupons')
+      this.hasPermission('manage_coupons') ||
+      this.hasPermission('manage_payouts') ||
+      this.hasPermission('view_logs') ||
+      this.hasPermission('view_business_reports') ||
+      this.hasPermission('manage_site_content')
     );
   }
 

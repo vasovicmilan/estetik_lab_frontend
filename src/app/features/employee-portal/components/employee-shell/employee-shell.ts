@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { MatTabsModule } from '@angular/material/tabs';
 import { finalize } from 'rxjs';
 import { EmployeeDashboard } from '../../services/employee-dashboard';
 
 /**
  * Light wrapper for every /zaposleni-panel/* page - same pattern as AccountShell
- * (see that component's header comment): a small row of tab-like links plus a
- * <router-outlet>, not a copy of AdminShell's dense sidenav. This is a
- * staff-facing self-service area, not an admin one.
+ * (see that component's header comment): a row of route-linked
+ * mat-tab-nav-bar tabs plus a <router-outlet>, not a copy of AdminShell's
+ * dense sidenav. This is a staff-facing self-service area, not an admin one.
  *
  * The "Provizije" tab is only shown once we know isCommissionBased - fetched
  * here (once, shell-level) via the dashboard endpoint rather than duplicating
@@ -15,7 +16,7 @@ import { EmployeeDashboard } from '../../services/employee-dashboard';
  */
 @Component({
   selector: 'app-employee-shell',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, MatTabsModule],
   templateUrl: './employee-shell.html',
   styleUrl: './employee-shell.scss',
 })

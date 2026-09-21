@@ -1,0 +1,90 @@
+.admin-audit-log {
+  padding: 1.5rem;
+
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+
+  &__empty {
+    padding: 1.5rem 0;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &__list {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  &__row-title {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+  }
+
+  &__action {
+    font-weight: 600;
+  }
+
+  &__actor {
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &__time {
+    margin-left: auto;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 0.85rem;
+  }
+
+  &__success {
+    padding: 0.1rem 0.5rem;
+    border-radius: 4px;
+    background: #e6f4ea;
+    color: #1e7e34;
+    font-size: 0.8rem;
+
+    &--fail {
+      background: #fdecea;
+      color: #c0392b;
+    }
+  }
+
+  &__detail {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 0.4rem 1rem;
+    margin: 0.5rem 0;
+
+    dt {
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    dd {
+      margin: 0;
+      word-break: break-word;
+    }
+  }
+
+  &__changes {
+    h4 {
+      margin: 0.5rem 0 0.25rem;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+  }
+}

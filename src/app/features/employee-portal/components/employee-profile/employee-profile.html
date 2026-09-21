@@ -16,28 +16,59 @@
         <dt>Usluge</dt>
         <dd>{{ p.usluge.length ? p.usluge.join(', ') : '-' }}</dd>
         <dt>Radno vreme</dt>
-        <dd>{{ p.radnoVreme || '-' }}</dd>
+        <dd>
+          @if (p.radnoVreme.length) {
+            <ul class="employee-profile__hours-summary">
+              @for (row of p.radnoVreme; track row.dan) {
+                <li>{{ row.dan }}: {{ row.termini.length ? row.termini.join(', ') : 'Neradni dan' }}</li>
+              }
+            </ul>
+          } @else {
+            -
+          }
+        </dd>
       </dl>
       <p class="employee-profile__hint">Osnovni podaci se menjaju od strane administratora.</p>
     </section>
 
     <section class="employee-profile__section">
       <h2>Izmena radnog vremena</h2>
-      <p class="employee-profile__hint">Jedan termin po danu (v1 pojednostavljenje).</p>
+      <p class="employee-profile__hint">Moguće je dodati više termina u istom danu (npr. pauza za ručak).</p>
 
       <form (ngSubmit)="submit()" [formGroup]="workingHoursForm">
         @for (day of weekDays; track day.value) {
-          <div class="employee-profile__hours-row" [formGroupName]="day.value">
-            <mat-checkbox formControlName="radi">{{ day.label }}</mat-checkbox>
+          <div class="employee-profile__hours-day" [formGroupName]="day.value">
+            <div class="employee-profile__hours-row">
+              <mat-checkbox formControlName="radi">{{ day.label }}</mat-checkbox>
+            </div>
             @if (workingHoursForm.get(day.value)?.get('radi')?.value) {
-              <mat-form-field appearance="outline" class="employee-profile__hours-time">
-                <mat-label>Od</mat-label>
-                <input matInput type="time" formControlName="from" />
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="employee-profile__hours-time">
-                <mat-label>Do</mat-label>
-                <input matInput type="time" formControlName="to" />
-              </mat-form-field>
+              <div class="employee-profile__hours-slots" formArrayName="slots">
+                @for (slot of slotsFor(day.value).controls; track $index) {
+                  <div class="employee-profile__hours-slot" [formGroupName]="$index">
+                    <mat-form-field appearance="outline" class="employee-profile__hours-time">
+                      <mat-label>Od</mat-label>
+                      <input matInput type="time" formControlName="from" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="employee-profile__hours-time">
+                      <mat-label>Do</mat-label>
+                      <input matInput type="time" formControlName="to" />
+                    </mat-form-field>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      (click)="removeSlot(day.value, $index)"
+                      [disabled]="slotsFor(day.value).length <= 1"
+                      aria-label="Ukloni termin"
+                    >
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                }
+                <button mat-button type="button" color="primary" (click)="addSlot(day.value)">
+                  <mat-icon>add</mat-icon>
+                  Dodaj termin
+                </button>
+              </div>
             }
           </div>
         }

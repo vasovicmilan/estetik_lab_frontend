@@ -95,12 +95,16 @@
     @if (p.faq.length) {
       <section class="product-detail__faq">
         <h2>Pitanja i odgovori</h2>
-        @for (item of p.faq; track item.pitanje) {
-          <details>
-            <summary>{{ item.pitanje }}</summary>
-            <p>{{ item.odgovor }}</p>
-          </details>
-        }
+        <mat-accordion>
+          @for (item of p.faq; track item.pitanje) {
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>{{ item.pitanje }}</mat-panel-title>
+              </mat-expansion-panel-header>
+              <p>{{ item.odgovor }}</p>
+            </mat-expansion-panel>
+          }
+        </mat-accordion>
       </section>
     }
 

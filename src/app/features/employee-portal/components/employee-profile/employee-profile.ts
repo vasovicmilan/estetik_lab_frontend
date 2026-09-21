@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -15,11 +16,11 @@ import { EmployeeWeekDay, EmployeeWorkingHoursEntry } from '../../../employees/m
 /**
  * GET /employee/profile - read-only basics (name/email/phone/services) plus a
  * self-edit working-hours form. Reuses the EXACT same working-hours editor
- * UI/logic as admin-employee-form (7 fixed Mon-Sun rows, checkbox reveals
- * from/to time inputs, one slot per day - see that component's header comment
- * for the v1 single-slot-per-day limitation this inherits unchanged), just
- * pointed at PUT /employee/profile/working-hours instead of the admin
- * create/update payload. Mounted at /zaposleni-panel/profil.
+ * UI/logic as admin-employee-form (7 fixed Mon-Sun rows, checkbox reveals a
+ * FormArray of from/to slot rows, add/remove supported - see that
+ * component's header comment), just pointed at PUT
+ * /employee/profile/working-hours instead of the admin create/update
+ * payload. Mounted at /zaposleni-panel/profil.
  */
 @Component({
   selector: 'app-employee-profile',
@@ -27,6 +28,7 @@ import { EmployeeWeekDay, EmployeeWorkingHoursEntry } from '../../../employees/m
     CommonModule,
     ReactiveFormsModule,
     MatButtonModule,
+    MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
@@ -54,20 +56,37 @@ export class EmployeeProfile implements OnInit {
     { value: 'sunday', label: 'Nedelja' },
   ];
 
-  /** Keyed by day - not a FormArray, same reasoning as admin-employee-form's
-   * workingHoursForm (7 fixed rows, not user-addable/removable). */
+  /** Top level keyed by day (7 fixed rows, not user-addable), same reasoning
+   * as admin-employee-form's workingHoursForm - but each day's `slots` is a
+   * FormArray so more than one time range per day is supported. */
   workingHoursForm: FormGroup = this.fb.group(
     Object.fromEntries(
       this.weekDays.map((d) => [
         d.value,
         this.fb.group({
           radi: [false],
-          from: ['09:00'],
-          to: ['17:00'],
+          slots: this.fb.array([this.buildSlotGroup()]),
         }),
       ])
     )
   );
+
+  private buildSlotGroup(from = '09:00', to = '17:00'): FormGroup {
+    return this.fb.group({ from: [from], to: [to] });
+  }
+
+  slotsFor(day: EmployeeWeekDay): FormArray {
+    return this.workingHoursForm.get(day)?.get('slots') as FormArray;
+  }
+
+  addSlot(day: EmployeeWeekDay): void {
+    this.slotsFor(day).push(this.buildSlotGroup());
+  }
+
+  removeSlot(day: EmployeeWeekDay, index: number): void {
+    const slots = this.slotsFor(day);
+    if (slots.length > 1) slots.removeAt(index);
+  }
 
   ngOnInit(): void {
     this.load();
@@ -88,25 +107,36 @@ export class EmployeeProfile implements OnInit {
   }
 
   private patchWorkingHours(entries: EmployeeWorkingHoursEntry[]): void {
-    // Reset every row first - a previously-checked day that's no longer in
-    // the response must go back to unchecked, not stay stuck from a stale form.
+    // Reset every row first - a previously-checked day (or extra slots) that's
+    // no longer in the response must go back to a single default slot, not
+    // stay stuck from a stale form.
     for (const day of this.weekDays) {
-      this.workingHoursForm.get(day.value)?.patchValue({ radi: false, from: '09:00', to: '17:00' });
+      const dayGroup = this.workingHoursForm.get(day.value)!;
+      dayGroup.patchValue({ radi: false });
+      const slots = this.slotsFor(day.value);
+      slots.clear();
+      slots.push(this.buildSlotGroup());
     }
     for (const entry of entries ?? []) {
-      const slot = entry.slots?.[0];
       const dayGroup = this.workingHoursForm.get(entry.day);
-      if (!dayGroup || !slot) continue;
-      dayGroup.patchValue({ radi: true, from: slot.from, to: slot.to });
+      if (!dayGroup || !entry.slots?.length) continue;
+      const slots = this.slotsFor(entry.day);
+      slots.clear();
+      for (const slot of entry.slots) {
+        slots.push(this.buildSlotGroup(slot.from, slot.to));
+      }
+      dayGroup.patchValue({ radi: true });
     }
   }
 
   private buildWorkingHours(): EmployeeWorkingHoursEntry[] {
     const result: EmployeeWorkingHoursEntry[] = [];
     for (const day of this.weekDays) {
-      const value = this.workingHoursForm.get(day.value)?.value as { radi: boolean; from: string; to: string };
-      if (!value?.radi) continue;
-      result.push({ day: day.value, slots: [{ from: value.from, to: value.to }] });
+      const dayGroup = this.workingHoursForm.get(day.value)!;
+      if (!dayGroup.get('radi')?.value) continue;
+      const slots = this.slotsFor(day.value).value as { from: string; to: string }[];
+      if (!slots.length) continue;
+      result.push({ day: day.value, slots });
     }
     return result;
   }

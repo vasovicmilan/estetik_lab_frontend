@@ -1,3 +1,48 @@
 <footer class="footer">
+  <div class="footer__newsletter">
+    <h2 class="footer__newsletter-title">Prijavite se na newsletter</h2>
+
+    <form class="footer__newsletter-form" [formGroup]="newsletterForm" (ngSubmit)="subscribe()">
+      @if (successMessage()) {
+        <p class="footer__newsletter-success">{{ successMessage() }}</p>
+      } @else {
+        @if (errorMessage()) {
+          <p class="footer__newsletter-error">{{ errorMessage() }}</p>
+        }
+
+        <div class="footer__newsletter-row">
+          <mat-form-field appearance="outline" class="footer__newsletter-field">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" autocomplete="email" />
+            @if (newsletterForm.controls.email.hasError('required') && newsletterForm.controls.email.touched) {
+              <mat-error>Email je obavezan.</mat-error>
+            }
+            @if (newsletterForm.controls.email.hasError('email') && newsletterForm.controls.email.touched) {
+              <mat-error>Unesite ispravan email.</mat-error>
+            }
+          </mat-form-field>
+
+          <button mat-flat-button color="primary" type="submit" [disabled]="loading() || newsletterForm.invalid">
+            @if (loading()) {
+              <mat-spinner diameter="18" />
+            } @else {
+              Prijavi se
+            }
+          </button>
+        </div>
+
+        <mat-checkbox formControlName="consent">Slažem se sa primanjem newsletter-a</mat-checkbox>
+        @if (newsletterForm.controls.consent.hasError('required') && newsletterForm.controls.consent.touched) {
+          <p class="footer__newsletter-consent-error">Morate se složiti sa primanjem newsletter-a da biste se prijavili.</p>
+        }
+      }
+    </form>
+  </div>
+
+  <nav class="footer__links">
+    <a routerLink="/kontakt">Kontakt</a>
+    <a routerLink="/utisci/ostavi">Ostavite utisak</a>
+  </nav>
+
   <p class="footer__text">&copy; {{ year }} Estetik Lab. Sva prava zadržana.</p>
 </footer>

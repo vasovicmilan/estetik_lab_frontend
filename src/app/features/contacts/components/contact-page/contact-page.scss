@@ -1,0 +1,44 @@
+.contact-page {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 1.5rem;
+
+  &__lead {
+    color: var(--mat-sys-on-surface-variant, #666);
+    margin-bottom: 1.5rem;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__row {
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__field {
+    width: 100%;
+  }
+
+  &__error {
+    color: var(--mat-sys-error, #b3261e);
+  }
+
+  &__consent-error {
+    color: var(--mat-sys-error, #b3261e);
+    font-size: 0.75rem;
+    margin: 0;
+  }
+
+  &__success {
+    color: var(--mat-sys-primary, #386a20);
+  }
+
+  &__submit {
+    margin-top: 1rem;
+    align-self: flex-start;
+  }
+}

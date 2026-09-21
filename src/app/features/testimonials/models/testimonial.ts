@@ -5,6 +5,13 @@
 //
 // 1. TestimonialAdminListItem - GET /admin/testimonials        (mapTestimonialsForAdminList)
 // 2. TestimonialAdminDetail    - GET /admin/testimonials/:id    (mapTestimonialForAdminDetail)
+//
+// Plus the public write shape below - POST /testimonials (public-forms.routes.js,
+// unauthenticated, gated by testimonialLimiter + honeypot), mirroring
+// validateTestimonialSubmit (testimonial.validator.js). service/package/product
+// are left out of the v1 submission form (all optional server-side, and wiring
+// up real pickers is out of scope for this pass - see testimonial-submit's own
+// header comment).
 
 export type TestimonialStatus = 'pending' | 'approved' | 'rejected';
 
@@ -67,4 +74,20 @@ export interface TestimonialAdminDetail {
   };
   saglasnost: { data: boolean; kada: string | null; ip: string | null };
   vreme: { kreirano: string; azurirano: string };
+}
+
+// ---- Public write shape - POST /testimonials ----
+
+export interface TestimonialSubmitPayload {
+  name: string;
+  email?: string;
+  service?: string;
+  package?: string;
+  product?: string;
+  /** 1-5. */
+  rating: number;
+  /** 10-1000 chars. */
+  message: string;
+  /** Server accepts boolean true/'true'/'on' - Angular always sends boolean true. */
+  consentGiven: boolean;
 }

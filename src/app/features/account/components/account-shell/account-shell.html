@@ -1,20 +1,28 @@
 <div class="account-shell">
   <h1 class="account-shell__title">Moj nalog</h1>
 
-  <nav class="account-shell__nav">
+  <nav mat-tab-nav-bar [tabPanel]="accountTabPanel" class="account-shell__nav">
     <a
+      mat-tab-link
       routerLink="/moj-nalog"
-      routerLinkActive="account-shell__link--active"
+      routerLinkActive
+      #profilLink="routerLinkActive"
       [routerLinkActiveOptions]="{ exact: true }"
-      class="account-shell__link"
+      [active]="profilLink.isActive"
       >Profil</a
     >
-    <a routerLink="/moj-nalog/zakazivanja" routerLinkActive="account-shell__link--active" class="account-shell__link">Moja zakazivanja</a>
-    <a routerLink="/moj-nalog/porudzbine" routerLinkActive="account-shell__link--active" class="account-shell__link">Moje porudžbine</a>
-    <a routerLink="/moj-nalog/adrese" routerLinkActive="account-shell__link--active" class="account-shell__link">Moje adrese</a>
+    <a mat-tab-link routerLink="/moj-nalog/zakazivanja" routerLinkActive #zakazivanjaLink="routerLinkActive" [active]="zakazivanjaLink.isActive"
+      >Moja zakazivanja</a
+    >
+    <a mat-tab-link routerLink="/moj-nalog/porudzbine" routerLinkActive #porudzbineLink="routerLinkActive" [active]="porudzbineLink.isActive"
+      >Moje porudžbine</a
+    >
+    <a mat-tab-link routerLink="/moj-nalog/adrese" routerLinkActive #adreseLink="routerLinkActive" [active]="adreseLink.isActive"
+      >Moje adrese</a
+    >
   </nav>
 
-  <div class="account-shell__body">
+  <mat-tab-nav-panel #accountTabPanel class="account-shell__body">
     <router-outlet />
-  </div>
+  </mat-tab-nav-panel>
 </div>

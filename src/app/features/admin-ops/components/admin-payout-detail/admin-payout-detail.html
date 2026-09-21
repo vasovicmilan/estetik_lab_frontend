@@ -1,0 +1,76 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Zahtev za isplatu</h1>
+    <div class="admin-detail__actions">
+      <a mat-button routerLink="/admin/isplate">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      <dl class="admin-detail__list">
+        <dt>Tip zarađivača</dt>
+        <dd>{{ d.earnerType }}</dd>
+
+        <dt>Zarađivač</dt>
+        <dd>{{ d.earnerName }}</dd>
+
+        <dt>Iznos</dt>
+        <dd>{{ d.iznos }}</dd>
+
+        <dt>Status</dt>
+        <dd>{{ d.status }}</dd>
+
+        <dt>Napomena</dt>
+        <dd>{{ d.napomena || '-' }}</dd>
+
+        <dt>Zatraženo</dt>
+        <dd>{{ d.vreme.zatrazeno }}</dd>
+
+        <dt>Odobreno</dt>
+        <dd>{{ d.vreme.odobreno ?? '-' }}</dd>
+
+        <dt>Isplaćeno</dt>
+        <dd>{{ d.vreme.isplaceno ?? '-' }}</dd>
+
+        <dt>Odbijeno</dt>
+        <dd>{{ d.vreme.odbijeno ?? '-' }}</dd>
+      </dl>
+
+      <div class="admin-payout-detail__actions">
+        @if (canApprove) {
+          <button mat-stroked-button color="primary" [disabled]="acting()" (click)="toggleReasonAction('approve')">Odobri</button>
+        }
+        @if (canPay) {
+          <button mat-stroked-button color="primary" [disabled]="acting()" (click)="toggleReasonAction('pay')">Označi kao isplaćeno</button>
+        }
+        @if (canReject) {
+          <button mat-stroked-button color="warn" [disabled]="acting()" (click)="toggleReasonAction('reject')">Odbij</button>
+        }
+      </div>
+
+      @if (reasonAction(); as action) {
+        <div class="admin-payout-detail__reason">
+          <mat-form-field appearance="outline" class="admin-payout-detail__reason-field">
+            <mat-label>Razlog (opciono)</mat-label>
+            <textarea matInput rows="3" [ngModel]="reasonText()" (ngModelChange)="reasonText.set($event)"></textarea>
+          </mat-form-field>
+          <div class="admin-payout-detail__reason-actions">
+            <button mat-flat-button color="primary" [disabled]="acting()" (click)="submitReasonAction()">
+              {{ action === 'approve' ? 'Potvrdi odobravanje' : action === 'pay' ? 'Potvrdi isplatu' : 'Potvrdi odbijanje' }}
+            </button>
+            <button mat-button type="button" [disabled]="acting()" (click)="reasonAction.set(null)">Otkaži</button>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (!loading()) {
+    <p>Zahtev za isplatu nije pronađen.</p>
+  }
+</div>

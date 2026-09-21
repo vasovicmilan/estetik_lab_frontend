@@ -1,0 +1,16 @@
+<div class="admin-business-reports-history-detail">
+  <div class="admin-business-reports-history-detail__header">
+    <h1>Izveštaj - {{ periodKey() }}</h1>
+    <a mat-button [routerLink]="['/admin/izvestaji', periodType()]">Nazad na istoriju</a>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-business-reports-history-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (summary(); as s) {
+    <app-business-report-summary-view [summary]="s" />
+  } @else if (notFound()) {
+    <p>Nema sačuvanog izveštaja za ovaj period.</p>
+  }
+</div>

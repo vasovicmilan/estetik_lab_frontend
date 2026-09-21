@@ -1,0 +1,16 @@
+<div class="admin-logs-history-detail">
+  <div class="admin-logs-history-detail__header">
+    <h1>Izveštaj za {{ date() }}</h1>
+    <a mat-button routerLink="/admin/logovi/istorija">Nazad na istoriju</a>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-logs-history-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (summary(); as s) {
+    <app-log-summary-view [summary]="s" />
+  } @else if (notFound()) {
+    <p>Nema izveštaja za taj dan.</p>
+  }
+</div>

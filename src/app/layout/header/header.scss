@@ -1,3 +1,20 @@
+// Sticky positioning has to live on the component HOST (:host = <app-header>),
+// not on the inner .header div. Position:sticky bounds its movement to its
+// own containing block (its nearest block-level ancestor) - if that were the
+// inner div's immediate parent, that's <app-header> itself, whose box is
+// ONLY as tall as .header's own content (auto-height, no extra room), so the
+// element would have nowhere to "stick" for more than a few pixels of scroll
+// and would just scroll away with the page (this was the actual bug - see
+// app.scss's :host on <app-root>, a flex column, which IS tall enough since
+// it spans header+main+footer together). Putting sticky on :host here makes
+// <app-header>'s containing block <app-root> instead - correctly tall.
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -6,6 +23,7 @@
   gap: 0.5rem 1rem;
   padding: 0.75rem 1.5rem;
   border-bottom: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+  background-color: var(--mat-sys-surface);
 
   &__brand {
     font-weight: 600;

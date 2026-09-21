@@ -1,0 +1,16 @@
+.admin-business-reports-history-detail {
+  padding: 1.5rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+}

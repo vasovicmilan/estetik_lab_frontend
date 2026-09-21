@@ -1,4 +1,19 @@
 import { Routes } from '@angular/router';
+import { businessPartnerDetailResolver } from './resolvers/business-partner-detail-resolver';
+
+/** Public routes - mounted at /saradnici (see app.routes.ts), same
+ * list/:slug shape as blog.routes.ts's BLOG_ROUTES. Unauthenticated. */
+export const BUSINESS_PARTNERS_ROUTES: Routes = [
+  {
+    path: '',
+    loadComponent: () => import('./components/business-partner-list/business-partner-list').then((m) => m.BusinessPartnerList),
+  },
+  {
+    path: ':slug',
+    loadComponent: () => import('./components/business-partner-detail/business-partner-detail').then((m) => m.BusinessPartnerDetail),
+    resolve: { partner: businessPartnerDetailResolver },
+  },
+];
 
 /** Admin routes - mounted at /admin/poslovni-saradnici (see app.routes.ts,
  * gated on `manage_marketing`). The outer authGuard/permissionGuard are already

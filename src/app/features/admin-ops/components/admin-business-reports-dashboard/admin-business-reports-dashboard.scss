@@ -1,0 +1,19 @@
+.admin-business-reports-dashboard {
+  padding: 1.5rem;
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+
+  &__tab {
+    padding: 1.5rem 0.5rem;
+  }
+
+  &__tab-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+}

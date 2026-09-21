@@ -1,0 +1,109 @@
+<div class="site-settings-form">
+  <h1>Podešavanja sajta</h1>
+
+  @if (loading()) {
+    <div class="site-settings-form__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" class="site-settings-form__form">
+      <section class="site-settings-form__section">
+        <h2>Hero slika</h2>
+        <div class="site-settings-form__image">
+          @if (heroImage()) {
+            <img [src]="heroImage() | imageUrl" alt="" class="site-settings-form__image-preview" />
+          }
+          <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
+          @if (uploadingImage()) {
+            <mat-spinner diameter="20" />
+          }
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Alt tekst slike</mat-label>
+          <input matInput formControlName="heroImageAlt" />
+        </mat-form-field>
+      </section>
+
+      <section class="site-settings-form__section">
+        <h2>Pravila zakazivanja</h2>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Bafer između termina (min)</mat-label>
+          <input matInput type="number" min="0" formControlName="bufferMinutes" />
+          <mat-hint>Vreme rezervisano između dva uzastopna termina istog terapeuta.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Korak mreže termina (min)</mat-label>
+          <input matInput type="number" min="1" formControlName="slotGridMinutes" />
+          <mat-hint>Na koliko minuta su poravnati ponuđeni termini za zakazivanje.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Rok za otkazivanje korisnika (h)</mat-label>
+          <input matInput type="number" min="0" formControlName="userCancellationCutoffHours" />
+          <mat-hint>Koliko sati unapred korisnik može sam da otkaže termin.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Rok za pomeranje termina (h)</mat-label>
+          <input matInput type="number" min="0" formControlName="rescheduleCutoffHours" />
+          <mat-hint>Koliko sati unapred korisnik može sam da pomeri termin.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Prag "isti dan" za pomeranje (h)</mat-label>
+          <input matInput type="number" min="0" formControlName="rescheduleSameDayFloorHours" />
+          <mat-hint>Ispod ovog broja sati pomeranje na isti dan se dodatno ograničava.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Min. vreme do novog termina pri pomeranju (min)</mat-label>
+          <input matInput type="number" min="0" formControlName="rescheduleMinLeadMinutes" />
+          <mat-hint>Najmanje vreme unapred za novi termin prilikom pomeranja.</mat-hint>
+        </mat-form-field>
+      </section>
+
+      <section class="site-settings-form__section">
+        <h2>Valuta</h2>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Kod valute</mat-label>
+          <input matInput formControlName="currencyCode" placeholder="RSD" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Simbol valute</mat-label>
+          <input matInput formControlName="currencySymbol" placeholder="RSD" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Pozicija simbola</mat-label>
+          <mat-select formControlName="currencySymbolPosition">
+            @for (option of currencyPositionOptions; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </section>
+
+      <section class="site-settings-form__section">
+        <h2>Provizije</h2>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Minimalna provizija po terminu (RSD)</mat-label>
+          <input matInput type="number" min="0" formControlName="minimumSessionCommission" />
+        </mat-form-field>
+      </section>
+
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+        @if (saving()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          Sačuvaj
+        }
+      </button>
+    </form>
+  }
+</div>

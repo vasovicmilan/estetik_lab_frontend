@@ -1,12 +1,16 @@
 // Mirrors the backend's newsletter-subscriber.mapper.js. A Subscriber is a
 // public-facing newsletter sign-up - permission `manage_marketing`, NOT
-// module-gated. Unlike Category/BusinessPartner/Coupon, there is no edit
-// payload shape here: subscribers sign themselves up publicly and unsubscribe
-// themselves, admin can only view and delete (e.g. a GDPR removal request), so
-// this model only has the two read shapes:
+// module-gated. Unlike Category/BusinessPartner/Coupon, there is no admin
+// edit payload shape here: subscribers sign themselves up publicly and
+// unsubscribe themselves, admin can only view and delete (e.g. a GDPR removal
+// request), so this model has the two admin read shapes:
 //
 // 1. SubscriberAdminListItem - GET /admin/newsletter-subscribers        (mapSubscribersForAdminList)
 // 2. SubscriberAdminDetail    - GET /admin/newsletter-subscribers/:id    (mapSubscriberForAdminDetail)
+//
+// Plus the public write shape below - POST /newsletter-subscribe
+// (public-forms.routes.js, unauthenticated, gated by newsletterLimiter +
+// honeypot), mirroring validateNewsletterSubscribe (newsletter.validator.js).
 
 export type SubscriberStatus = 'subscribed' | 'unsubscribed';
 
@@ -39,4 +43,17 @@ export interface SubscriberAdminDetail {
     kreirano: string;
     azurirano: string;
   };
+}
+
+// ---- Public write shape - POST /newsletter-subscribe ----
+
+export type NewsletterInterest = 'general' | 'products' | 'partnership';
+
+export interface SubscriberSubmitPayload {
+  email: string;
+  /** Literal string "true" required - express-validator's .equals("true")
+   * checks the raw (pre-boolean-coercion) body value, see
+   * newsletter.validator.js's own comment on this field. */
+  consent: 'true';
+  interests?: NewsletterInterest[];
 }

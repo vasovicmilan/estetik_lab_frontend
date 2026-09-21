@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
@@ -22,7 +23,7 @@ import { ProductPublicDetail, ProductVariantDisplay } from '../../models/product
  */
 @Component({
   selector: 'app-product-detail',
-  imports: [CommonModule, RouterLink, MatButtonModule, MatCardModule, MatChipsModule, ImageUrlPipe, ContentBlocks],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatCardModule, MatChipsModule, MatExpansionModule, ImageUrlPipe, ContentBlocks],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.scss',
 })

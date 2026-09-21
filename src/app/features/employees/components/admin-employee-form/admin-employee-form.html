@@ -76,20 +76,41 @@
 
     <section class="employee-form__hours" [formGroup]="workingHoursForm">
       <h3>Radno vreme</h3>
-      <p class="employee-form__hint">Jedan termin po danu (v1 pojednostavljenje - backend podržava više termina po danu).</p>
+      <p class="employee-form__hint">Moguće je dodati više termina u istom danu (npr. pauza za ručak).</p>
 
       @for (day of weekDays; track day.value) {
-        <div class="employee-form__hours-row" [formGroupName]="day.value">
-          <mat-checkbox formControlName="radi">{{ day.label }}</mat-checkbox>
+        <div class="employee-form__hours-day" [formGroupName]="day.value">
+          <div class="employee-form__hours-row">
+            <mat-checkbox formControlName="radi">{{ day.label }}</mat-checkbox>
+          </div>
           @if (workingHoursForm.get(day.value)?.get('radi')?.value) {
-            <mat-form-field appearance="outline" class="employee-form__hours-time">
-              <mat-label>Od</mat-label>
-              <input matInput type="time" formControlName="from" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="employee-form__hours-time">
-              <mat-label>Do</mat-label>
-              <input matInput type="time" formControlName="to" />
-            </mat-form-field>
+            <div class="employee-form__hours-slots" formArrayName="slots">
+              @for (slot of slotsFor(day.value).controls; track $index) {
+                <div class="employee-form__hours-slot" [formGroupName]="$index">
+                  <mat-form-field appearance="outline" class="employee-form__hours-time">
+                    <mat-label>Od</mat-label>
+                    <input matInput type="time" formControlName="from" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="employee-form__hours-time">
+                    <mat-label>Do</mat-label>
+                    <input matInput type="time" formControlName="to" />
+                  </mat-form-field>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    (click)="removeSlot(day.value, $index)"
+                    [disabled]="slotsFor(day.value).length <= 1"
+                    aria-label="Ukloni termin"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              }
+              <button mat-button type="button" color="primary" (click)="addSlot(day.value)">
+                <mat-icon>add</mat-icon>
+                Dodaj termin
+              </button>
+            </div>
           }
         </div>
       }

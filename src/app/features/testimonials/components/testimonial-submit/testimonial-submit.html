@@ -1,0 +1,64 @@
+<div class="testimonial-submit">
+  <h1>Ostavite utisak</h1>
+  <p class="testimonial-submit__lead">Podelite svoje iskustvo sa nama - vaš utisak biće objavljen nakon pregleda.</p>
+
+  <form class="testimonial-submit__form" [formGroup]="form" (ngSubmit)="submit()">
+    @if (errorMessage()) {
+      <p class="testimonial-submit__error">{{ errorMessage() }}</p>
+    }
+
+    @if (successMessage()) {
+      <p class="testimonial-submit__success">{{ successMessage() }}</p>
+      <a routerLink="/">Nazad na početnu</a>
+    } @else {
+      <mat-form-field appearance="outline" class="testimonial-submit__field">
+        <mat-label>Ime</mat-label>
+        <input matInput formControlName="name" />
+        @if (form.controls.name.hasError('required') && form.controls.name.touched) {
+          <mat-error>Ime je obavezno.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="testimonial-submit__field">
+        <mat-label>Email (opciono)</mat-label>
+        <input matInput type="email" formControlName="email" />
+        @if (form.controls.email.hasError('email') && form.controls.email.touched) {
+          <mat-error>Unesite ispravan email.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="testimonial-submit__field">
+        <mat-label>Ocena</mat-label>
+        <mat-select formControlName="rating">
+          @for (r of ratings; track r) {
+            <mat-option [value]="r">{{ r }} / 5</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="testimonial-submit__field">
+        <mat-label>Vaš utisak</mat-label>
+        <textarea matInput rows="5" formControlName="message"></textarea>
+        @if (form.controls.message.hasError('required') && form.controls.message.touched) {
+          <mat-error>Utisak je obavezan.</mat-error>
+        }
+        @if (form.controls.message.hasError('minlength') && form.controls.message.touched) {
+          <mat-error>Utisak mora imati najmanje 10 karaktera.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-checkbox formControlName="consentGiven">Slažem se da moj utisak bude javno objavljen.</mat-checkbox>
+      @if (form.controls.consentGiven.hasError('required') && form.controls.consentGiven.touched) {
+        <p class="testimonial-submit__consent-error">Morate se složiti da bi vaš utisak mogao biti objavljen.</p>
+      }
+
+      <button mat-flat-button color="primary" type="submit" class="testimonial-submit__submit" [disabled]="loading() || form.invalid">
+        @if (loading()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          Pošalji utisak
+        }
+      </button>
+    }
+  </form>
+</div>

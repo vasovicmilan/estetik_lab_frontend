@@ -1,0 +1,22 @@
+<div class="admin-business-reports-dashboard">
+  <h1>Poslovni izveštaji</h1>
+
+  @if (loading()) {
+    <div class="admin-business-reports-dashboard__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (dashboard(); as d) {
+    <mat-tab-group>
+      @for (periodType of periodTypes; track periodType) {
+        <mat-tab [label]="periodLabels[periodType]">
+          <div class="admin-business-reports-dashboard__tab">
+            <div class="admin-business-reports-dashboard__tab-header">
+              <a mat-button [routerLink]="historyLink(periodType)">Istorija ({{ periodLabels[periodType] }})</a>
+            </div>
+            <app-business-report-summary-view [summary]="d[periodType]" />
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
+  }
+</div>

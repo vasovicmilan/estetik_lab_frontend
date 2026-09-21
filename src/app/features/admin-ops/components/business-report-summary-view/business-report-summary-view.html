@@ -1,0 +1,158 @@
+<div class="business-report-summary">
+  <div class="business-report-summary__meta">
+    <span>Period: <strong>{{ summary().periodKey }}</strong></span>
+    <span>{{ formatDate(summary().periodStart) }} - {{ formatDate(summary().periodEnd) }}</span>
+    <span>Generisano: {{ formatDate(summary().generatedAt) }}</span>
+  </div>
+
+  <div class="business-report-summary__cards">
+    <div class="business-report-summary__card">
+      <div class="business-report-summary__card-label">Termini</div>
+      <div class="business-report-summary__card-value">{{ summary().appointments.total }}</div>
+      <div class="business-report-summary__card-sub">{{ money(summary().appointments.revenue) }}</div>
+    </div>
+    <div class="business-report-summary__card">
+      <div class="business-report-summary__card-label">Stopa nedolazaka</div>
+      <div class="business-report-summary__card-value">{{ summary().appointments.noShowRate | percent: '1.0-1' }}</div>
+    </div>
+    <div class="business-report-summary__card">
+      <div class="business-report-summary__card-label">Porudžbine</div>
+      <div class="business-report-summary__card-value">{{ summary().orders.total }}</div>
+      <div class="business-report-summary__card-sub">{{ money(summary().orders.revenue) }}</div>
+    </div>
+    <div class="business-report-summary__card">
+      <div class="business-report-summary__card-label">Prosečna vrednost porudžbine</div>
+      <div class="business-report-summary__card-value">{{ money(summary().orders.avgOrderValue) }}</div>
+    </div>
+    <div class="business-report-summary__card">
+      <div class="business-report-summary__card-label">Kupljeni paketi</div>
+      <div class="business-report-summary__card-value">{{ summary().packages.totalPurchased }}</div>
+      <div class="business-report-summary__card-sub">{{ money(summary().packages.revenue) }}</div>
+    </div>
+    <div class="business-report-summary__card">
+      <div class="business-report-summary__card-label">Iskorišćeni kuponi</div>
+      <div class="business-report-summary__card-value">{{ summary().coupons.totalRedemptions }}</div>
+      <div class="business-report-summary__card-sub">{{ money(summary().coupons.totalDiscountGiven) }} popusta</div>
+    </div>
+  </div>
+
+  <div class="business-report-summary__commissions">
+    <h3>Provizije</h3>
+    <dl>
+      <dt>Zaposleni - zarađeno</dt>
+      <dd>{{ money(summary().commissions.employeeEarned) }}</dd>
+      <dt>Zaposleni - isplaćeno</dt>
+      <dd>{{ money(summary().commissions.employeePaid) }}</dd>
+      <dt>Partneri - zarađeno</dt>
+      <dd>{{ money(summary().commissions.partnerEarned) }}</dd>
+      <dt>Partneri - isplaćeno</dt>
+      <dd>{{ money(summary().commissions.partnerPaid) }}</dd>
+    </dl>
+  </div>
+
+  <div class="business-report-summary__tables">
+    <section class="business-report-summary__table-section">
+      <h3>Najprodavanije usluge</h3>
+      @if (summary().appointments.byService.length) {
+        <table class="business-report-summary__table">
+          <thead>
+            <tr>
+              <th>Usluga</th>
+              <th>Broj</th>
+              <th>Vrednost</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of topByValue(summary().appointments.byService); track row.label) {
+              <tr>
+                <td>{{ row.label }}</td>
+                <td>{{ row.count }}</td>
+                <td>{{ money(row.value) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="business-report-summary__empty">Nema podataka.</p>
+      }
+    </section>
+
+    <section class="business-report-summary__table-section">
+      <h3>Zaposleni po prihodu</h3>
+      @if (summary().appointments.byEmployee.length) {
+        <table class="business-report-summary__table">
+          <thead>
+            <tr>
+              <th>Zaposleni</th>
+              <th>Broj</th>
+              <th>Vrednost</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of topByValue(summary().appointments.byEmployee); track row.label) {
+              <tr>
+                <td>{{ row.label }}</td>
+                <td>{{ row.count }}</td>
+                <td>{{ money(row.value) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="business-report-summary__empty">Nema podataka.</p>
+      }
+    </section>
+
+    <section class="business-report-summary__table-section">
+      <h3>Najprodavaniji artikli</h3>
+      @if (summary().orders.byProduct.length) {
+        <table class="business-report-summary__table">
+          <thead>
+            <tr>
+              <th>Artikal</th>
+              <th>Broj</th>
+              <th>Vrednost</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of topByValue(summary().orders.byProduct); track row.label) {
+              <tr>
+                <td>{{ row.label }}</td>
+                <td>{{ row.count }}</td>
+                <td>{{ money(row.value) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="business-report-summary__empty">Nema podataka.</p>
+      }
+    </section>
+
+    <section class="business-report-summary__table-section">
+      <h3>Kuponi</h3>
+      @if (summary().coupons.byCoupon.length) {
+        <table class="business-report-summary__table">
+          <thead>
+            <tr>
+              <th>Kupon</th>
+              <th>Broj</th>
+              <th>Popust</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of topByValue(summary().coupons.byCoupon); track row.label) {
+              <tr>
+                <td>{{ row.label }}</td>
+                <td>{{ row.count }}</td>
+                <td>{{ money(row.value) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="business-report-summary__empty">Nema podataka.</p>
+      }
+    </section>
+  </div>
+</div>

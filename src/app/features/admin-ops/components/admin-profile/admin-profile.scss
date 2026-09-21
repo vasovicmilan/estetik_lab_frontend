@@ -1,0 +1,52 @@
+.admin-profile {
+  padding: 1.5rem;
+  max-width: 640px;
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+
+  &__card {
+    margin-bottom: 1.5rem;
+
+    h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.1rem;
+    }
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 0.5rem 1rem;
+    margin: 0;
+
+    dt {
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    dd {
+      margin: 0;
+    }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__field {
+    flex: 1;
+    min-width: 200px;
+  }
+}

@@ -1,22 +1,30 @@
 <div class="employee-shell">
   <h1 class="employee-shell__title">Panel zaposlenog</h1>
 
-  <nav class="employee-shell__nav">
+  <nav mat-tab-nav-bar [tabPanel]="employeeTabPanel" class="employee-shell__nav">
     <a
+      mat-tab-link
       routerLink="/zaposleni-panel"
-      routerLinkActive="employee-shell__link--active"
+      routerLinkActive
+      #pregledLink="routerLinkActive"
       [routerLinkActiveOptions]="{ exact: true }"
-      class="employee-shell__link"
+      [active]="pregledLink.isActive"
       >Pregled</a
     >
-    <a routerLink="/zaposleni-panel/termini" routerLinkActive="employee-shell__link--active" class="employee-shell__link">Moji termini</a>
-    <a routerLink="/zaposleni-panel/profil" routerLinkActive="employee-shell__link--active" class="employee-shell__link">Profil</a>
+    <a mat-tab-link routerLink="/zaposleni-panel/termini" routerLinkActive #terminiLink="routerLinkActive" [active]="terminiLink.isActive"
+      >Moji termini</a
+    >
+    <a mat-tab-link routerLink="/zaposleni-panel/profil" routerLinkActive #profilLink="routerLinkActive" [active]="profilLink.isActive"
+      >Profil</a
+    >
     @if (isCommissionBased()) {
-      <a routerLink="/zaposleni-panel/zarade" routerLinkActive="employee-shell__link--active" class="employee-shell__link">Provizije</a>
+      <a mat-tab-link routerLink="/zaposleni-panel/zarade" routerLinkActive #zaradeLink="routerLinkActive" [active]="zaradeLink.isActive"
+        >Provizije</a
+      >
     }
   </nav>
 
-  <div class="employee-shell__body">
+  <mat-tab-nav-panel #employeeTabPanel class="employee-shell__body">
     <router-outlet />
-  </div>
+  </mat-tab-nav-panel>
 </div>

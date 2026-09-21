@@ -1,0 +1,53 @@
+<div class="payout-direct-form">
+  <div class="payout-direct-form__header">
+    <h1>Direktan unos isplate</h1>
+    <a mat-button routerLink="/admin/isplate">Nazad na listu</a>
+  </div>
+
+  <p class="payout-direct-form__hint">
+    Ovo direktno beleži isplatu koja se već desila (van sistema zahteva za isplatu) - ne kreira zahtev koji se odobrava/isplaćuje.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="payout-direct-form__form">
+    <mat-form-field appearance="outline">
+      <mat-label>Tip zarađivača</mat-label>
+      <mat-select formControlName="earnerType">
+        @for (option of earnerTypeOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>ID zarađivača</mat-label>
+      <input matInput formControlName="earnerId" />
+      @if (form.controls.earnerId.hasError('required') && form.controls.earnerId.touched) {
+        <mat-error>ID zarađivača je obavezan.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Iznos (RSD)</mat-label>
+      <input matInput type="number" min="1" formControlName="amount" />
+      @if (form.controls.amount.hasError('required') && form.controls.amount.touched) {
+        <mat-error>Iznos je obavezan.</mat-error>
+      }
+      @if (form.controls.amount.hasError('min') && form.controls.amount.touched) {
+        <mat-error>Iznos mora biti veći od nule.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Napomena (opciono)</mat-label>
+      <textarea matInput rows="3" formControlName="note"></textarea>
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+      @if (saving()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Zabeleži isplatu
+      }
+    </button>
+  </form>
+</div>

@@ -1,0 +1,16 @@
+<div class="admin-logs-dashboard">
+  <div class="admin-logs-dashboard__header">
+    <h1>Logovi</h1>
+    <a mat-button routerLink="/admin/logovi/istorija">Istorija izveštaja</a>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-logs-dashboard__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (summary(); as s) {
+    <app-log-summary-view [summary]="s" />
+  } @else {
+    <p>Podaci o logovima nisu dostupni.</p>
+  }
+</div>

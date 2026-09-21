@@ -1,8 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -32,12 +33,10 @@ import { ServiceListItem } from '../../../services-catalog/models/service';
  * accept it - see employee.ts's update() signature).
  *
  * Working hours: a simple weekly editor, one row per day (Monday-Sunday,
- * hardcoded Serbian labels), a checkbox "radi ovaj dan" revealing from/to time
- * inputs. Deliberate v1 simplification: only ONE slot per day, even though the
- * backend model (and validateEmployeeCreate/Update) supports multiple slots per
- * day - a single-slot UI covers the common case and keeps the form usable; a
- * multi-slot editor is a reasonable future addition (could reuse RepeaterField
- * per day if needed).
+ * hardcoded Serbian labels), a checkbox "radi ovaj dan" revealing a FormArray
+ * of from/to slot rows (add/remove), matching the backend's
+ * EmployeeWorkingHoursEntry.slots[] shape 1:1 - multiple time ranges per day
+ * (e.g. 09:00-13:00 and 16:00-20:00) are fully supported.
  *
  * workingHours is sent as part of the normal create/update payload (both
  * validators accept it directly) - the separate PUT .../working-hours endpoint
@@ -50,6 +49,7 @@ import { ServiceListItem } from '../../../services-catalog/models/service';
     RouterLink,
     ReactiveFormsModule,
     MatButtonModule,
+    MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -105,20 +105,37 @@ export class AdminEmployeeForm implements OnInit {
     sredimeIcsUrl: [''],
   });
 
-  /** Keyed by day - not a FormArray, since the day set is fixed (7 rows,
-   * Monday-Sunday) rather than user-addable/removable rows. */
+  /** Top level keyed by day (fixed 7 rows, Monday-Sunday) - not user-addable.
+   * Each day's `slots` IS a FormArray though, since a day can have any number
+   * of time ranges (e.g. a lunch-break split shift). */
   workingHoursForm: FormGroup = this.fb.group(
     Object.fromEntries(
       this.weekDays.map((d) => [
         d.value,
         this.fb.group({
           radi: [false],
-          from: ['09:00'],
-          to: ['17:00'],
+          slots: this.fb.array([this.buildSlotGroup()]),
         }),
       ])
     )
   );
+
+  private buildSlotGroup(from = '09:00', to = '17:00'): FormGroup {
+    return this.fb.group({ from: [from], to: [to] });
+  }
+
+  slotsFor(day: EmployeeWeekDay): FormArray {
+    return this.workingHoursForm.get(day)?.get('slots') as FormArray;
+  }
+
+  addSlot(day: EmployeeWeekDay): void {
+    this.slotsFor(day).push(this.buildSlotGroup());
+  }
+
+  removeSlot(day: EmployeeWeekDay, index: number): void {
+    const slots = this.slotsFor(day);
+    if (slots.length > 1) slots.removeAt(index);
+  }
 
   get isCommission(): boolean {
     return this.form.get('payType')?.value === 'commission';
@@ -171,20 +188,36 @@ export class AdminEmployeeForm implements OnInit {
     // hiding it, so the chosen user is still visible on the edit form.
     this.form.get('userId')?.disable();
 
+    // Reset every row first - a previously-checked day (or extra slots) left
+    // over from a prior patch must not stick around if this response no
+    // longer includes it.
+    for (const day of this.weekDays) {
+      const dayGroup = this.workingHoursForm.get(day.value)!;
+      dayGroup.patchValue({ radi: false });
+      const slots = this.slotsFor(day.value);
+      slots.clear();
+      slots.push(this.buildSlotGroup());
+    }
     for (const entry of payload.workingHours ?? []) {
-      const slot = entry.slots?.[0];
       const dayGroup = this.workingHoursForm.get(entry.day);
-      if (!dayGroup || !slot) continue;
-      dayGroup.patchValue({ radi: true, from: slot.from, to: slot.to });
+      if (!dayGroup || !entry.slots?.length) continue;
+      const slots = this.slotsFor(entry.day);
+      slots.clear();
+      for (const slot of entry.slots) {
+        slots.push(this.buildSlotGroup(slot.from, slot.to));
+      }
+      dayGroup.patchValue({ radi: true });
     }
   }
 
   private buildWorkingHours(): EmployeeWorkingHoursEntry[] {
     const result: EmployeeWorkingHoursEntry[] = [];
     for (const day of this.weekDays) {
-      const value = this.workingHoursForm.get(day.value)?.value as { radi: boolean; from: string; to: string };
-      if (!value?.radi) continue;
-      result.push({ day: day.value, slots: [{ from: value.from, to: value.to }] });
+      const dayGroup = this.workingHoursForm.get(day.value)!;
+      if (!dayGroup.get('radi')?.value) continue;
+      const slots = this.slotsFor(day.value).value as { from: string; to: string }[];
+      if (!slots.length) continue;
+      result.push({ day: day.value, slots });
     }
     return result;
   }

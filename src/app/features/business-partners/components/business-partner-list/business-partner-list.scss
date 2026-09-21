@@ -1,0 +1,33 @@
+.business-partner-list {
+  padding: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin: 1rem 0 1.5rem;
+  }
+
+  &__card-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  &__card {
+    height: 100%;
+  }
+
+  &__image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+}

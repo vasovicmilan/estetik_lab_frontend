@@ -1,0 +1,39 @@
+@if (partner(); as p) {
+  <article class="business-partner-detail">
+    @if (p.slika?.url) {
+      <img [src]="p.slika!.url | imageUrl" [alt]="p.slika!.alt || p.naziv" class="business-partner-detail__hero" />
+    }
+
+    <h1>{{ p.naziv }}</h1>
+    <p class="business-partner-detail__lead">{{ p.kratakOpis }}</p>
+
+    @if (p.adresa || p.imaMapu) {
+      <div class="business-partner-detail__meta">
+        @if (p.adresa) {
+          <p class="business-partner-detail__address">{{ p.adresa }}</p>
+        }
+        @if (p.imaMapu && mapsUrl()) {
+          <a [href]="mapsUrl()" target="_blank" rel="noopener" class="business-partner-detail__map-link">Otvori na mapi</a>
+        }
+      </div>
+    }
+
+    <div class="business-partner-detail__body">
+      <app-content-blocks [blocks]="p.sadrzaj" />
+    </div>
+
+    @if (p.outboundUrl) {
+      <a [href]="p.outboundUrl" target="_blank" rel="noopener" class="business-partner-detail__cta">
+        {{ p.ctaLabel || 'Poseti sajt' }}
+      </a>
+    }
+
+    <a routerLink="/saradnici" class="business-partner-detail__back">Nazad na saradnike</a>
+  </article>
+} @else {
+  <div class="business-partner-detail__not-found">
+    <h1>Saradnik nije pronađen</h1>
+    <p>Saradnik kojeg tražite ne postoji ili je uklonjen.</p>
+    <a routerLink="/saradnici">Nazad na saradnike</a>
+  </div>
+}
