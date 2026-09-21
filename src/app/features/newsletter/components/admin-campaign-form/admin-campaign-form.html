@@ -1,0 +1,72 @@
+@if (loading()) {
+  <mat-spinner diameter="32" />
+} @else if (isSentLocked) {
+  <div class="campaign-form campaign-form--locked">
+    <div class="campaign-form__header">
+      <h2>Kampanja je već poslata</h2>
+      <a mat-button routerLink="/admin/kampanje">Nazad na listu</a>
+    </div>
+    <p>Poslata kampanja se više ne može menjati.</p>
+    @if (campaignId(); as id) {
+      <a mat-flat-button color="primary" [routerLink]="['/admin/kampanje', id, 'pregled']">Pregled kampanje</a>
+    }
+  </div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="campaign-form">
+    <div class="campaign-form__header">
+      <h2>{{ campaignId() ? 'Izmena kampanje' : 'Nova kampanja' }}</h2>
+      <a mat-button routerLink="/admin/kampanje">Nazad na listu</a>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Naslov</mat-label>
+      <input matInput formControlName="title" required />
+      @if (form.get('title')?.hasError('required') && form.get('title')?.touched) {
+        <mat-error>Naslov je obavezan.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Predmet email poruke</mat-label>
+      <input matInput formControlName="subject" maxlength="200" required />
+      @if (form.get('subject')?.hasError('required') && form.get('subject')?.touched) {
+        <mat-error>Predmet je obavezan.</mat-error>
+      }
+    </mat-form-field>
+
+    <section class="campaign-form__interests">
+      <h3>Ciljna interesovanja</h3>
+      <div class="campaign-form__checkboxes">
+        @for (option of interestOptions; track option.value) {
+          <mat-checkbox [formControlName]="option.value">{{ option.label }}</mat-checkbox>
+        }
+      </div>
+      <p class="campaign-form__hint">Ako ništa nije izabrano, kampanja se šalje svim pretplatnicima.</p>
+    </section>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        @for (option of statusOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (form.get('status')?.value === 'scheduled') {
+      <mat-form-field appearance="outline">
+        <mat-label>Zakazano za</mat-label>
+        <input matInput type="datetime-local" formControlName="scheduledFor" required />
+        @if (form.get('scheduledFor')?.hasError('required') && form.get('scheduledFor')?.touched) {
+          <mat-error>Vreme slanja je obavezno kada je kampanja zakazana.</mat-error>
+        }
+      </mat-form-field>
+    }
+
+    <div class="campaign-form__actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+        {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+      </button>
+    </div>
+  </form>
+}

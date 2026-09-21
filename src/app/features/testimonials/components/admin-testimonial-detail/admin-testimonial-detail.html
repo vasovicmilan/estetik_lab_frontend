@@ -1,0 +1,115 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled utiska</h1>
+    <div class="admin-detail__actions">
+      <button mat-stroked-button color="warn" type="button" [disabled]="deleting()" (click)="remove()">
+        {{ deleting() ? 'Brisanje...' : 'Obriši' }}
+      </button>
+      <a mat-button routerLink="/admin/utisci">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      <section class="admin-detail__section">
+        <h2>Osnovno</h2>
+        @if (d.osnovno.slika?.url) {
+          <img [src]="d.osnovno.slika!.url | imageUrl" [alt]="d.osnovno.slika!.alt || d.osnovno.ime" class="admin-detail__avatar" />
+        }
+        <dl class="admin-detail__list">
+          <dt>Ime</dt>
+          <dd>{{ d.osnovno.ime }}</dd>
+          <dt>Email</dt>
+          <dd>{{ d.osnovno.email }}</dd>
+          <dt>Ocena</dt>
+          <dd>{{ d.osnovno.ocenaZvezdice }} ({{ d.osnovno.ocena }}/5)</dd>
+          <dt>Komentar</dt>
+          <dd>{{ d.osnovno.komentar }}</dd>
+        </dl>
+      </section>
+
+      @if (d.usluga || d.paket || d.proizvod) {
+        <section class="admin-detail__section">
+          <h2>Povezana stavka</h2>
+          <dl class="admin-detail__list">
+            @if (d.usluga) {
+              <dt>Usluga</dt>
+              <dd>{{ d.usluga.naziv ?? d.usluga.id }}</dd>
+            }
+            @if (d.paket) {
+              <dt>Paket</dt>
+              <dd>{{ d.paket.naziv ?? d.paket.id }}</dd>
+            }
+            @if (d.proizvod) {
+              <dt>Proizvod</dt>
+              <dd>{{ d.proizvod.naziv ?? d.proizvod.id }}</dd>
+            }
+          </dl>
+        </section>
+      }
+
+      <section class="admin-detail__section">
+        <h2>Korisnik</h2>
+        @if (d.korisnik) {
+          <p>{{ d.korisnik.ime }} (registrovani korisnik)</p>
+        } @else {
+          <p class="admin-detail__hint">Utisak nije poslat od strane registrovanog korisnika.</p>
+        }
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Status</h2>
+        <dl class="admin-detail__list">
+          <dt>Status</dt>
+          <dd>{{ d.status.vrednost }}</dd>
+          <dt>Istaknut</dt>
+          <dd>{{ d.status.istaknut ? 'Da' : 'Ne' }}</dd>
+          <dt>Redosled</dt>
+          <dd>{{ d.status.redosled }}</dd>
+        </dl>
+
+        @if (d.status.vrednostRaw === 'pending') {
+          <div class="admin-detail__review">
+            <mat-checkbox [ngModel]="approveFeatured()" (ngModelChange)="approveFeatured.set($event)">
+              Istakni na sajtu prilikom odobravanja
+            </mat-checkbox>
+            <div class="admin-detail__review-actions">
+              <button mat-flat-button color="primary" type="button" [disabled]="acting()" (click)="approve()">Odobri</button>
+              <button mat-stroked-button color="warn" type="button" [disabled]="acting()" (click)="reject()">Odbij</button>
+            </div>
+          </div>
+        }
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>GDPR saglasnost</h2>
+        <dl class="admin-detail__list">
+          <dt>Saglasnost data</dt>
+          <dd>{{ d.saglasnost.data ? 'Da' : 'Ne' }}</dd>
+          <dt>Kada</dt>
+          <dd>{{ d.saglasnost.kada ?? '-' }}</dd>
+          <dt>IP adresa</dt>
+          <dd>{{ d.saglasnost.ip ?? '-' }}</dd>
+        </dl>
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Vreme</h2>
+        <dl class="admin-detail__list">
+          <dt>Kreirano</dt>
+          <dd>{{ d.vreme.kreirano }}</dd>
+          <dt>Ažurirano</dt>
+          <dd>{{ d.vreme.azurirano }}</dd>
+        </dl>
+      </section>
+    </div>
+  } @else if (!loading()) {
+    <p>Utisak nije pronađen.</p>
+  }
+</div>

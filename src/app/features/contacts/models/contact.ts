@@ -1,0 +1,41 @@
+// Mirrors the backend's contact.mapper.js. A Contact is a public contact-form
+// submission - permission `manage_marketing`, NOT module-gated. Admin only
+// reviews and moves it through a status workflow; there is no create/edit and
+// no delete endpoint, only:
+//
+// 1. ContactAdminListItem - GET /admin/contacts        (mapContactsForAdminList)
+// 2. ContactAdminDetail    - GET /admin/contacts/:id    (mapContactForAdminDetail)
+
+export type ContactStatus = 'new' | 'read' | 'replied' | 'archived';
+
+// ---- (1) Admin list row ----
+
+export interface ContactAdminListItem {
+  id: string;
+  imePrezime: string;
+  email: string;
+  tema: string | null;
+  status: string;
+  statusRaw: ContactStatus;
+  datum: string;
+}
+
+// ---- (2) Admin detail ----
+
+export interface ContactAdminDetail {
+  id: string;
+  osnovno: {
+    ime: string;
+    prezime: string;
+    email: string;
+    telefon: string | null;
+    tema: string | null;
+    status: string;
+    statusRaw: ContactStatus;
+    saglasnost: string;
+  };
+  /** The full message. */
+  poruka: string;
+  referalniKod: string | null;
+  vreme: { kreirano: string; azurirano: string };
+}

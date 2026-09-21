@@ -1,0 +1,65 @@
+.admin-contact-list {
+  padding: 1.5rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  &__table {
+    width: 100%;
+  }
+
+  &__row--new {
+    font-weight: 600;
+  }
+
+  &__empty {
+    padding: 1.5rem 0;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+
+  &__status {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    &--new {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    &--read {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    &--replied {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    &--archived {
+      background: #e2e3e5;
+      color: #383d41;
+    }
+  }
+}

@@ -1,0 +1,78 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled kampanje</h1>
+    <div class="admin-detail__actions">
+      @if (detail(); as d) {
+        @if (d.statusRaw !== 'sent') {
+          <button mat-flat-button color="primary" type="button" [disabled]="sending()" (click)="sendNow()">
+            {{ sending() ? 'Slanje...' : 'Pošalji sada' }}
+          </button>
+          @if (campaignId(); as id) {
+            <a mat-stroked-button [routerLink]="['/admin/kampanje', id]">Izmeni</a>
+          }
+        }
+      }
+      <button mat-stroked-button color="warn" type="button" [disabled]="deleting()" (click)="remove()">
+        {{ deleting() ? 'Brisanje...' : 'Obriši' }}
+      </button>
+      <a mat-button routerLink="/admin/kampanje">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      <section class="admin-detail__section">
+        <h2>Osnovno</h2>
+        <dl class="admin-detail__list">
+          <dt>Naslov</dt>
+          <dd>{{ d.naslov }}</dd>
+          <dt>Predmet</dt>
+          <dd>{{ d.predmet }}</dd>
+          <dt>Status</dt>
+          <dd>{{ d.status }}</dd>
+          <dt>Segment</dt>
+          <dd>{{ d.segment }}</dd>
+        </dl>
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Slanje</h2>
+        <dl class="admin-detail__list">
+          <dt>Zakazano za</dt>
+          <dd>{{ d.zakazanoZa ?? '-' }}</dd>
+          <dt>Poslato za</dt>
+          <dd>{{ d.poslatoZa ?? '-' }}</dd>
+          <dt>Uspešno poslato</dt>
+          <dd>{{ d.poslato }}</dd>
+          <dt>Neuspešno</dt>
+          <dd>{{ d.neuspesno }}</dd>
+        </dl>
+      </section>
+
+      @if (d.sadrzaj.length) {
+        <section class="admin-detail__section">
+          <h2>Sadržaj</h2>
+          <app-content-blocks [blocks]="d.sadrzaj" />
+        </section>
+      }
+
+      <section class="admin-detail__section">
+        <h2>Vreme</h2>
+        <dl class="admin-detail__list">
+          <dt>Kreiran</dt>
+          <dd>{{ d.vreme.kreiran }}</dd>
+          <dt>Ažuriran</dt>
+          <dd>{{ d.vreme.azuriran }}</dd>
+        </dl>
+      </section>
+    </div>
+  } @else if (!loading()) {
+    <p>Kampanja nije pronađena.</p>
+  }
+</div>

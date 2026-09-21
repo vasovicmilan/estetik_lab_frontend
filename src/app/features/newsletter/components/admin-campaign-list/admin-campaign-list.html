@@ -1,0 +1,94 @@
+<div class="admin-campaign-list">
+  <div class="admin-campaign-list__header">
+    <h1>Newsletter kampanje</h1>
+    <a mat-flat-button color="primary" routerLink="/admin/kampanje/novi">Nova kampanja</a>
+  </div>
+
+  <form [formGroup]="filterForm" class="admin-campaign-list__filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Pretraga</mat-label>
+      <input matInput formControlName="search" placeholder="Naslov, predmet..." />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        @for (option of statusOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </form>
+
+  <table mat-table [dataSource]="rows()" class="admin-campaign-list__table">
+    <ng-container matColumnDef="naslov">
+      <th mat-header-cell *matHeaderCellDef>Naslov</th>
+      <td mat-cell *matCellDef="let row">{{ row.naslov }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="segment">
+      <th mat-header-cell *matHeaderCellDef>Segment</th>
+      <td mat-cell *matCellDef="let row">{{ row.segment }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let row">
+        <span [class]="statusClass(row.statusRaw)">{{ row.status }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="zakazanoZa">
+      <th mat-header-cell *matHeaderCellDef>Zakazano za</th>
+      <td mat-cell *matCellDef="let row">{{ row.zakazanoZa ?? '-' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="poslatoZa">
+      <th mat-header-cell *matHeaderCellDef>Poslato</th>
+      <td mat-cell *matCellDef="let row">{{ row.poslatoZa ?? '-' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="poslato">
+      <th mat-header-cell *matHeaderCellDef>Uspešno / neuspešno</th>
+      <td mat-cell *matCellDef="let row">{{ row.poslato }} / {{ row.neuspesno }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="kreirano">
+      <th mat-header-cell *matHeaderCellDef>Kreirano</th>
+      <td mat-cell *matCellDef="let row">{{ row.kreirano }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="akcije">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <a mat-button [routerLink]="['/admin/kampanje', row.id, 'pregled']">Pregled</a>
+        @if (row.statusRaw !== 'sent') {
+          <a mat-button [routerLink]="['/admin/kampanje', row.id]">Izmeni</a>
+        }
+        <button mat-button color="warn" (click)="remove(row)">Obriši</button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  @if (!loading() && rows().length === 0) {
+    <p class="admin-campaign-list__empty">Nema kampanja koje odgovaraju filterima.</p>
+  }
+
+  @if (loading()) {
+    <div class="admin-campaign-list__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (meta(); as m) {
+    <mat-paginator
+      [length]="m.total"
+      [pageSize]="m.limit"
+      [pageIndex]="m.page - 1"
+      (page)="onPage($event)"
+    />
+  }
+</div>

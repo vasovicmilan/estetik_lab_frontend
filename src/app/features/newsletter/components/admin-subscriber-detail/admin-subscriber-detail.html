@@ -1,0 +1,49 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled pretplatnika</h1>
+    <div class="admin-detail__actions">
+      <button mat-stroked-button color="warn" type="button" [disabled]="deleting()" (click)="remove()">
+        {{ deleting() ? 'Brisanje...' : 'Obriši' }}
+      </button>
+      <a mat-button routerLink="/admin/pretplatnici">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      <section class="admin-detail__section">
+        <h2>Osnovno</h2>
+        <dl class="admin-detail__list">
+          <dt>Email</dt>
+          <dd>{{ d.osnovno.email }}</dd>
+          <dt>Status</dt>
+          <dd>{{ d.osnovno.status }}</dd>
+          <dt>Interesovanja</dt>
+          <dd>{{ d.osnovno.interesovanja.length ? d.osnovno.interesovanja.join(', ') : '-' }}</dd>
+        </dl>
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Vreme</h2>
+        <dl class="admin-detail__list">
+          <dt>Prijavljen</dt>
+          <dd>{{ d.vreme.prijavljen }}</dd>
+          <dt>Odjavljen</dt>
+          <dd>{{ d.vreme.odjavljen ?? '-' }}</dd>
+          <dt>Kreirano</dt>
+          <dd>{{ d.vreme.kreirano }}</dd>
+          <dt>Ažurirano</dt>
+          <dd>{{ d.vreme.azurirano }}</dd>
+        </dl>
+      </section>
+    </div>
+  } @else if (!loading()) {
+    <p>Pretplatnik nije pronađen.</p>
+  }
+</div>

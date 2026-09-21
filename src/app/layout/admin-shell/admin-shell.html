@@ -69,6 +69,15 @@
           <a mat-list-item routerLink="/admin/poslovni-saradnici" routerLinkActive="admin-shell__link--active">Poslovni saradnici</a>
         }
       }
+
+      @if (auth.hasPermission('manage_marketing')) {
+        <div class="admin-shell__group-label">Marketing</div>
+
+        <a mat-list-item routerLink="/admin/pretplatnici" routerLinkActive="admin-shell__link--active">Pretplatnici</a>
+        <a mat-list-item routerLink="/admin/kampanje" routerLinkActive="admin-shell__link--active">Kampanje</a>
+        <a mat-list-item routerLink="/admin/utisci" routerLinkActive="admin-shell__link--active">Utisci</a>
+        <a mat-list-item routerLink="/admin/poruke" routerLinkActive="admin-shell__link--active">Poruke</a>
+      }
     </mat-nav-list>
 
     <a routerLink="/" class="admin-shell__back">

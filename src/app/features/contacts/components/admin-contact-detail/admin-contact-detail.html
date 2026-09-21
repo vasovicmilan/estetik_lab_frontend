@@ -1,0 +1,71 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled poruke</h1>
+    <div class="admin-detail__actions">
+      <a mat-button routerLink="/admin/poruke">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      <section class="admin-detail__section">
+        <h2>Kontakt</h2>
+        <dl class="admin-detail__list">
+          <dt>Ime i prezime</dt>
+          <dd>{{ d.osnovno.ime }} {{ d.osnovno.prezime }}</dd>
+          <dt>Email</dt>
+          <dd>{{ d.osnovno.email }}</dd>
+          <dt>Telefon</dt>
+          <dd>{{ d.osnovno.telefon ?? '-' }}</dd>
+          <dt>Tema</dt>
+          <dd>{{ d.osnovno.tema ?? '-' }}</dd>
+          <dt>Status</dt>
+          <dd>{{ d.osnovno.status }}</dd>
+          <dt>Saglasnost</dt>
+          <dd>{{ d.osnovno.saglasnost }}</dd>
+        </dl>
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Poruka</h2>
+        <p class="admin-detail__message">{{ d.poruka }}</p>
+      </section>
+
+      @if (d.referalniKod) {
+        <section class="admin-detail__section">
+          <h2>Referalni kod</h2>
+          <p>{{ d.referalniKod }}</p>
+        </section>
+      }
+
+      <section class="admin-detail__section">
+        <h2>Promeni status</h2>
+        <div class="admin-detail__status-actions">
+          @for (target of availableTargets(); track target.value) {
+            <button mat-stroked-button type="button" [disabled]="acting()" (click)="changeStatus(target.value)">
+              {{ target.label }}
+            </button>
+          }
+        </div>
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Vreme</h2>
+        <dl class="admin-detail__list">
+          <dt>Kreirano</dt>
+          <dd>{{ d.vreme.kreirano }}</dd>
+          <dt>Ažurirano</dt>
+          <dd>{{ d.vreme.azurirano }}</dd>
+        </dl>
+      </section>
+    </div>
+  } @else if (!loading()) {
+    <p>Poruka nije pronađena.</p>
+  }
+</div>
