@@ -1,0 +1,26 @@
+<div class="account-orders">
+  @if (loading()) {
+    <div class="account-orders__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (orders().length === 0) {
+    <p>Trenutno nemate nijednu porudžbinu.</p>
+  } @else {
+    <div class="account-orders__list">
+      @for (o of orders(); track o.id) {
+        <a [routerLink]="['/moj-nalog/porudzbine', o.id]" class="account-orders__card">
+          <div class="account-orders__card-main">
+            <strong>Porudžbina od {{ o.datum }}</strong>
+            <span>{{ o.brojStavki }} {{ o.brojStavki === 1 ? 'stavka' : 'stavki' }}</span>
+          </div>
+          <div class="account-orders__card-meta">
+            <span class="account-orders__status">{{ o.status }}</span>
+            @if (o.ukupnaCena) {
+              <span>{{ o.ukupnaCena }}</span>
+            }
+          </div>
+        </a>
+      }
+    </div>
+  }
+</div>

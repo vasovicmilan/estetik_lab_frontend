@@ -1,0 +1,128 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled objave</h1>
+    <div class="admin-detail__actions">
+      @if (postId(); as id) {
+        <a mat-flat-button color="primary" [routerLink]="['/admin/blog', id]">Izmeni</a>
+      }
+      <a mat-button routerLink="/admin/blog">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      @if (d.slika?.url) {
+        <img [src]="d.slika!.url | imageUrl" [alt]="d.slika!.alt || d.naslov" class="admin-detail__image" />
+      }
+
+      <dl class="admin-detail__list">
+        <dt>Naslov</dt>
+        <dd>{{ d.naslov }}</dd>
+
+        <dt>Slug</dt>
+        <dd>{{ d.slug }}</dd>
+
+        <dt>Status</dt>
+        <dd>{{ d.status }}</dd>
+
+        <dt>Autor</dt>
+        <dd>
+          @if (authorAvatarUrl(); as avatar) {
+            <img [src]="avatar | imageUrl" alt="" class="admin-detail__avatar" />
+          }
+          {{ d.autor.ime }}
+        </dd>
+
+        <dt>Kratak opis</dt>
+        <dd>{{ d.kratakOpis || '-' }}</dd>
+
+        <dt>Kategorije</dt>
+        <dd>
+          @if (d.kategorije.length) {
+            <mat-chip-set>
+              @for (kat of d.kategorije; track kat) {
+                <mat-chip>{{ kat }}</mat-chip>
+              }
+            </mat-chip-set>
+          } @else {
+            -
+          }
+        </dd>
+
+        <dt>Tagovi</dt>
+        <dd>
+          @if (d.tagovi.length) {
+            <mat-chip-set>
+              @for (tag of d.tagovi; track tag) {
+                <mat-chip>{{ tag }}</mat-chip>
+              }
+            </mat-chip-set>
+          } @else {
+            -
+          }
+        </dd>
+
+        <dt>Indeksiranje</dt>
+        <dd>{{ d.indeksiranje }}</dd>
+
+        <dt>Vreme čitanja</dt>
+        <dd>{{ d.vremeCitanja }}</dd>
+
+        <dt>Pregledi</dt>
+        <dd>{{ d.pregledi }}</dd>
+
+        <dt>Datum objave</dt>
+        <dd>{{ d.datumObjave ?? '-' }}</dd>
+
+        <dt>Zakazano za</dt>
+        <dd>{{ d.zakazanoZa ?? '-' }}</dd>
+
+        <dt>Kreiran</dt>
+        <dd>{{ d.vreme.kreiran }}</dd>
+
+        <dt>Ažuriran</dt>
+        <dd>{{ d.vreme.azuriran }}</dd>
+      </dl>
+
+      @if (d.seo.naslov || d.seo.opis || d.seo.kljucneReci.length) {
+        <section class="admin-detail__section">
+          <h2>SEO</h2>
+          <dl class="admin-detail__list">
+            <dt>SEO naslov</dt>
+            <dd>{{ d.seo.naslov || '-' }}</dd>
+            <dt>SEO opis</dt>
+            <dd>{{ d.seo.opis || '-' }}</dd>
+            <dt>Ključne reči</dt>
+            <dd>{{ d.seo.kljucneReci.length ? d.seo.kljucneReci.join(', ') : '-' }}</dd>
+          </dl>
+        </section>
+      }
+
+      @if (d.sadrzaj.length) {
+        <section class="admin-detail__section">
+          <h2>Sadržaj</h2>
+          <app-content-blocks [blocks]="d.sadrzaj" />
+        </section>
+      }
+
+      @if (d.galerija.length) {
+        <section class="admin-detail__section">
+          <h2>Galerija</h2>
+          <div class="admin-detail__gallery">
+            @for (img of d.galerija; track $index) {
+              <img [src]="img.url | imageUrl" [alt]="img.alt || ''" />
+            }
+          </div>
+        </section>
+      }
+    </div>
+  } @else if (!loading()) {
+    <p>Objava nije pronađena.</p>
+  }
+</div>

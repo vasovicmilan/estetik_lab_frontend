@@ -1,0 +1,62 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled partnera</h1>
+    <div class="admin-detail__actions">
+      @if (partnerId(); as id) {
+        <a mat-flat-button color="primary" [routerLink]="['/admin/partneri', id]">Izmeni</a>
+      }
+      <a mat-button routerLink="/admin/partneri">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      <dl class="admin-detail__list">
+        <dt>Ime i prezime</dt>
+        <dd>{{ d.korisnik.imePrezime }}</dd>
+
+        <dt>Email</dt>
+        <dd>{{ d.korisnik.email ?? '-' }}</dd>
+
+        <dt>Telefon</dt>
+        <dd>{{ d.korisnik.telefon ?? '-' }}</dd>
+
+        <dt>Provizija usluge</dt>
+        <dd>{{ d.procenatProvizijeUsluge }}</dd>
+
+        <dt>Provizija artikli</dt>
+        <dd>{{ d.procenatProvizijeArtikli }}</dd>
+
+        <dt>Maks. provizija (usluge)</dt>
+        <dd>{{ d.maxProvizijaUsluge }}</dd>
+
+        <dt>Maks. provizija (artikli)</dt>
+        <dd>{{ d.maxProvizijaArtikli }}</dd>
+
+        <dt>Aktivan</dt>
+        <dd>{{ d.aktivan }}</dd>
+
+        <dt>Napomena</dt>
+        <dd>{{ d.napomena || '-' }}</dd>
+
+        <dt>Kreiran</dt>
+        <dd>{{ d.vreme.kreiran }}</dd>
+
+        <dt>Ažuriran</dt>
+        <dd>{{ d.vreme.azuriran }}</dd>
+      </dl>
+
+      <button mat-stroked-button color="warn" [disabled]="deleting()" (click)="remove()">
+        {{ deleting() ? 'Brisanje...' : 'Obriši partnera' }}
+      </button>
+    </div>
+  } @else if (!loading()) {
+    <p>Partner nije pronađen.</p>
+  }
+</div>

@@ -1,0 +1,106 @@
+@if (loading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="product-form">
+    <h2>{{ productId() ? 'Izmena proizvoda' : 'Novi proizvod' }}</h2>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Naziv proizvoda</mat-label>
+      <input matInput formControlName="name" required />
+      @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+        <mat-error>Naziv je obavezan.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>SKU</mat-label>
+      <input matInput formControlName="sku" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Kratak opis</mat-label>
+      <textarea matInput formControlName="shortDescription" rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Oznaka</mat-label>
+      <mat-select formControlName="badge">
+        @for (option of badgeOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Način dostave</mat-label>
+      <mat-select formControlName="shippingClass">
+        @for (option of shippingClassOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Kategorije</mat-label>
+      <mat-select formControlName="categories" multiple>
+        @for (option of categoryOptions(); track option.id) {
+          <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tagovi</mat-label>
+      <mat-select formControlName="tags" multiple>
+        @for (option of tagOptions(); track option.id) {
+          <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-checkbox formControlName="priceOnRequest">Cena na upit</mat-checkbox>
+    <mat-checkbox formControlName="isActive">Aktivan (vidljiv na sajtu)</mat-checkbox>
+
+    <section class="product-form__image">
+      <h3>Glavna slika</h3>
+      @if (imagePreviewUrl()) {
+        <img [src]="imagePreviewUrl() | imageUrl" alt="" class="product-form__image-preview" />
+      }
+      <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
+      @if (uploadingImage()) {
+        <mat-spinner diameter="20" />
+      }
+    </section>
+
+    <section class="product-form__gallery">
+      <h3>Galerija</h3>
+      @if (galleryPreview().length) {
+        <div class="product-form__gallery-grid">
+          @for (img of galleryPreview(); track $index) {
+            <img [src]="img.img | imageUrl" alt="" class="product-form__gallery-image" />
+          }
+        </div>
+      }
+      <input type="file" accept="image/*" multiple (change)="onGallerySelected($event)" [disabled]="uploadingGallery()" />
+      @if (uploadingGallery()) {
+        <mat-spinner diameter="20" />
+      }
+    </section>
+
+    <section class="product-form__variants">
+      <h3>Varijante proizvoda</h3>
+      <app-repeater-field
+        [schema]="variantSchema"
+        [array]="variations"
+        addLabel="Dodaj varijantu"
+        emptyLabel="Nema varijanti - dodajte bar jednu pre objavljivanja."
+      />
+    </section>
+
+    <div class="product-form__actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+        {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+      </button>
+    </div>
+  </form>
+}

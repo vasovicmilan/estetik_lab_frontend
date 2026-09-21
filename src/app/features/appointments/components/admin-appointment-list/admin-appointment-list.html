@@ -1,0 +1,92 @@
+<div class="admin-appointment-list">
+  <div class="admin-appointment-list__header">
+    <h1>Zakazivanja</h1>
+    <a mat-flat-button color="primary" routerLink="/admin/zakazivanja/novi">Novi termin</a>
+  </div>
+
+  <form [formGroup]="filterForm" class="admin-appointment-list__filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Pretraga</mat-label>
+      <input matInput formControlName="search" placeholder="Ime, email, telefon..." />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        @for (option of statusOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Od datuma</mat-label>
+      <input matInput type="date" formControlName="dateFrom" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Do datuma</mat-label>
+      <input matInput type="date" formControlName="dateTo" />
+    </mat-form-field>
+
+    <mat-checkbox formControlName="unassignedOnly">Samo nedodeljeni</mat-checkbox>
+  </form>
+
+  <table mat-table [dataSource]="rows()" class="admin-appointment-list__table">
+    <ng-container matColumnDef="korisnik">
+      <th mat-header-cell *matHeaderCellDef>Klijent</th>
+      <td mat-cell *matCellDef="let row">{{ row.korisnik }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="usluga">
+      <th mat-header-cell *matHeaderCellDef>Usluga</th>
+      <td mat-cell *matCellDef="let row">{{ row.usluga }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="datum">
+      <th mat-header-cell *matHeaderCellDef>Termin</th>
+      <td mat-cell *matCellDef="let row">{{ row.datum }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let row">
+        <span [class]="statusClass(row.statusRaw)">{{ row.status }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="konacnaCena">
+      <th mat-header-cell *matHeaderCellDef>Cena</th>
+      <td mat-cell *matCellDef="let row">{{ row.konacnaCena }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="akcije">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <a mat-button [routerLink]="['/admin/zakazivanja', row.id]">Pregled</a>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  @if (!loading() && rows().length === 0) {
+    <p class="admin-appointment-list__empty">Nema zakazivanja koja odgovaraju filterima.</p>
+  }
+
+  @if (loading()) {
+    <div class="admin-appointment-list__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (meta(); as m) {
+    <mat-paginator
+      [length]="m.total"
+      [pageSize]="m.limit"
+      [pageIndex]="m.page - 1"
+      (page)="onPage($event)"
+    />
+  }
+</div>

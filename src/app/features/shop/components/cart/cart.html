@@ -1,0 +1,55 @@
+<div class="cart">
+  <h1>Korpa</h1>
+
+  @if (!isLoggedIn()) {
+    <div class="cart__login-prompt">
+      <p>Morate biti prijavljeni da biste videli korpu.</p>
+      <a mat-flat-button color="primary" routerLink="/prijava">Prijavite se</a>
+    </div>
+  } @else if (loading()) {
+    <div class="cart__spinner">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (cart(); as c) {
+    @if (c.stavke.length === 0) {
+      <p>Vaša korpa je prazna.</p>
+      <a routerLink="/prodavnica">Nastavite kupovinu</a>
+    } @else {
+      <div class="cart__lines">
+        @for (line of c.stavke; track line.id) {
+          <div class="cart__line">
+            @if (line.slika?.url) {
+              <img [src]="line.slika!.url | imageUrl" [alt]="line.naziv" class="cart__line-image" />
+            }
+            <div class="cart__line-info">
+              <a [routerLink]="['/prodavnica', line.productSlug]">{{ line.naziv }}</a>
+              <span class="cart__line-variant">{{ line.varijanta }}</span>
+              @if (!line.naStanju) {
+                <span class="cart__line-warning">Proizvod nije na stanju.</span>
+              } @else if (line.prekoracenje) {
+                <span class="cart__line-warning">Dostupno je samo {{ line.dostupnaKolicina }} kom.</span>
+              }
+            </div>
+            <div class="cart__line-qty">
+              <button mat-button type="button" [disabled]="updatingLineId() === line.id" (click)="changeQuantity(line.id, line.kolicina - 1)">-</button>
+              <span>{{ line.kolicina }}</span>
+              <button mat-button type="button" [disabled]="updatingLineId() === line.id" (click)="changeQuantity(line.id, line.kolicina + 1)">+</button>
+            </div>
+            <div class="cart__line-price">{{ line.ukupno }} din</div>
+            <button mat-button color="warn" type="button" [disabled]="updatingLineId() === line.id" (click)="removeLine(line.id)">Ukloni</button>
+          </div>
+        }
+      </div>
+
+      <div class="cart__summary">
+        @if (c.zahtevaProceenuDostave) {
+          <p class="cart__shipping-note">Cena dostave se procenjuje ručno.</p>
+        } @else if (c.postarina !== null) {
+          <p>Dostava: {{ c.postarina }} din</p>
+        }
+        <p class="cart__total">Ukupno: {{ c.ukupnaCena }} din</p>
+        <button mat-flat-button color="primary" type="button" (click)="goToCheckout()">Nastavi na plaćanje</button>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,129 @@
+@if (product(); as p) {
+  <article class="product-detail">
+    @if (p.slika?.url) {
+      <img [src]="p.slika!.url | imageUrl" [alt]="p.slika!.alt || p.naziv" class="product-detail__hero" />
+    }
+
+    @if (p.oznaka) {
+      <span class="product-detail__badge">{{ p.oznaka }}</span>
+    }
+
+    <h1>{{ p.naziv }}</h1>
+    <p class="product-detail__intro">{{ p.kratakOpis }}</p>
+
+    @if (p.kategorije.length) {
+      <mat-chip-set>
+        @for (kategorija of p.kategorije; track kategorija) {
+          <mat-chip>{{ kategorija }}</mat-chip>
+        }
+      </mat-chip-set>
+    }
+
+    @if (p.galerija.length) {
+      <div class="product-detail__gallery">
+        @for (img of p.galerija; track $index) {
+          <img [src]="img.url | imageUrl" [alt]="img.alt || p.naziv" class="product-detail__gallery-image" />
+        }
+      </div>
+    }
+
+    <app-content-blocks [blocks]="p.dugiOpis" />
+
+    @if (p.varijante.length) {
+      <section class="product-detail__purchase">
+        <h2>Izaberite varijantu</h2>
+        <div class="product-detail__variant-list">
+          @for (variant of p.varijante; track variant.id) {
+            <button
+              type="button"
+              class="product-detail__variant"
+              [class.product-detail__variant--selected]="selectedVariant()?.id === variant.id"
+              [disabled]="!variant.naStanju"
+              (click)="selectVariant(variant)"
+            >
+              <span class="product-detail__variant-name">{{ variant.naziv }}</span>
+              <span class="product-detail__variant-price">
+                @if (p.naUpit) {
+                  Cena na upit
+                } @else {
+                  {{ variant.cena }} din
+                  @if (variant.staraCena) {
+                    <span class="product-detail__variant-price--old">{{ variant.staraCena }} din</span>
+                  }
+                }
+              </span>
+              @if (!variant.naStanju) {
+                <span class="product-detail__variant-stock">Nema na stanju</span>
+              }
+            </button>
+          }
+        </div>
+
+        @if (!p.naUpit && selectedVariant(); as v) {
+          <div class="product-detail__add">
+            <label class="product-detail__quantity">
+              Količina
+              <input
+                type="number"
+                min="1"
+                max="99"
+                [value]="quantity()"
+                (change)="setQuantity($any($event.target).valueAsNumber)"
+              />
+            </label>
+
+            @if (isLoggedIn()) {
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                [disabled]="addingToCart() || !v.naStanju"
+                (click)="addToCart()"
+              >
+                {{ addingToCart() ? 'Dodavanje...' : 'Dodaj u korpu' }}
+              </button>
+            } @else {
+              <p class="product-detail__login-note">
+                <a routerLink="/prijava">Prijavite se</a> da biste dodali u korpu.
+              </p>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    @if (p.faq.length) {
+      <section class="product-detail__faq">
+        <h2>Pitanja i odgovori</h2>
+        @for (item of p.faq; track item.pitanje) {
+          <details>
+            <summary>{{ item.pitanje }}</summary>
+            <p>{{ item.odgovor }}</p>
+          </details>
+        }
+      </section>
+    }
+
+    @if (p.povezaniProizvodi.length) {
+      <section class="product-detail__related">
+        <h2>Povezani proizvodi</h2>
+        <div class="product-detail__related-grid">
+          @for (related of p.povezaniProizvodi; track related.id) {
+            <a [routerLink]="['/prodavnica', related.slug]" class="product-detail__related-item">
+              @if (related.slika?.url) {
+                <img [src]="related.slika!.url | imageUrl" [alt]="related.naziv" />
+              }
+              <span>{{ related.naziv }}</span>
+            </a>
+          }
+        </div>
+      </section>
+    }
+  </article>
+} @else {
+  <div class="product-detail__not-found">
+    <h1>Proizvod nije pronađen</h1>
+    <p>Proizvod koji tražite ne postoji ili je uklonjen.</p>
+    <a routerLink="/prodavnica">Nazad u prodavnicu</a>
+  </div>
+}

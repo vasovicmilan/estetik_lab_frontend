@@ -1,0 +1,32 @@
+<div class="service-list">
+  <h1>Usluge</h1>
+
+  @if (loading()) {
+    <div class="service-list__spinner">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (services().length === 0) {
+    <p>Trenutno nema dostupnih usluga.</p>
+  } @else {
+    <div class="service-list__grid">
+      @for (service of services(); track service.id) {
+        <a [routerLink]="['/usluge', service.slug]" class="service-list__card-link">
+          <mat-card class="service-list__card">
+            @if (service.slika?.url) {
+              <img [src]="service.slika!.url | imageUrl" [alt]="service.slika!.alt || service.naziv" class="service-list__image" />
+            }
+            <mat-card-title>{{ service.naziv }}</mat-card-title>
+            <mat-card-content>
+              <p>{{ service.kratakOpis }}</p>
+              <p class="service-list__price">{{ service.cena }}</p>
+            </mat-card-content>
+          </mat-card>
+        </a>
+      }
+    </div>
+
+    @if (meta(); as m) {
+      <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" (page)="onPage($event)" />
+    }
+  }
+</div>

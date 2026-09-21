@@ -1,0 +1,143 @@
+@for (block of blocks(); track $index) {
+  <div class="content-block">
+    @switch (block.tip) {
+      @case ('paragraph') {
+        <p>{{ block.tekst }}</p>
+      }
+      @case ('heading') {
+        @switch (block.nivo) {
+          @case (2) {
+            <h2>{{ block.tekst }}</h2>
+          }
+          @case (4) {
+            <h4>{{ block.tekst }}</h4>
+          }
+          @default {
+            <h3>{{ block.tekst }}</h3>
+          }
+        }
+      }
+      @case ('image') {
+        @if (block.slika?.url) {
+          <figure class="content-block__figure">
+            <img [src]="block.slika!.url | imageUrl" [alt]="block.slika!.alt || ''" class="content-block__image" />
+          </figure>
+        }
+      }
+      @case ('gallery') {
+        @if (block.galerija?.length) {
+          <div class="content-block__gallery">
+            @for (img of block.galerija; track $index) {
+              <img [src]="img.url | imageUrl" [alt]="img.alt || ''" class="content-block__gallery-image" />
+            }
+          </div>
+        }
+      }
+      @case ('quote') {
+        <blockquote class="content-block__quote">
+          <p>{{ block.tekst }}</p>
+          @if (block.izvor) {
+            <cite>{{ block.izvor }}</cite>
+          }
+        </blockquote>
+      }
+      @case ('list') {
+        @if (block.uredjeno) {
+          <ol>
+            @for (item of block.stavke; track $index) {
+              <li>{{ item }}</li>
+            }
+          </ol>
+        } @else {
+          <ul>
+            @for (item of block.stavke; track $index) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+        }
+      }
+      @case ('video') {
+        @if (block.video?.url) {
+          <div class="content-block__video">
+            <video [src]="block.video!.url" controls [poster]="block.video!.thumbnail || null"></video>
+          </div>
+        }
+      }
+      @case ('table') {
+        @if (block.kolone?.length) {
+          <table class="content-block__table">
+            <thead>
+              <tr>
+                @for (col of block.kolone; track $index) {
+                  <th>{{ col }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of block.redovi; track $index) {
+                <tr>
+                  <td>{{ row.label }}</td>
+                  @for (value of row.values; track $index) {
+                    <td>{{ value }}</td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      }
+      @case ('cards') {
+        @if (block.kartice?.length) {
+          <div class="content-block__cards">
+            @for (card of block.kartice; track $index) {
+              <div class="content-block__card">
+                @if (card.title) {
+                  <h4>{{ card.title }}</h4>
+                }
+                @if (card.text) {
+                  <p>{{ card.text }}</p>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+      @case ('callout') {
+        <div class="content-block__callout" [class]="'content-block__callout--' + block.varijanta">
+          @if (block.naslovBloka) {
+            <h4>{{ block.naslovBloka }}</h4>
+          }
+          <p>{{ block.tekst }}</p>
+        </div>
+      }
+      @case ('faq') {
+        @if (block.faqStavke?.length) {
+          <section class="content-block__faq">
+            @if (block.naslovBloka) {
+              <h3>{{ block.naslovBloka }}</h3>
+            }
+            @for (item of block.faqStavke; track $index) {
+              <details>
+                <summary>{{ item.question }}</summary>
+                <p>{{ item.answer }}</p>
+              </details>
+            }
+          </section>
+        }
+      }
+      @case ('cta') {
+        <div class="content-block__cta">
+          @if (block.naslovBloka) {
+            <h3>{{ block.naslovBloka }}</h3>
+          }
+          @if (block.dugme?.url) {
+            <a [href]="block.dugme!.url" class="content-block__cta-button">{{ block.dugme!.tekst || 'Saznaj više' }}</a>
+          }
+        </div>
+      }
+      @case ('divider') {
+        <hr class="content-block__divider" />
+      }
+    }
+  </div>
+}

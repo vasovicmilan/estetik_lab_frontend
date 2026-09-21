@@ -1,0 +1,41 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled resursa</h1>
+    <div class="admin-detail__actions">
+      @if (resourceId(); as id) {
+        <a mat-flat-button color="primary" [routerLink]="['/admin/resursi', id, 'izmena']">Izmeni</a>
+      }
+      <a mat-button routerLink="/admin/resursi">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <dl class="admin-detail__list">
+      <dt>Naziv</dt>
+      <dd>{{ d.naziv }}</dd>
+
+      <dt>Kapacitet</dt>
+      <dd>{{ d.kapacitet }}</dd>
+
+      <dt>Napomena</dt>
+      <dd>{{ d.napomena || '-' }}</dd>
+
+      <dt>Aktivan</dt>
+      <dd>{{ d.aktivan ? 'Da' : 'Ne' }}</dd>
+
+      <dt>Kreiran</dt>
+      <dd>{{ d.vreme.kreiran }}</dd>
+
+      <dt>Ažuriran</dt>
+      <dd>{{ d.vreme.azuriran }}</dd>
+    </dl>
+  } @else if (!loading()) {
+    <p>Resurs nije pronađen.</p>
+  }
+</div>

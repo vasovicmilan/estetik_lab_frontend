@@ -1,0 +1,105 @@
+<div class="admin-employee-detail">
+  <div class="admin-employee-detail__header">
+    <h1>Pregled zaposlenog</h1>
+    <a mat-button routerLink="/admin/zaposleni">Nazad na listu</a>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-employee-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (detail(); as d) {
+    <div class="admin-employee-detail__body">
+      <section class="admin-employee-detail__section">
+        <h2>Korisnik</h2>
+        <dl class="admin-employee-detail__list">
+          <dt>Ime i prezime</dt>
+          <dd>{{ d.korisnik.imePrezime }}</dd>
+          <dt>Email</dt>
+          <dd>{{ d.korisnik.email ?? '-' }}</dd>
+          <dt>Telefon</dt>
+          <dd>{{ d.korisnik.telefon ?? '-' }}</dd>
+        </dl>
+
+        <a mat-flat-button color="primary" [routerLink]="['/admin/zaposleni', d.id]">Izmeni</a>
+      </section>
+
+      <section class="admin-employee-detail__section">
+        <h2>Povezani ekspert</h2>
+        @if (d.povezaniEkspert) {
+          <p>
+            {{ d.povezaniEkspert.imePrezime ?? d.povezaniEkspert.id }}
+            @if (d.povezaniEkspert.slug) {
+              <a [routerLink]="['/tim', d.povezaniEkspert.slug]">(javni profil)</a>
+            }
+          </p>
+        } @else {
+          <p class="admin-employee-detail__hint">Nije povezan ni sa jednim ekspertom.</p>
+        }
+      </section>
+
+      <section class="admin-employee-detail__section">
+        <h2>Usluge</h2>
+        @if (d.usluge.length) {
+          <ul class="admin-employee-detail__chips">
+            @for (usluga of d.usluge; track usluga) {
+              <li>{{ usluga }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="admin-employee-detail__hint">Nema dodeljenih usluga.</p>
+        }
+      </section>
+
+      <section class="admin-employee-detail__section">
+        <h2>Radno vreme</h2>
+        @if (d.radnoVreme.length) {
+          <dl class="admin-employee-detail__list">
+            @for (dan of d.radnoVreme; track dan.dan) {
+              <dt>{{ dan.dan }}</dt>
+              <dd>{{ dan.termini.join(', ') }}</dd>
+            }
+          </dl>
+        } @else {
+          <p class="admin-employee-detail__hint">Radno vreme nije definisano.</p>
+        }
+      </section>
+
+      <section class="admin-employee-detail__section">
+        <h2>Isplata i status</h2>
+        <dl class="admin-employee-detail__list">
+          <dt>Način isplate</dt>
+          <dd>{{ d.nacinIsplate }}</dd>
+          @if (d.procenatProvizije) {
+            <dt>Procenat provizije</dt>
+            <dd>{{ d.procenatProvizije }}</dd>
+          }
+          <dt>Aktivan</dt>
+          <dd>{{ d.aktivan }}</dd>
+          @if (d.napomena) {
+            <dt>Napomena</dt>
+            <dd>{{ d.napomena }}</dd>
+          }
+          @if (d.googleCalendarId) {
+            <dt>Google Calendar ID</dt>
+            <dd>{{ d.googleCalendarId }}</dd>
+          }
+          @if (d.sredimeIcsUrl) {
+            <dt>Sredime ICS URL</dt>
+            <dd>{{ d.sredimeIcsUrl }}</dd>
+          }
+          <dt>Kreiran</dt>
+          <dd>{{ d.vreme.kreiran }}</dd>
+          <dt>Ažuriran</dt>
+          <dd>{{ d.vreme.azuriran }}</dd>
+        </dl>
+      </section>
+    </div>
+  } @else if (notFound()) {
+    <div class="admin-employee-detail__not-found">
+      <h1>Zaposleni nije pronađen</h1>
+      <p>Zaposleni kojeg tražite ne postoji ili je uklonjen.</p>
+      <a routerLink="/admin/zaposleni">Nazad na listu</a>
+    </div>
+  }
+</div>

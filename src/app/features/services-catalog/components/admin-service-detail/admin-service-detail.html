@@ -1,0 +1,131 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled usluge</h1>
+    <div class="admin-detail__actions">
+      @if (serviceId(); as id) {
+        <a mat-flat-button color="primary" [routerLink]="['/admin/usluge', id, 'izmena']">Izmeni</a>
+      }
+      <a mat-button routerLink="/admin/usluge">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      @if (d.slika?.url) {
+        <img [src]="d.slika!.url | imageUrl" [alt]="d.slika!.alt || d.naziv" class="admin-detail__image" />
+      }
+
+      <dl class="admin-detail__list">
+        <dt>Naziv</dt>
+        <dd>{{ d.naziv }}</dd>
+
+        <dt>Slug</dt>
+        <dd>{{ d.slug }}</dd>
+
+        <dt>Kratak opis</dt>
+        <dd>{{ d.kratakOpis || '-' }}</dd>
+
+        <dt>Dugi opis</dt>
+        <dd [innerHTML]="d.dugiOpis"></dd>
+
+        <dt>Kategorije</dt>
+        <dd>
+          @if (d.kategorije.length) {
+            <mat-chip-set>
+              @for (kat of d.kategorije; track kat) {
+                <mat-chip>{{ kat }}</mat-chip>
+              }
+            </mat-chip-set>
+          } @else {
+            -
+          }
+        </dd>
+
+        <dt>Tagovi</dt>
+        <dd>
+          @if (d.tagovi.length) {
+            <mat-chip-set>
+              @for (tag of d.tagovi; track tag) {
+                <mat-chip>{{ tag }}</mat-chip>
+              }
+            </mat-chip-set>
+          } @else {
+            -
+          }
+        </dd>
+
+        @if (d.resursi?.length) {
+          <dt>Resursi</dt>
+          <dd>{{ d.resursi!.join(', ') }}</dd>
+        }
+
+        <dt>CTA tekst</dt>
+        <dd>{{ d.cta || '-' }}</dd>
+
+        <dt>Aktivna</dt>
+        <dd>{{ d.aktivna ? 'Da' : 'Ne' }}</dd>
+      </dl>
+
+      @if (d.varijante.length) {
+        <section class="admin-detail__section">
+          <h2>Varijante</h2>
+          <table class="admin-detail__table">
+            <thead>
+              <tr>
+                <th>Naziv</th>
+                <th>Seanse</th>
+                <th>Trajanje</th>
+                <th>Cena</th>
+                <th>Stara cena</th>
+                <th>Oznaka</th>
+                <th>Najbolja</th>
+                <th>Aktivna</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (v of d.varijante; track v.id) {
+                <tr>
+                  <td>{{ v.naziv }}</td>
+                  <td>{{ v.brojSeansi }}</td>
+                  <td>{{ v.trajanje }}</td>
+                  <td>{{ v.cena }}</td>
+                  <td>{{ v.staraCena ?? '-' }}</td>
+                  <td>{{ v.oznaka ?? '-' }}</td>
+                  <td>{{ v.najbolji ? 'Da' : 'Ne' }}</td>
+                  <td>{{ v.aktivan ? 'Da' : 'Ne' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </section>
+      }
+
+      @if (d.faq.length) {
+        <section class="admin-detail__section">
+          <h2>Pitanja i odgovori</h2>
+          @for (item of d.faq; track item.pitanje) {
+            <details>
+              <summary>{{ item.pitanje }}</summary>
+              <p>{{ item.odgovor }}</p>
+            </details>
+          }
+        </section>
+      }
+
+      @if (d.seoKljucneReci?.length) {
+        <section class="admin-detail__section">
+          <h2>SEO ključne reči</h2>
+          <p>{{ d.seoKljucneReci!.join(', ') }}</p>
+        </section>
+      }
+    </div>
+  } @else if (!loading()) {
+    <p>Usluga nije pronađena.</p>
+  }
+</div>

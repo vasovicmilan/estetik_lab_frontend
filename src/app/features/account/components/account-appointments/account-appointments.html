@@ -1,0 +1,75 @@
+<div class="account-appointments">
+  @if (loading()) {
+    <div class="account-appointments__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (appointments().length === 0) {
+    <p>Trenutno nemate nijedno zakazivanje.</p>
+  } @else {
+    @if (today().length) {
+      <section class="account-appointments__section">
+        <h2>Danas</h2>
+        <div class="account-appointments__list">
+          @for (a of today(); track a.id) {
+            <a [routerLink]="['/moj-nalog/zakazivanja', a.id]" class="account-appointments__card">
+              <div class="account-appointments__card-main">
+                <strong>{{ a.usluga }}</strong>
+                <span>{{ a.datum }}</span>
+              </div>
+              <div class="account-appointments__card-meta">
+                <span class="account-appointments__status">{{ a.status }}</span>
+                @if (a.cena) {
+                  <span>{{ a.cena }}</span>
+                }
+              </div>
+            </a>
+          }
+        </div>
+      </section>
+    }
+
+    @if (upcoming().length) {
+      <section class="account-appointments__section">
+        <h2>Predstojeći</h2>
+        <div class="account-appointments__list">
+          @for (a of upcoming(); track a.id) {
+            <a [routerLink]="['/moj-nalog/zakazivanja', a.id]" class="account-appointments__card">
+              <div class="account-appointments__card-main">
+                <strong>{{ a.usluga }}</strong>
+                <span>{{ a.datum }}</span>
+              </div>
+              <div class="account-appointments__card-meta">
+                <span class="account-appointments__status">{{ a.status }}</span>
+                @if (a.cena) {
+                  <span>{{ a.cena }}</span>
+                }
+              </div>
+            </a>
+          }
+        </div>
+      </section>
+    }
+
+    @if (past().length) {
+      <section class="account-appointments__section">
+        <h2>Prošli</h2>
+        <div class="account-appointments__list">
+          @for (a of past(); track a.id) {
+            <a [routerLink]="['/moj-nalog/zakazivanja', a.id]" class="account-appointments__card account-appointments__card--past">
+              <div class="account-appointments__card-main">
+                <strong>{{ a.usluga }}</strong>
+                <span>{{ a.datum }}</span>
+              </div>
+              <div class="account-appointments__card-meta">
+                <span class="account-appointments__status">{{ a.status }}</span>
+                @if (a.cena) {
+                  <span>{{ a.cena }}</span>
+                }
+              </div>
+            </a>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

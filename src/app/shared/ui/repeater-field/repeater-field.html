@@ -1,1 +1,44 @@
-<p>repeater-field works!</p>
+<div class="repeater">
+  @if (rows().length === 0) {
+    <p class="repeater__empty">{{ emptyLabel() }}</p>
+  }
+
+  @for (row of rows(); track row; let i = $index) {
+    <div class="repeater__row" [formGroup]="row">
+      <!-- hidden fields (e.g. _id) round-trip silently, never rendered as inputs -->
+      @for (field of schema(); track field.name) {
+        @if (field.type === 'hidden') {
+          <input type="hidden" [formControlName]="field.name" />
+        }
+      }
+
+      @for (field of textFields(); track field.name) {
+        <mat-form-field appearance="outline" class="repeater__field">
+          <mat-label>{{ field.label }}</mat-label>
+          @if (field.type === 'select') {
+            <mat-select [formControlName]="field.name">
+              @for (opt of field.options; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          } @else {
+            <input matInput [type]="field.type" [formControlName]="field.name" />
+          }
+        </mat-form-field>
+      }
+
+      @for (field of checkboxFields(); track field.name) {
+        <mat-checkbox [formControlName]="field.name">{{ field.label }}</mat-checkbox>
+      }
+
+      <button mat-icon-button type="button" color="warn" (click)="removeRow(i)" [attr.aria-label]="'Ukloni red ' + (i + 1)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  }
+
+  <button mat-stroked-button type="button" (click)="addRow()">
+    <mat-icon>add</mat-icon>
+    {{ addLabel() }}
+  </button>
+</div>

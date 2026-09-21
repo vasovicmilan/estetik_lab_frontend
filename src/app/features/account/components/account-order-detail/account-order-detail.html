@@ -1,0 +1,120 @@
+<div class="account-order-detail">
+  <div class="account-order-detail__header">
+    <h1>Pregled porudžbine</h1>
+    <a routerLink="/moj-nalog/porudzbine">Nazad na listu</a>
+  </div>
+
+  @if (loading()) {
+    <div class="account-order-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (detail(); as d) {
+    <div class="account-order-detail__body">
+      <section class="account-order-detail__section">
+        <h2>Adresa dostave</h2>
+        @if (d.adresa) {
+          <dl class="account-order-detail__list">
+            <dt>Grad</dt>
+            <dd>{{ d.adresa.grad }}</dd>
+            <dt>Poštanski broj</dt>
+            <dd>{{ d.adresa.postanskiBroj }}</dd>
+            <dt>Ulica</dt>
+            <dd>{{ d.adresa.ulica }}</dd>
+            <dt>Broj</dt>
+            <dd>{{ d.adresa.broj }}</dd>
+          </dl>
+        } @else {
+          <p class="account-order-detail__hint">Adresa nije uneta.</p>
+        }
+      </section>
+
+      <section class="account-order-detail__section">
+        <h2>Stavke</h2>
+        <table class="account-order-detail__items">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Naziv</th>
+              <th>Varijanta</th>
+              <th>SKU</th>
+              <th>Cena</th>
+              <th>Kol.</th>
+              <th>Ukupno</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (stavka of d.stavke; track $index) {
+              <tr>
+                <td>
+                  @if (stavka.slika?.url) {
+                    <img [src]="stavka.slika!.url | imageUrl" [alt]="stavka.naziv" class="account-order-detail__item-image" />
+                  }
+                </td>
+                <td>{{ stavka.naziv }}</td>
+                <td>{{ stavka.varijanta ?? '-' }}</td>
+                <td>{{ stavka.sku ?? '-' }}</td>
+                <td>{{ stavka.cena }} RSD</td>
+                <td>{{ stavka.kolicina }}</td>
+                <td>{{ stavka.ukupno }} RSD</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <dl class="account-order-detail__list account-order-detail__list--totals">
+          <dt>Međuzbir</dt>
+          <dd>{{ d.subtotal }} RSD</dd>
+          <dt>Dostava</dt>
+          <dd>{{ d.zahtevaProceenuDostave ? 'Cena dostave se procenjuje ručno' : d.dostava + ' RSD' }}</dd>
+          @if (d.kupon) {
+            <dt>Kupon</dt>
+            <dd>{{ d.kupon }}</dd>
+          }
+          @if (d.popust) {
+            <dt>Popust</dt>
+            <dd>{{ d.popust }} RSD</dd>
+          }
+          <dt>Ukupno</dt>
+          <dd>{{ d.ukupnaCena ?? '-' }}</dd>
+          @if (d.napomena) {
+            <dt>Napomena</dt>
+            <dd>{{ d.napomena }}</dd>
+          }
+        </dl>
+      </section>
+
+      <section class="account-order-detail__section">
+        <h2>Status: <span [class]="'account-order-detail__status account-order-detail__status--' + d.statusRaw">{{ d.status }}</span></h2>
+
+        @if (d.statusRaw === 'cancelled' && d.razlogOtkazivanja) {
+          <p class="account-order-detail__reason-text"><strong>Razlog otkazivanja:</strong> {{ d.razlogOtkazivanja }}</p>
+        }
+
+        @if (canCancel(d)) {
+          <div class="account-order-detail__actions">
+            <button mat-stroked-button color="warn" type="button" [disabled]="acting()" (click)="toggleCancel()">Otkaži porudžbinu</button>
+          </div>
+
+          @if (cancelling()) {
+            <div class="account-order-detail__inline-form">
+              <mat-form-field appearance="outline">
+                <mat-label>Razlog otkazivanja (opciono)</mat-label>
+                <textarea matInput rows="2" maxlength="500" [ngModel]="cancelReason()" (ngModelChange)="cancelReason.set($event)"></textarea>
+              </mat-form-field>
+              <div class="account-order-detail__inline-form-actions">
+                <button mat-flat-button color="warn" type="button" [disabled]="acting()" (click)="submitCancel()">Otkaži porudžbinu</button>
+                <button mat-button type="button" (click)="cancelling.set(false)">Zatvori</button>
+              </div>
+            </div>
+          }
+        }
+      </section>
+    </div>
+  } @else if (notFound()) {
+    <div class="account-order-detail__not-found">
+      <h1>Porudžbina nije pronađena</h1>
+      <p>Porudžbina koju tražite ne postoji ili nije vaša.</p>
+      <a routerLink="/moj-nalog/porudzbine">Nazad na listu</a>
+    </div>
+  }
+</div>

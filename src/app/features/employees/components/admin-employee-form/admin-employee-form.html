@@ -1,0 +1,104 @@
+@if (loading() || optionsLoading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="employee-form">
+    <div class="employee-form__header">
+      <h2>{{ employeeId() ? 'Izmena zaposlenog' : 'Novi zaposleni' }}</h2>
+      <a mat-button routerLink="/admin/zaposleni">Nazad na listu</a>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Korisnik</mat-label>
+      <mat-select formControlName="userId" required>
+        @for (option of userOptions(); track option.id) {
+          <mat-option [value]="option.id">{{ option.imePrezime }} ({{ option.email }})</mat-option>
+        }
+      </mat-select>
+      @if (form.get('userId')?.hasError('required') && form.get('userId')?.touched) {
+        <mat-error>Korisnik je obavezan.</mat-error>
+      }
+      @if (employeeId()) {
+        <mat-hint>Korisnik se ne može menjati nakon kreiranja.</mat-hint>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Povezani ekspert (opciono)</mat-label>
+      <mat-select formControlName="expert">
+        <mat-option value="">Bez eksperta</mat-option>
+        @for (option of expertOptions(); track option.id) {
+          <mat-option [value]="option.id">{{ option.imePrezime }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Usluge</mat-label>
+      <mat-select formControlName="services" multiple>
+        @for (option of serviceOptions(); track option.id) {
+          <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Način isplate</mat-label>
+      <mat-select formControlName="payType">
+        @for (option of payTypeOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (isCommission) {
+      <mat-form-field appearance="outline">
+        <mat-label>Procenat provizije</mat-label>
+        <input matInput type="number" min="0" max="100" formControlName="commissionRate" />
+      </mat-form-field>
+    }
+
+    <mat-checkbox formControlName="isActive">Aktivan</mat-checkbox>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Napomena</mat-label>
+      <textarea matInput formControlName="notes" rows="3" maxlength="500"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Google Calendar ID (email format)</mat-label>
+      <input matInput formControlName="googleCalendarId" placeholder="ime@group.calendar.google.com" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Sredime ICS URL (https://...)</mat-label>
+      <input matInput formControlName="sredimeIcsUrl" placeholder="https://..." />
+    </mat-form-field>
+
+    <section class="employee-form__hours" [formGroup]="workingHoursForm">
+      <h3>Radno vreme</h3>
+      <p class="employee-form__hint">Jedan termin po danu (v1 pojednostavljenje - backend podržava više termina po danu).</p>
+
+      @for (day of weekDays; track day.value) {
+        <div class="employee-form__hours-row" [formGroupName]="day.value">
+          <mat-checkbox formControlName="radi">{{ day.label }}</mat-checkbox>
+          @if (workingHoursForm.get(day.value)?.get('radi')?.value) {
+            <mat-form-field appearance="outline" class="employee-form__hours-time">
+              <mat-label>Od</mat-label>
+              <input matInput type="time" formControlName="from" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="employee-form__hours-time">
+              <mat-label>Do</mat-label>
+              <input matInput type="time" formControlName="to" />
+            </mat-form-field>
+          }
+        </div>
+      }
+    </section>
+
+    <div class="employee-form__actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+        {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+      </button>
+    </div>
+  </form>
+}

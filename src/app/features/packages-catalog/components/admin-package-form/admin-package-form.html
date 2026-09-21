@@ -1,0 +1,57 @@
+@if (loading()) {
+  <mat-spinner diameter="32" />
+} @else {
+<form [formGroup]="form" (ngSubmit)="submit()" class="package-form">
+  <h2>{{ packageId() ? 'Izmena paketa' : 'Novi paket' }}</h2>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Naziv paketa</mat-label>
+    <input matInput formControlName="name" required />
+    @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+      <mat-error>Naziv je obavezan.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Opis</mat-label>
+    <textarea matInput formControlName="description" rows="4" required></textarea>
+    @if (form.get('description')?.hasError('required') && form.get('description')?.touched) {
+      <mat-error>Opis je obavezan.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Kratak opis</mat-label>
+    <textarea matInput formControlName="shortDescription" rows="2"></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Cena (RSD)</mat-label>
+    <input matInput type="number" formControlName="totalPrice" required />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Stara cena (opciono)</mat-label>
+    <input matInput type="number" formControlName="basePrice" />
+  </mat-form-field>
+
+  <mat-checkbox formControlName="isBest">Istaknut kao najbolja ponuda</mat-checkbox>
+  <mat-checkbox formControlName="isActive">Aktivan (vidljiv na sajtu)</mat-checkbox>
+
+  <section class="package-form__items">
+    <h3>Usluge u paketu</h3>
+    <app-repeater-field
+      [schema]="itemSchema"
+      [array]="items"
+      addLabel="Dodaj uslugu"
+      emptyLabel="Paket mora sadržati bar jednu uslugu."
+    />
+  </section>
+
+  <div class="package-form__actions">
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid || items.length === 0">
+      {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+    </button>
+  </div>
+</form>
+}

@@ -1,0 +1,99 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled člana tima</h1>
+    <div class="admin-detail__actions">
+      @if (memberId(); as id) {
+        <a mat-flat-button color="primary" [routerLink]="['/admin/tim', id]">Izmeni</a>
+      }
+      <a mat-button routerLink="/admin/tim">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      @if (d.slika?.url) {
+        <img [src]="d.slika!.url | imageUrl" [alt]="d.slika!.alt || d.osnovno.ime" class="admin-detail__image" />
+      }
+
+      <dl class="admin-detail__list">
+        <dt>Ime i prezime</dt>
+        <dd>{{ d.osnovno.ime }} {{ d.osnovno.prezime }}</dd>
+
+        <dt>Slug</dt>
+        <dd>{{ d.osnovno.slug }}</dd>
+
+        <dt>Titula</dt>
+        <dd>{{ d.osnovno.titula || '-' }}</dd>
+
+        <dt>Kratka biografija</dt>
+        <dd>{{ d.osnovno.kratkaBiografija || '-' }}</dd>
+
+        <dt>Biografija</dt>
+        <dd [innerHTML]="d.osnovno.biografija"></dd>
+
+        <dt>Specijalizacije</dt>
+        <dd>
+          @if (d.specijalizacije.length) {
+            <mat-chip-set>
+              @for (spec of d.specijalizacije; track spec) {
+                <mat-chip>{{ spec }}</mat-chip>
+              }
+            </mat-chip-set>
+          } @else {
+            -
+          }
+        </dd>
+
+        <dt>Usluge</dt>
+        <dd>{{ d.usluge.length ? d.usluge.join(', ') : '-' }}</dd>
+
+        <dt>Društvene mreže</dt>
+        <dd>
+          @if (d.drustveneMreze.instagram || d.drustveneMreze.facebook || d.drustveneMreze.linkedin || d.drustveneMreze.website) {
+            <ul class="admin-detail__plain-list">
+              @if (d.drustveneMreze.instagram) {
+                <li>Instagram: {{ d.drustveneMreze.instagram }}</li>
+              }
+              @if (d.drustveneMreze.facebook) {
+                <li>Facebook: {{ d.drustveneMreze.facebook }}</li>
+              }
+              @if (d.drustveneMreze.linkedin) {
+                <li>LinkedIn: {{ d.drustveneMreze.linkedin }}</li>
+              }
+              @if (d.drustveneMreze.website) {
+                <li>Sajt: {{ d.drustveneMreze.website }}</li>
+              }
+            </ul>
+          } @else {
+            -
+          }
+        </dd>
+
+        <dt>Redosled</dt>
+        <dd>{{ d.redosled }}</dd>
+
+        <dt>Aktivan</dt>
+        <dd>{{ d.aktivan ? 'Da' : 'Ne' }}</dd>
+      </dl>
+
+      @if (d.galerija.length) {
+        <section class="admin-detail__section">
+          <h2>Galerija</h2>
+          <div class="admin-detail__gallery">
+            @for (img of d.galerija; track $index) {
+              <img [src]="img.url | imageUrl" [alt]="img.alt || ''" />
+            }
+          </div>
+        </section>
+      }
+    </div>
+  } @else if (!loading()) {
+    <p>Član tima nije pronađen.</p>
+  }
+</div>

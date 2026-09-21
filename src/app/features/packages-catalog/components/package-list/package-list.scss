@@ -1,0 +1,58 @@
+.package-list {
+  padding: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin: 1rem 0 1.5rem;
+  }
+
+  &__card-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  &__card {
+    height: 100%;
+    position: relative;
+  }
+
+  &__image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: var(--mat-sys-tertiary-container, #ffd8e4);
+    color: var(--mat-sys-on-tertiary-container, #31111d);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  &__price {
+    font-weight: 600;
+
+    &--old {
+      font-weight: 400;
+      text-decoration: line-through;
+      margin-left: 0.5rem;
+      color: var(--mat-sys-on-surface-variant, #888);
+    }
+  }
+}

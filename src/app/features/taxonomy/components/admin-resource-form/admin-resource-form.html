@@ -1,0 +1,36 @@
+@if (loading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="resource-form">
+    <h2>{{ resourceId() ? 'Izmena resursa' : 'Novi resurs' }}</h2>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Naziv resursa</mat-label>
+      <input matInput formControlName="name" required />
+      @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+        <mat-error>Naziv je obavezan.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Kapacitet</mat-label>
+      <input matInput type="number" formControlName="capacity" required />
+      @if (form.get('capacity')?.hasError('required') && form.get('capacity')?.touched) {
+        <mat-error>Kapacitet je obavezan.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Napomena</mat-label>
+      <textarea matInput formControlName="notes" rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-checkbox formControlName="isActive">Aktivan</mat-checkbox>
+
+    <div class="resource-form__actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+        {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+      </button>
+    </div>
+  </form>
+}

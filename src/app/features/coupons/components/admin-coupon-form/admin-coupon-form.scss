@@ -1,0 +1,30 @@
+.coupon-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 640px;
+  padding: 1.5rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__product-discount {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+
+    h3 {
+      margin: 0;
+    }
+  }
+
+  &__actions {
+    margin-top: 1rem;
+  }
+}

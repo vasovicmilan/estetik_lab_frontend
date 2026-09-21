@@ -1,0 +1,134 @@
+<div class="admin-temporary-order-detail">
+  <div class="admin-temporary-order-detail__header">
+    <h1>Pregled privremene porudžbine</h1>
+    <a mat-button routerLink="/admin/privremene-porudzbine">Nazad na listu</a>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-temporary-order-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (detail(); as d) {
+    <div class="admin-temporary-order-detail__body">
+      <section class="admin-temporary-order-detail__section">
+        <h2>Klijent</h2>
+        <dl class="admin-temporary-order-detail__list">
+          <dt>Ime</dt>
+          <dd>{{ d.korisnik.ime }}</dd>
+          <dt>Email</dt>
+          <dd>{{ d.korisnik.email ?? '-' }}</dd>
+          <dt>Telefon</dt>
+          <dd>{{ d.korisnik.telefon ?? '-' }}</dd>
+        </dl>
+      </section>
+
+      <section class="admin-temporary-order-detail__section">
+        <h2>Adresa dostave</h2>
+        @if (d.adresa) {
+          <dl class="admin-temporary-order-detail__list">
+            <dt>Grad</dt>
+            <dd>{{ d.adresa.grad }}</dd>
+            <dt>Poštanski broj</dt>
+            <dd>{{ d.adresa.postanskiBroj }}</dd>
+            <dt>Ulica</dt>
+            <dd>{{ d.adresa.ulica }}</dd>
+            <dt>Broj</dt>
+            <dd>{{ d.adresa.broj }}</dd>
+          </dl>
+        } @else {
+          <p class="admin-temporary-order-detail__hint">Adresa nije uneta.</p>
+        }
+      </section>
+
+      <section class="admin-temporary-order-detail__section">
+        <h2>Stavke</h2>
+        <table class="admin-temporary-order-detail__items">
+          <thead>
+            <tr>
+              <th>Naziv</th>
+              <th>Varijanta</th>
+              <th>SKU</th>
+              <th>Cena</th>
+              <th>Kol.</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (stavka of d.stavke; track $index) {
+              <tr>
+                <td>{{ stavka.naziv }}</td>
+                <td>{{ stavka.varijanta ?? '-' }}</td>
+                <td>{{ stavka.sku ?? '-' }}</td>
+                <td>{{ stavka.cena }} RSD</td>
+                <td>{{ stavka.kolicina }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <dl class="admin-temporary-order-detail__list admin-temporary-order-detail__list--totals">
+          <dt>Međuzbir</dt>
+          <dd>{{ d.subtotal }} RSD</dd>
+          <dt>Dostava</dt>
+          <dd>{{ d.zahtevaProceenuDostave && !d.dostava ? 'Cena dostave se procenjuje ručno' : d.dostava + ' RSD' }}</dd>
+          @if (d.kupon) {
+            <dt>Kupon</dt>
+            <dd>{{ d.kupon }}</dd>
+          }
+          @if (d.popust) {
+            <dt>Popust</dt>
+            <dd>{{ d.popust }} RSD</dd>
+          }
+          <dt>Ukupno</dt>
+          <dd>{{ d.ukupnaCena }} RSD</dd>
+          @if (d.napomena) {
+            <dt>Napomena</dt>
+            <dd>{{ d.napomena }}</dd>
+          }
+        </dl>
+      </section>
+
+      @if (d.zahtevaProceenuDostave && !d.token.istekao) {
+        <section class="admin-temporary-order-detail__section admin-temporary-order-detail__shipping-warning">
+          <h2>Potrebna je procena cene dostave</h2>
+          <p>Ova porudžbina sadrži artikal koji se šalje kao teretna pošiljka - klijent ne može sam da potvrdi porudžbinu dok admin ne unese stvarnu cenu dostave.</p>
+
+          <div class="admin-temporary-order-detail__shipping-form">
+            <mat-form-field appearance="outline">
+              <mat-label>Cena dostave (RSD)</mat-label>
+              <input matInput type="number" min="0" [ngModel]="shippingAmount()" (ngModelChange)="shippingAmount.set($event)" />
+            </mat-form-field>
+            <button mat-flat-button color="primary" type="button" [disabled]="acting() || shippingAmount() == null" (click)="saveShipping()">
+              Sačuvaj cenu dostave
+            </button>
+          </div>
+        </section>
+      }
+
+      <section class="admin-temporary-order-detail__section">
+        <h2>Status linka za potvrdu</h2>
+        <dl class="admin-temporary-order-detail__list">
+          <dt>Ističe</dt>
+          <dd>{{ d.token.istice }}</dd>
+          <dt>Istekao</dt>
+          <dd>{{ d.token.istekao ? 'Da' : 'Ne' }}</dd>
+          <dt>Kreirano</dt>
+          <dd>{{ d.vreme.kreirano }}</dd>
+        </dl>
+
+        <div class="admin-temporary-order-detail__actions">
+          @if (d.token.istekao) {
+            <p class="admin-temporary-order-detail__expired">Link je istekao - porudžbina se više ne može potvrditi.</p>
+          } @else {
+            <button mat-flat-button color="primary" type="button" [disabled]="acting()" (click)="confirm()">Potvrdi porudžbinu</button>
+          }
+        </div>
+      </section>
+    </div>
+  } @else if (notFound()) {
+    <div class="admin-temporary-order-detail__not-found">
+      <h1>Privremena porudžbina nije pronađena</h1>
+      <p>Porudžbina koju tražite ne postoji ili je uklonjena.</p>
+      <a routerLink="/admin/privremene-porudzbine">Nazad na listu</a>
+    </div>
+  }
+</div>

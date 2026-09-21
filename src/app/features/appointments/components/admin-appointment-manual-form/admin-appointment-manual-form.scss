@@ -1,0 +1,23 @@
+.manual-appointment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 480px;
+  padding: 1.5rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__hint {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  &__actions {
+    margin-top: 0.5rem;
+  }
+}

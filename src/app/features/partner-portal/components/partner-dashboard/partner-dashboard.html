@@ -1,0 +1,101 @@
+<div class="partner-dashboard">
+  @if (loading()) {
+    <div class="partner-dashboard__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (dashboard(); as d) {
+    <div class="partner-dashboard__grid">
+      <section class="partner-dashboard__section">
+        <h2>Moje provizije</h2>
+        <dl class="partner-dashboard__stats">
+          <dt>Provizija - usluge</dt>
+          <dd>{{ d.partner.procenatProvizijeUsluge }}</dd>
+          <dt>Provizija - artikli</dt>
+          <dd>{{ d.partner.procenatProvizijeArtikli }}</dd>
+        </dl>
+      </section>
+
+      <section class="partner-dashboard__section">
+        <h2>Stanje</h2>
+        <dl class="partner-dashboard__stats">
+          <dt>Zarađeno</dt>
+          <dd>{{ d.balance.earned }} RSD</dd>
+          <dt>Isplaćeno</dt>
+          <dd>{{ d.balance.paid }} RSD</dd>
+          <dt>Rezervisano</dt>
+          <dd>{{ d.balance.reserved }} RSD</dd>
+          <dt>Raspoloživo</dt>
+          <dd>{{ d.balance.available }} RSD</dd>
+        </dl>
+        <a routerLink="/partner-panel/zarade" class="partner-dashboard__link">Provizije i isplate</a>
+      </section>
+
+      <section class="partner-dashboard__section">
+        <h2>Moji kuponi</h2>
+        @if (d.coupons.length) {
+          <ul class="partner-dashboard__list">
+            @for (c of d.coupons; track c.id) {
+              <li class="partner-dashboard__coupon">
+                <span class="partner-dashboard__item-main">{{ c.code }}</span>
+                <span class="partner-dashboard__item-sub">
+                  {{ discountTypeLabel(c.discountType) }} · {{ c.discountValue }}{{ c.discountType === 'percentage' ? '%' : ' RSD' }}
+                </span>
+                @if (restrictedServiceNames(d, c).length) {
+                  <span class="partner-dashboard__item-sub">Usluge: {{ restrictedServiceNames(d, c).join(', ') }}</span>
+                }
+                @if (restrictedPackageNames(d, c).length) {
+                  <span class="partner-dashboard__item-sub">Paketi: {{ restrictedPackageNames(d, c).join(', ') }}</span>
+                }
+                @if (c.productDiscount; as pd) {
+                  <span class="partner-dashboard__item-sub">
+                    Artikli: {{ discountTypeLabel(pd.discountType) }} · {{ pd.discountValue
+                    }}{{ pd.discountType === 'percentage' ? '%' : ' RSD' }}
+                  </span>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="partner-dashboard__empty">Nemate aktivan kupon.</p>
+        }
+        <a routerLink="/partner-panel/katalog" class="partner-dashboard__link">Katalog za preporuke</a>
+      </section>
+
+      <section class="partner-dashboard__section">
+        <h2>Poslednje provizije</h2>
+        @if (d.recentCommissions.length) {
+          <ul class="partner-dashboard__list">
+            @for (c of d.recentCommissions; track c._id) {
+              <li>
+                <span class="partner-dashboard__item">
+                  <span class="partner-dashboard__item-main">{{ c.amount }} RSD</span>
+                  <span class="partner-dashboard__item-sub">{{ c.rate }}% · {{ formatDate(c.createdAt) }}</span>
+                </span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="partner-dashboard__empty">Još uvek nema provizija.</p>
+        }
+      </section>
+
+      <section class="partner-dashboard__section">
+        <h2>Poslednje isplate</h2>
+        @if (d.payoutRequests.length) {
+          <ul class="partner-dashboard__list">
+            @for (p of d.payoutRequests; track p.id) {
+              <li>
+                <span class="partner-dashboard__item">
+                  <span class="partner-dashboard__item-main">{{ p.amount }} RSD</span>
+                  <span class="partner-dashboard__item-sub">{{ payoutStatusLabel(p.status) }} · {{ formatDate(p.requestedAt) }}</span>
+                </span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="partner-dashboard__empty">Još uvek nema zahteva za isplatu.</p>
+        }
+      </section>
+    </div>
+  }
+</div>

@@ -1,0 +1,114 @@
+@if (loading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="team-form">
+    <h2>{{ expertId() ? 'Izmena člana tima' : 'Novi član tima' }}</h2>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Ime</mat-label>
+      <input matInput formControlName="firstName" required />
+      @if (form.get('firstName')?.hasError('required') && form.get('firstName')?.touched) {
+        <mat-error>Ime je obavezno.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Prezime</mat-label>
+      <input matInput formControlName="lastName" required />
+      @if (form.get('lastName')?.hasError('required') && form.get('lastName')?.touched) {
+        <mat-error>Prezime je obavezno.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Titula</mat-label>
+      <input matInput formControlName="title" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Kratka biografija</mat-label>
+      <textarea matInput formControlName="shortBio" rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Biografija</mat-label>
+      <textarea matInput formControlName="bio" rows="5"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Specijalizacije (odvojene zarezom)</mat-label>
+      <input matInput formControlName="specializations" placeholder="npr. Masaža, Kozmetika" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Povezane usluge</mat-label>
+      <mat-select formControlName="services" multiple>
+        @for (option of serviceOptions(); track option.id) {
+          <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <fieldset class="team-form__social">
+      <legend>Društvene mreže</legend>
+      <mat-form-field appearance="outline">
+        <mat-label>Instagram</mat-label>
+        <input matInput formControlName="instagram" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Facebook</mat-label>
+        <input matInput formControlName="facebook" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>LinkedIn</mat-label>
+        <input matInput formControlName="linkedin" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Sajt</mat-label>
+        <input matInput formControlName="website" />
+      </mat-form-field>
+    </fieldset>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Redosled</mat-label>
+      <input matInput type="number" formControlName="order" />
+    </mat-form-field>
+
+    <mat-checkbox formControlName="isActive">Aktivan (vidljiv na sajtu)</mat-checkbox>
+
+    <section class="team-form__image">
+      <h3>Slika *</h3>
+      @if (imagePreviewUrl()) {
+        <img [src]="imagePreviewUrl() | imageUrl" alt="" class="team-form__image-preview" />
+      }
+      <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
+      @if (uploadingImage()) {
+        <mat-spinner diameter="20" />
+      }
+      @if (!imageSatisfied()) {
+        <mat-error>Slika je obavezna.</mat-error>
+      }
+    </section>
+
+    <section class="team-form__gallery">
+      <h3>Galerija</h3>
+      @if (galleryPreview().length) {
+        <div class="team-form__gallery-grid">
+          @for (img of galleryPreview(); track $index) {
+            <img [src]="img.img | imageUrl" alt="" class="team-form__gallery-image" />
+          }
+        </div>
+      }
+      <input type="file" accept="image/*" multiple (change)="onGallerySelected($event)" [disabled]="uploadingGallery()" />
+      @if (uploadingGallery()) {
+        <mat-spinner diameter="20" />
+      }
+    </section>
+
+    <div class="team-form__actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid || !imageSatisfied()">
+        {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+      </button>
+    </div>
+  </form>
+}

@@ -1,0 +1,38 @@
+.service-detail {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem;
+
+  &__hero {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  &__intro {
+    font-size: 1.1rem;
+    color: var(--mat-sys-on-surface-variant, #555);
+  }
+
+  &__variant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  &__price {
+    font-weight: 600;
+
+    &--old {
+      font-weight: 400;
+      text-decoration: line-through;
+      margin-left: 0.5rem;
+      color: var(--mat-sys-on-surface-variant, #888);
+    }
+  }
+
+  &__not-found {
+    text-align: center;
+    padding: 3rem 1.5rem;
+  }
+}

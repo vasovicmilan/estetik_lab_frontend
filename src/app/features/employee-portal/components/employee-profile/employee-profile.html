@@ -1,0 +1,53 @@
+@if (loading()) {
+  <div class="employee-profile__spinner">
+    <mat-spinner diameter="32" />
+  </div>
+} @else if (profile(); as p) {
+  <div class="employee-profile">
+    <section class="employee-profile__section">
+      <h2>Osnovni podaci</h2>
+      <dl class="employee-profile__list">
+        <dt>Ime i prezime</dt>
+        <dd>{{ p.imePrezime }}</dd>
+        <dt>Email</dt>
+        <dd>{{ p.email ?? '-' }}</dd>
+        <dt>Telefon</dt>
+        <dd>{{ p.telefon ?? '-' }}</dd>
+        <dt>Usluge</dt>
+        <dd>{{ p.usluge.length ? p.usluge.join(', ') : '-' }}</dd>
+        <dt>Radno vreme</dt>
+        <dd>{{ p.radnoVreme || '-' }}</dd>
+      </dl>
+      <p class="employee-profile__hint">Osnovni podaci se menjaju od strane administratora.</p>
+    </section>
+
+    <section class="employee-profile__section">
+      <h2>Izmena radnog vremena</h2>
+      <p class="employee-profile__hint">Jedan termin po danu (v1 pojednostavljenje).</p>
+
+      <form (ngSubmit)="submit()" [formGroup]="workingHoursForm">
+        @for (day of weekDays; track day.value) {
+          <div class="employee-profile__hours-row" [formGroupName]="day.value">
+            <mat-checkbox formControlName="radi">{{ day.label }}</mat-checkbox>
+            @if (workingHoursForm.get(day.value)?.get('radi')?.value) {
+              <mat-form-field appearance="outline" class="employee-profile__hours-time">
+                <mat-label>Od</mat-label>
+                <input matInput type="time" formControlName="from" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="employee-profile__hours-time">
+                <mat-label>Do</mat-label>
+                <input matInput type="time" formControlName="to" />
+              </mat-form-field>
+            }
+          </div>
+        }
+
+        <div class="employee-profile__actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Čuvanje...' : 'Sačuvaj radno vreme' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}

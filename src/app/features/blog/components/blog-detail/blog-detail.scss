@@ -1,0 +1,26 @@
+.blog-detail {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.5rem;
+
+  &__hero {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  &__meta {
+    color: var(--mat-sys-on-surface-variant, #666);
+    font-size: 0.875rem;
+  }
+
+  &__body {
+    line-height: 1.6;
+    margin-top: 1rem;
+  }
+
+  &__not-found {
+    text-align: center;
+    padding: 3rem 1.5rem;
+  }
+}

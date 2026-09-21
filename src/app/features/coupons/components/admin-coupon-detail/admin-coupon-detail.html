@@ -1,0 +1,185 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled kupona</h1>
+    <div class="admin-detail__actions">
+      @if (couponId(); as id) {
+        <a mat-flat-button color="primary" [routerLink]="['/admin/kuponi', id]">Izmeni</a>
+      }
+      <button mat-stroked-button color="warn" type="button" [disabled]="deleting()" (click)="remove()">Obriši</button>
+      <a mat-button routerLink="/admin/kuponi">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      <section class="admin-detail__section">
+        <h2>Osnovno</h2>
+        <dl class="admin-detail__list">
+          <dt>Kod</dt>
+          <dd>{{ d.osnovno.kod }}</dd>
+          <dt>Tip</dt>
+          <dd>{{ d.osnovno.tip }}</dd>
+          <dt>Popust</dt>
+          <dd>{{ d.osnovno.popust }}</dd>
+          <dt>Max popust</dt>
+          <dd>{{ d.osnovno.maxPopust ?? '-' }}</dd>
+          <dt>Minimalna vrednost</dt>
+          <dd>{{ d.osnovno.minimalnaVrednost ?? '-' }}</dd>
+          <dt>Status</dt>
+          <dd>{{ d.osnovno.aktivnost }}</dd>
+        </dl>
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Popust na proizvode</h2>
+        @if (d.proizvodi.aktivno) {
+          <dl class="admin-detail__list">
+            <dt>Tip</dt>
+            <dd>{{ d.proizvodi.tip }}</dd>
+            <dt>Popust</dt>
+            <dd>{{ d.proizvodi.popust }}</dd>
+            <dt>Max popust</dt>
+            <dd>{{ d.proizvodi.maxPopust ?? '-' }}</dd>
+            <dt>Minimalna vrednost porudžbine</dt>
+            <dd>{{ d.proizvodi.minimalnaVrednostPorudzbine ?? '-' }}</dd>
+          </dl>
+        } @else {
+          <p class="admin-detail__hint">Kupon nema poseban popust na proizvode.</p>
+        }
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Ograničenja</h2>
+        <dl class="admin-detail__list">
+          <dt>Max upotreba</dt>
+          <dd>{{ d.ogranicenja.maxUpotreba }}</dd>
+          <dt>Max upotreba po korisniku</dt>
+          <dd>{{ d.ogranicenja.maxUpotrebaPoKorisniku }}</dd>
+          <dt>Trenutno iskorišćeno</dt>
+          <dd>{{ d.ogranicenja.trenutnoIskorisceno }}</dd>
+        </dl>
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Vreme važenja</h2>
+        <dl class="admin-detail__list">
+          <dt>Počinje</dt>
+          <dd>{{ d.vremeVazenja.pocinje ?? '-' }}</dd>
+          <dt>Ističe</dt>
+          <dd>{{ d.vremeVazenja.istice ?? '-' }}</dd>
+        </dl>
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Primenljivo na usluge</h2>
+        @if (d.primenljivoNaUsluge.length) {
+          <ul class="admin-detail__pill-list">
+            @for (item of d.primenljivoNaUsluge; track item.id) {
+              <li>{{ item.naziv ?? item.id }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="admin-detail__hint">Nema ograničenja na konkretne usluge.</p>
+        }
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Primenljivo na pakete</h2>
+        @if (d.primenljivoNaPakete.length) {
+          <ul class="admin-detail__pill-list">
+            @for (item of d.primenljivoNaPakete; track item.id) {
+              <li>{{ item.naziv ?? item.id }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="admin-detail__hint">Nema ograničenja na konkretne pakete.</p>
+        }
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Primenljivo na proizvode</h2>
+        @if (d.primenljivoNaProizvode.length) {
+          <ul class="admin-detail__pill-list">
+            @for (item of d.primenljivoNaProizvode; track item.id) {
+              <li>{{ item.naziv ?? item.id }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="admin-detail__hint">Nema ograničenja na konkretne proizvode.</p>
+        }
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Isključene kategorije artikala</h2>
+        @if (d.iskljuceneKategorijeArtikala.length) {
+          <ul class="admin-detail__pill-list">
+            @for (item of d.iskljuceneKategorijeArtikala; track item.id) {
+              <li>{{ item.naziv ?? item.id }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="admin-detail__hint">Nema isključenih kategorija.</p>
+        }
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Partner</h2>
+        @if (d.partner) {
+          <p>{{ d.partner.imePrezime }}</p>
+        } @else {
+          <p class="admin-detail__hint">Kupon nije vezan za partnera.</p>
+        }
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Istorija korišćenja</h2>
+        @if (d.istorijaKoriscenja.length) {
+          <table class="admin-detail__table">
+            <thead>
+              <tr>
+                <th>Korisnik</th>
+                <th>Termin</th>
+                <th>Paket</th>
+                <th>Porudžbina</th>
+                <th>Iznos popusta</th>
+                <th>Iskorišćeno</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (entry of d.istorijaKoriscenja; track $index) {
+                <tr>
+                  <td>{{ entry.korisnikId ?? '-' }}</td>
+                  <td>{{ entry.terminId ?? '-' }}</td>
+                  <td>{{ entry.paketId ?? '-' }}</td>
+                  <td>{{ entry.porudzbinaId ?? '-' }}</td>
+                  <td>{{ entry.iznosPopusta }}</td>
+                  <td>{{ entry.iskoriscenoU }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="admin-detail__hint">Kupon još nije korišćen.</p>
+        }
+      </section>
+
+      <section class="admin-detail__section">
+        <h2>Vreme</h2>
+        <dl class="admin-detail__list">
+          <dt>Kreiran</dt>
+          <dd>{{ d.vreme.kreiran }}</dd>
+          <dt>Poslednje izmenjen</dt>
+          <dd>{{ d.vreme.poslednjeIzmenjen }}</dd>
+        </dl>
+      </section>
+    </div>
+  } @else if (!loading()) {
+    <p>Kupon nije pronađen.</p>
+  }
+</div>

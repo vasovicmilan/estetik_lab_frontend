@@ -1,0 +1,98 @@
+<div class="dashboard">
+  <h1>Početna</h1>
+
+  @if (loading()) {
+    <div class="dashboard__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (data(); as d) {
+    <div class="dashboard__stats">
+      @for (tile of tiles(); track tile.key) {
+        @if (tile.link) {
+          <a [routerLink]="tile.link" class="dashboard__tile dashboard__tile--link">
+            <span class="dashboard__tile-value">{{ tile.value }}</span>
+            <span class="dashboard__tile-label">{{ tile.label }}</span>
+          </a>
+        } @else {
+          <div class="dashboard__tile">
+            <span class="dashboard__tile-value">{{ tile.value }}</span>
+            <span class="dashboard__tile-label">{{ tile.label }}</span>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="dashboard__recent">
+      <div class="dashboard__recent-section">
+        <h2>Termini na čekanju</h2>
+        @if (d.recent.pendingAppointments.length) {
+          <ul class="dashboard__recent-list">
+            @for (row of d.recent.pendingAppointments; track row.id) {
+              <li>
+                <span class="dashboard__recent-primary">{{ row.korisnik }} — {{ row.usluga }}</span>
+                <span class="dashboard__recent-secondary">{{ row.datum }} · {{ row.status }}</span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="dashboard__recent-empty">Nema stavki</p>
+        }
+      </div>
+
+      <div class="dashboard__recent-section">
+        <h2>Nedodeljeni termini</h2>
+        @if (d.recent.unassignedAppointments.length) {
+          <ul class="dashboard__recent-list">
+            @for (row of d.recent.unassignedAppointments; track row.id) {
+              <li>
+                <span class="dashboard__recent-primary">{{ row.korisnik }} — {{ row.usluga }}</span>
+                <span class="dashboard__recent-secondary">{{ row.datum }} · {{ row.status }}</span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="dashboard__recent-empty">Nema stavki</p>
+        }
+      </div>
+
+      <div class="dashboard__recent-section">
+        <h2>Novi kontakti</h2>
+        @if (d.recent.contacts.length) {
+          <ul class="dashboard__recent-list">
+            @for (row of d.recent.contacts; track row.id) {
+              <li>
+                <span class="dashboard__recent-primary">{{ row.imePrezime }}</span>
+                <span class="dashboard__recent-secondary">{{ row.datum }} · {{ row.status }}</span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="dashboard__recent-empty">Nema stavki</p>
+        }
+      </div>
+
+      <div class="dashboard__recent-section">
+        <h2>Porudžbine na čekanju</h2>
+        @if (d.recent.orders.length) {
+          <ul class="dashboard__recent-list">
+            @for (row of d.recent.orders; track row.id) {
+              <li>
+                @if (auth.hasPermission('manage_orders')) {
+                  <a [routerLink]="['/admin/porudzbine', row.id]" class="dashboard__recent-link">
+                    <span class="dashboard__recent-primary">{{ row.korisnik }} — {{ row.ukupnaCena }}</span>
+                    <span class="dashboard__recent-secondary">{{ row.datum }} · {{ row.status }}</span>
+                  </a>
+                } @else {
+                  <span class="dashboard__recent-primary">{{ row.korisnik }} — {{ row.ukupnaCena }}</span>
+                  <span class="dashboard__recent-secondary">{{ row.datum }} · {{ row.status }}</span>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="dashboard__recent-empty">Nema stavki</p>
+        }
+      </div>
+    </div>
+  }
+</div>

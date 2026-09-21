@@ -1,0 +1,171 @@
+<section class="hero">
+  <div class="hero__content">
+    <h1>Estetik Lab</h1>
+    <p class="hero__lead">
+      Profesionalna ESMA oprema, sertifikovani terapeuti i individualan pristup -
+      vaša transformacija počinje ovde.
+    </p>
+    <a mat-flat-button color="primary" routerLink="/usluge" class="hero__cta">Pogledajte usluge</a>
+  </div>
+</section>
+
+@if (loadingServices()) {
+  <div class="home-spinner">
+    <mat-spinner diameter="36" />
+  </div>
+} @else if (featuredServices().length) {
+  <section class="home-section">
+    <div class="home-section__header">
+      <h2>Naše usluge</h2>
+      <a routerLink="/usluge">Sve usluge &rarr;</a>
+    </div>
+    <div class="home-section__grid">
+      @for (service of featuredServices(); track service.id) {
+        <a [routerLink]="['/usluge', service.slug]" class="home-card-link">
+          <mat-card class="home-card">
+            @if (service.slika?.url) {
+              <img [src]="service.slika!.url | imageUrl" [alt]="service.slika!.alt || service.naziv" class="home-card__image" />
+            }
+            <mat-card-title>{{ service.naziv }}</mat-card-title>
+            <mat-card-content>
+              <p>{{ service.kratakOpis }}</p>
+              <p class="home-card__price">{{ service.cena }}</p>
+            </mat-card-content>
+          </mat-card>
+        </a>
+      }
+    </div>
+  </section>
+}
+
+@if (loadingPackages()) {
+  <div class="home-spinner">
+    <mat-spinner diameter="36" />
+  </div>
+} @else if (featuredPackages().length) {
+  <section class="home-section home-section--alt">
+    <div class="home-section__header">
+      <h2>Paketi i ponude</h2>
+      <a routerLink="/paketi">Svi paketi &rarr;</a>
+    </div>
+    <div class="home-section__grid">
+      @for (pkg of featuredPackages(); track pkg.id) {
+        <a [routerLink]="['/paketi', pkg.slug]" class="home-card-link">
+          <mat-card class="home-card">
+            @if (pkg.slika?.url) {
+              <img [src]="pkg.slika!.url | imageUrl" [alt]="pkg.slika!.alt || pkg.naziv" class="home-card__image" />
+            }
+            <mat-card-title>{{ pkg.naziv }}</mat-card-title>
+            <mat-card-content>
+              <p>{{ pkg.kratakOpis }}</p>
+              <p class="home-card__price">
+                {{ pkg.cena }}
+                @if (pkg.staraCena) {
+                  <span class="home-card__price--old">{{ pkg.staraCena }}</span>
+                }
+              </p>
+            </mat-card-content>
+          </mat-card>
+        </a>
+      }
+    </div>
+  </section>
+}
+
+@if (loadingProducts()) {
+  <div class="home-spinner">
+    <mat-spinner diameter="36" />
+  </div>
+} @else if (featuredProducts().length) {
+  <section class="home-section home-section--alt">
+    <div class="home-section__header">
+      <h2>Iz prodavnice</h2>
+      <a routerLink="/prodavnica">Cela prodavnica &rarr;</a>
+    </div>
+    <div class="home-section__grid">
+      @for (product of featuredProducts(); track product.id) {
+        <a [routerLink]="['/prodavnica', product.slug]" class="home-card-link">
+          <mat-card class="home-card">
+            @if (product.slika?.url) {
+              <img [src]="product.slika!.url | imageUrl" [alt]="product.slika!.alt || product.naziv" class="home-card__image" />
+            }
+            <mat-card-title>{{ product.naziv }}</mat-card-title>
+            <mat-card-content>
+              <p>{{ product.kratakOpis }}</p>
+              <p class="home-card__price">
+                @if (product.naUpit) {
+                  Cena na upit
+                } @else if (product.cena) {
+                  {{ product.cena }}
+                }
+              </p>
+            </mat-card-content>
+          </mat-card>
+        </a>
+      }
+    </div>
+  </section>
+}
+
+@if (loadingTeam()) {
+  <div class="home-spinner">
+    <mat-spinner diameter="36" />
+  </div>
+} @else if (teamPreview().length) {
+  <section class="home-section">
+    <div class="home-section__header">
+      <h2>Naš tim</h2>
+      <a routerLink="/tim">Ceo tim &rarr;</a>
+    </div>
+    <div class="home-section__grid home-section__grid--team">
+      @for (member of teamPreview(); track member.id) {
+        <a [routerLink]="['/tim', member.slug]" class="home-card-link">
+          <mat-card class="home-card">
+            @if (member.slika?.url) {
+              <img [src]="member.slika!.url | imageUrl" [alt]="member.slika!.alt || member.imePrezime" class="home-card__image home-card__image--round" />
+            }
+            <mat-card-title>{{ member.imePrezime }}</mat-card-title>
+            @if (member.titula) {
+              <mat-card-subtitle>{{ member.titula }}</mat-card-subtitle>
+            }
+          </mat-card>
+        </a>
+      }
+    </div>
+  </section>
+}
+
+@if (loadingPosts()) {
+  <div class="home-spinner">
+    <mat-spinner diameter="36" />
+  </div>
+} @else if (recentPosts().length) {
+  <section class="home-section">
+    <div class="home-section__header">
+      <h2>Sa bloga</h2>
+      <a routerLink="/blog">Ceo blog &rarr;</a>
+    </div>
+    <div class="home-section__grid">
+      @for (post of recentPosts(); track post.id) {
+        <a [routerLink]="['/blog', post.slug]" class="home-card-link">
+          <mat-card class="home-card">
+            @if (post.slika?.url) {
+              <img [src]="post.slika!.url | imageUrl" [alt]="post.slika!.alt || post.naslov" class="home-card__image" />
+            }
+            <mat-card-title>{{ post.naslov }}</mat-card-title>
+            <mat-card-content>
+              <p>{{ post.kratakOpis }}</p>
+              <p class="home-card__meta">{{ post.datumObjave }} &middot; {{ post.vremeCitanja }}</p>
+            </mat-card-content>
+          </mat-card>
+        </a>
+      }
+    </div>
+  </section>
+}
+
+<section class="cta-banner">
+  <h2>Spremni ste za promenu?</h2>
+  <p>Zakažite svoj prvi termin danas i otkrijte razliku profesionalnog pristupa.</p>
+  <a mat-flat-button color="primary" routerLink="/usluge">Zakažite termin</a>
+</section>

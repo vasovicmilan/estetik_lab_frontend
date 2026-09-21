@@ -1,0 +1,27 @@
+.service-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 640px;
+
+  &__image {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__image-preview {
+    max-width: 200px;
+    border-radius: 4px;
+  }
+
+  &__variants {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__actions {
+    margin-top: 1rem;
+  }
+}

@@ -1,0 +1,73 @@
+.booking-widget {
+  border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-top: 1rem;
+
+  &__success {
+    color: var(--mat-sys-primary, #386a20);
+    font-weight: 600;
+  }
+
+  &__error {
+    color: var(--mat-sys-error, #b3261e);
+    font-size: 0.875rem;
+  }
+
+  &__date-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    max-width: 200px;
+  }
+
+  &__date-input {
+    padding: 0.5rem;
+    border: 1px solid var(--mat-sys-outline, #ccc);
+    border-radius: 4px;
+  }
+
+  &__slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  &__slot {
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--mat-sys-outline, #ccc);
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.875rem;
+
+    &--selected {
+      background: var(--mat-sys-primary, #6750a4);
+      color: var(--mat-sys-on-primary, #fff);
+      border-color: transparent;
+    }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 400px;
+  }
+
+  &__field {
+    width: 100%;
+  }
+
+  // Off-screen, not display:none - see booking-widget.ts's header comment on why.
+  &__honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+}

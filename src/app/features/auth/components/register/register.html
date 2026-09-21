@@ -1,0 +1,89 @@
+<div class="register">
+  <form class="register__card" [formGroup]="form" (ngSubmit)="submit()">
+    <h1>Registracija</h1>
+
+    @if (errorMessage()) {
+      <p class="register__error">{{ errorMessage() }}</p>
+    }
+
+    @if (successMessage()) {
+      <p class="register__success">{{ successMessage() }}</p>
+    } @else {
+      <div class="register__row">
+        <mat-form-field appearance="outline" class="register__field">
+          <mat-label>Ime</mat-label>
+          <input matInput formControlName="firstName" />
+          @if (form.controls.firstName.hasError('required') && form.controls.firstName.touched) {
+            <mat-error>Ime je obavezno.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="register__field">
+          <mat-label>Prezime</mat-label>
+          <input matInput formControlName="lastName" />
+          @if (form.controls.lastName.hasError('required') && form.controls.lastName.touched) {
+            <mat-error>Prezime je obavezno.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="register__field">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" autocomplete="email" />
+        @if (form.controls.email.hasError('required') && form.controls.email.touched) {
+          <mat-error>Email je obavezan.</mat-error>
+        }
+        @if (form.controls.email.hasError('email') && form.controls.email.touched) {
+          <mat-error>Unesite ispravan email.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="register__field">
+        <mat-label>Telefon (opciono)</mat-label>
+        <input matInput type="tel" formControlName="phone" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="register__field">
+        <mat-label>Lozinka</mat-label>
+        <input matInput type="password" formControlName="password" autocomplete="new-password" />
+        @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+          <mat-error>Lozinka je obavezna.</mat-error>
+        }
+        @if (form.controls.password.hasError('minlength') && form.controls.password.touched) {
+          <mat-error>Lozinka mora imati najmanje 8 karaktera.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="register__field">
+        <mat-label>Potvrda lozinke</mat-label>
+        <input matInput type="password" formControlName="passwordConfirm" autocomplete="new-password" />
+        @if (form.controls.passwordConfirm.hasError('required') && form.controls.passwordConfirm.touched) {
+          <mat-error>Potvrda lozinke je obavezna.</mat-error>
+        }
+        @if (
+          form.controls.passwordConfirm.valid &&
+          form.value.password !== form.value.passwordConfirm &&
+          form.controls.passwordConfirm.touched
+        ) {
+          <mat-error>Lozinke se ne poklapaju.</mat-error>
+        }
+      </mat-form-field>
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        class="register__submit"
+        [disabled]="loading() || form.invalid || form.value.password !== form.value.passwordConfirm"
+      >
+        @if (loading()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          Registruj se
+        }
+      </button>
+    }
+
+    <a routerLink="/prijava" class="register__login-link">Već imate nalog? Prijavite se</a>
+  </form>
+</div>

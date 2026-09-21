@@ -1,0 +1,38 @@
+@if (loading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="tag-form">
+    <h2>{{ tagId() ? 'Izmena taga' : 'Novi tag' }}</h2>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Naziv taga</mat-label>
+      <input matInput formControlName="name" required />
+      @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+        <mat-error>Naziv je obavezan.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Domen</mat-label>
+      <mat-select formControlName="domain" required>
+        @for (option of domainOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Opis</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-checkbox formControlName="isIndexable">Indeksabilno (vidljivo pretraživačima)</mat-checkbox>
+    <mat-checkbox formControlName="isActive">Aktivan</mat-checkbox>
+
+    <div class="tag-form__actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+        {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+      </button>
+    </div>
+  </form>
+}

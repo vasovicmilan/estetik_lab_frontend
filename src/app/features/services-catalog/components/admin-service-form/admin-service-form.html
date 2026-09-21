@@ -1,1 +1,54 @@
-<p>admin-service-form works!</p>
+@if (loading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="service-form">
+    <h2>{{ serviceId() ? 'Izmena usluge' : 'Nova usluga' }}</h2>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Naziv usluge</mat-label>
+      <input matInput formControlName="name" required />
+      @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+        <mat-error>Naziv je obavezan.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Kratak opis</mat-label>
+      <textarea matInput formControlName="shortDescription" rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Podrazumevano trajanje (min)</mat-label>
+      <input matInput type="number" formControlName="defaultDuration" />
+    </mat-form-field>
+
+    <mat-checkbox formControlName="isActive">Aktivna (vidljiva na sajtu)</mat-checkbox>
+
+    <section class="service-form__image">
+      <h3>Slika</h3>
+      @if (imagePreviewUrl()) {
+        <img [src]="imagePreviewUrl() | imageUrl" alt="" class="service-form__image-preview" />
+      }
+      <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
+      @if (uploadingImage()) {
+        <mat-spinner diameter="20" />
+      }
+    </section>
+
+    <section class="service-form__variants">
+      <h3>Varijante usluge</h3>
+      <app-repeater-field
+        [schema]="variantSchema"
+        [array]="packages"
+        addLabel="Dodaj varijantu"
+        emptyLabel="Nema varijanti - dodajte bar jednu pre objavljivanja."
+      />
+    </section>
+
+    <div class="service-form__actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+        {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+      </button>
+    </div>
+  </form>
+}

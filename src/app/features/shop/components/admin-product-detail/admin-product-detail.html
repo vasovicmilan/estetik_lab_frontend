@@ -1,0 +1,190 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled proizvoda</h1>
+    <div class="admin-detail__actions">
+      @if (productId(); as id) {
+        <a mat-flat-button color="primary" [routerLink]="['/admin/prodavnica', id]">Izmeni</a>
+      }
+      <a mat-button routerLink="/admin/prodavnica">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      @if (d.slika?.url) {
+        <img [src]="d.slika!.url | imageUrl" [alt]="d.slika!.alt || d.naziv" class="admin-detail__image" />
+      }
+
+      <dl class="admin-detail__list">
+        <dt>Naziv</dt>
+        <dd>{{ d.naziv }}</dd>
+
+        <dt>Slug</dt>
+        <dd>{{ d.slug }}</dd>
+
+        <dt>SKU</dt>
+        <dd>{{ d.sku ?? '-' }}</dd>
+
+        <dt>Kratak opis</dt>
+        <dd>{{ d.kratakOpis || '-' }}</dd>
+
+        <dt>Kategorije</dt>
+        <dd>
+          @if (d.kategorije.length) {
+            <mat-chip-set>
+              @for (kat of d.kategorije; track kat) {
+                <mat-chip>{{ kat }}</mat-chip>
+              }
+            </mat-chip-set>
+          } @else {
+            -
+          }
+        </dd>
+
+        <dt>Tagovi</dt>
+        <dd>
+          @if (d.tagovi.length) {
+            <mat-chip-set>
+              @for (tag of d.tagovi; track tag) {
+                <mat-chip>{{ tag }}</mat-chip>
+              }
+            </mat-chip-set>
+          } @else {
+            -
+          }
+        </dd>
+
+        <dt>Oznaka</dt>
+        <dd>{{ d.oznaka ?? '-' }}</dd>
+
+        <dt>Način dostave</dt>
+        <dd>{{ d.nacinDostave }}</dd>
+
+        <dt>Cena na upit</dt>
+        <dd>{{ d.naUpit ? 'Da' : 'Ne' }}</dd>
+
+        <dt>Ukupno stanje</dt>
+        <dd>{{ d.stanjeUkupno }}</dd>
+
+        <dt>Aktivan</dt>
+        <dd>{{ d.aktivan ? 'Da' : 'Ne' }}</dd>
+
+        @if (d.seoKljucneReci.length) {
+          <dt>SEO ključne reči</dt>
+          <dd>{{ d.seoKljucneReci.join(', ') }}</dd>
+        }
+
+        <dt>Kreiran</dt>
+        <dd>{{ d.vreme.kreiran }}</dd>
+
+        <dt>Ažuriran</dt>
+        <dd>{{ d.vreme.azuriran }}</dd>
+      </dl>
+
+      @if (d.dugiOpis.length) {
+        <section class="admin-detail__section">
+          <h2>Dugi opis</h2>
+          <app-content-blocks [blocks]="d.dugiOpis" />
+        </section>
+      }
+
+      @if (d.varijante.length) {
+        <section class="admin-detail__section">
+          <h2>Varijante</h2>
+          <table class="admin-detail__table">
+            <thead>
+              <tr>
+                <th>Naziv</th>
+                <th>SKU</th>
+                <th>Cena</th>
+                <th>Stara cena</th>
+                <th>Stanje</th>
+                <th>Na stanju</th>
+                <th>Najbolja</th>
+                <th>Aktivna</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (v of d.varijante; track v.id) {
+                <tr>
+                  <td>{{ v.naziv }}</td>
+                  <td>{{ v.sku ?? '-' }}</td>
+                  <td>{{ v.cena }}</td>
+                  <td>{{ v.staraCena ?? '-' }}</td>
+                  <td>{{ v.stanje }}</td>
+                  <td>{{ v.naStanju ? 'Da' : 'Ne' }}</td>
+                  <td>{{ v.najbolja ? 'Da' : 'Ne' }}</td>
+                  <td>{{ v.aktivna ? 'Da' : 'Ne' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </section>
+      }
+
+      @if (d.galerija.length) {
+        <section class="admin-detail__section">
+          <h2>Galerija</h2>
+          <div class="admin-detail__gallery">
+            @for (img of d.galerija; track $index) {
+              <img [src]="img.url | imageUrl" [alt]="img.alt || ''" />
+            }
+          </div>
+        </section>
+      }
+
+      @if (d.povezaniProizvodi.length) {
+        <section class="admin-detail__section">
+          <h2>Povezani proizvodi</h2>
+          <ul>
+            @for (p of d.povezaniProizvodi; track p.id) {
+              <li>{{ p.naziv }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (d.povezaneUsluge.length) {
+        <section class="admin-detail__section">
+          <h2>Povezane usluge</h2>
+          <ul>
+            @for (u of d.povezaneUsluge; track u.id) {
+              <li>{{ u.naziv }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (d.povezaniPostovi.length) {
+        <section class="admin-detail__section">
+          <h2>Povezani postovi</h2>
+          <ul>
+            @for (post of d.povezaniPostovi; track post.id) {
+              <li>{{ post.naslov }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (d.faq.length) {
+        <section class="admin-detail__section">
+          <h2>Pitanja i odgovori</h2>
+          @for (item of d.faq; track item.pitanje) {
+            <details>
+              <summary>{{ item.pitanje }}</summary>
+              <p>{{ item.odgovor }}</p>
+            </details>
+          }
+        </section>
+      }
+    </div>
+  } @else if (!loading()) {
+    <p>Proizvod nije pronađen.</p>
+  }
+</div>

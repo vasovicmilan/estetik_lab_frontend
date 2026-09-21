@@ -1,0 +1,39 @@
+@if (member(); as m) {
+  <article class="team-detail">
+    @if (m.slika?.url) {
+      <img [src]="m.slika!.url | imageUrl" [alt]="m.slika!.alt || m.imePrezime" class="team-detail__photo" />
+    }
+
+    <h1>{{ m.imePrezime }}</h1>
+    @if (m.titula) {
+      <p class="team-detail__title">{{ m.titula }}</p>
+    }
+
+    @if (m.specijalizacije.length) {
+      <mat-chip-set>
+        @for (spec of m.specijalizacije; track spec) {
+          <mat-chip>{{ spec }}</mat-chip>
+        }
+      </mat-chip-set>
+    }
+
+    <div class="team-detail__bio" [innerHTML]="m.biografija"></div>
+
+    @if (m.usluge.length) {
+      <section class="team-detail__services">
+        <h2>Usluge koje pruža</h2>
+        <ul>
+          @for (usluga of m.usluge; track usluga) {
+            <li>{{ usluga }}</li>
+          }
+        </ul>
+      </section>
+    }
+  </article>
+} @else {
+  <div class="team-detail__not-found">
+    <h1>Član tima nije pronađen</h1>
+    <p>Stranica koju tražite ne postoji ili je uklonjena.</p>
+    <a routerLink="/tim">Nazad na tim</a>
+  </div>
+}

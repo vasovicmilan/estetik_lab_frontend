@@ -1,0 +1,32 @@
+<div class="team-list">
+  <h1>Naš tim</h1>
+
+  @if (loading()) {
+    <div class="team-list__spinner">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (members().length === 0) {
+    <p>Trenutno nema dostupnih članova tima.</p>
+  } @else {
+    <div class="team-list__grid">
+      @for (member of members(); track member.id) {
+        <a [routerLink]="['/tim', member.slug]" class="team-list__card-link">
+          <mat-card class="team-list__card">
+            @if (member.slika?.url) {
+              <img [src]="member.slika!.url | imageUrl" [alt]="member.slika!.alt || member.imePrezime" class="team-list__photo" />
+            }
+            <mat-card-title>{{ member.imePrezime }}</mat-card-title>
+            @if (member.titula) {
+              <mat-card-subtitle>{{ member.titula }}</mat-card-subtitle>
+            }
+            @if (member.kratkaBiografija) {
+              <mat-card-content>
+                <p>{{ member.kratkaBiografija }}</p>
+              </mat-card-content>
+            }
+          </mat-card>
+        </a>
+      }
+    </div>
+  }
+</div>

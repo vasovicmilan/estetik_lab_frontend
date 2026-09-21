@@ -1,0 +1,32 @@
+<div class="blog-list">
+  <h1>Blog</h1>
+
+  @if (loading()) {
+    <div class="blog-list__spinner">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (posts().length === 0) {
+    <p>Trenutno nema objavljenih tekstova.</p>
+  } @else {
+    <div class="blog-list__grid">
+      @for (post of posts(); track post.id) {
+        <a [routerLink]="['/blog', post.slug]" class="blog-list__card-link">
+          <mat-card class="blog-list__card">
+            @if (post.slika?.url) {
+              <img [src]="post.slika!.url | imageUrl" [alt]="post.slika!.alt || post.naslov" class="blog-list__image" />
+            }
+            <mat-card-title>{{ post.naslov }}</mat-card-title>
+            <mat-card-subtitle>{{ post.autor }} &middot; {{ post.datumObjave }} &middot; {{ post.vremeCitanja }}</mat-card-subtitle>
+            <mat-card-content>
+              <p>{{ post.kratakOpis }}</p>
+            </mat-card-content>
+          </mat-card>
+        </a>
+      }
+    </div>
+
+    @if (meta(); as m) {
+      <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" (page)="onPage($event)" />
+    }
+  }
+</div>

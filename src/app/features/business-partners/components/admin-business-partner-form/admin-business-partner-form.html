@@ -1,0 +1,84 @@
+@if (loading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="business-partner-form">
+    <div class="business-partner-form__header">
+      <h2>{{ partnerId() ? 'Izmena poslovnog saradnika' : 'Novi poslovni saradnik' }}</h2>
+      <a mat-button routerLink="/admin/poslovni-saradnici">Nazad na listu</a>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Naziv</mat-label>
+      <input matInput formControlName="name" required />
+      @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+        <mat-error>Naziv je obavezan.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Slug (opciono - generiše se automatski)</mat-label>
+      <input matInput formControlName="slug" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Kratak opis</mat-label>
+      <textarea matInput formControlName="shortDescription" rows="3" maxlength="300" required></textarea>
+      @if (form.get('shortDescription')?.hasError('required') && form.get('shortDescription')?.touched) {
+        <mat-error>Kratak opis je obavezan.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Adresa (opciono)</mat-label>
+      <input matInput formControlName="address" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Latituda (opciono)</mat-label>
+      <input matInput type="number" formControlName="latitude" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Longituda (opciono)</mat-label>
+      <input matInput type="number" formControlName="longitude" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Spoljni link (https://...)</mat-label>
+      <input matInput formControlName="outboundUrl" placeholder="https://..." required />
+      @if (form.get('outboundUrl')?.hasError('required') && form.get('outboundUrl')?.touched) {
+        <mat-error>Spoljni link je obavezan.</mat-error>
+      }
+      @if (form.get('outboundUrl')?.hasError('pattern') && form.get('outboundUrl')?.touched) {
+        <mat-error>Unesite ispravan URL (http:// ili https://).</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>CTA oznaka (opciono)</mat-label>
+      <input matInput formControlName="ctaLabel" maxlength="40" />
+    </mat-form-field>
+
+    <mat-checkbox formControlName="isActive">Aktivan</mat-checkbox>
+
+    <section class="business-partner-form__image">
+      <h3>Naslovna slika {{ partnerId() ? '' : '(obavezno)' }}</h3>
+      @if (imagePreviewUrl()) {
+        <img [src]="imagePreviewUrl() | imageUrl" alt="" class="business-partner-form__image-preview" />
+      }
+      <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
+      @if (uploadingImage()) {
+        <mat-spinner diameter="20" />
+      }
+      @if (!partnerId() && !form.get('coverImage')?.value) {
+        <p class="business-partner-form__hint">Slika je obavezna pri kreiranju - otključava dugme za čuvanje.</p>
+      }
+    </section>
+
+    <div class="business-partner-form__actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="!canSubmit">
+        {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+      </button>
+    </div>
+  </form>
+}

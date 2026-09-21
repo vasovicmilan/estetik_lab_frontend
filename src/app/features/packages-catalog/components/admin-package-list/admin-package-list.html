@@ -1,0 +1,69 @@
+<div class="admin-package-list">
+  <div class="admin-package-list__header">
+    <h1>Paketi</h1>
+    <a mat-flat-button color="primary" routerLink="/admin/paketi/novi">Novi paket</a>
+  </div>
+
+  <table mat-table [dataSource]="rows()" class="admin-package-list__table">
+    <ng-container matColumnDef="slika">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        @if (row.slika?.url) {
+          <img [src]="row.slika.url | imageUrl" alt="" width="48" height="48" style="object-fit: cover; border-radius: 4px;" />
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="naziv">
+      <th mat-header-cell *matHeaderCellDef>Naziv</th>
+      <td mat-cell *matCellDef="let row">{{ row.naziv }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="stavke">
+      <th mat-header-cell *matHeaderCellDef>Stavke</th>
+      <td mat-cell *matCellDef="let row">{{ row.stavke.join(', ') }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="cena">
+      <th mat-header-cell *matHeaderCellDef>Cena</th>
+      <td mat-cell *matCellDef="let row">{{ row.cena }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="najbolji">
+      <th mat-header-cell *matHeaderCellDef>Najbolji</th>
+      <td mat-cell *matCellDef="let row">{{ row.najbolji }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="aktivan">
+      <th mat-header-cell *matHeaderCellDef>Aktivan</th>
+      <td mat-cell *matCellDef="let row">{{ row.aktivan }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="akcije">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <a mat-button [routerLink]="['/admin/paketi', row.id, 'pregled']">Pregled</a>
+        <a mat-button [routerLink]="['/admin/paketi', row.id, 'izmena']">Izmeni</a>
+        <button mat-button color="warn" (click)="remove(row)">Obriši</button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  @if (loading()) {
+    <div class="admin-package-list__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (meta(); as m) {
+    <mat-paginator
+      [length]="m.total"
+      [pageSize]="m.limit"
+      [pageIndex]="m.page - 1"
+      (page)="onPage($event)"
+    />
+  }
+</div>

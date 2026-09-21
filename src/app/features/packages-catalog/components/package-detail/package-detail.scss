@@ -1,0 +1,46 @@
+.package-detail {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  position: relative;
+
+  &__hero {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  &__badge {
+    display: inline-block;
+    background: var(--mat-sys-tertiary-container, #ffd8e4);
+    color: var(--mat-sys-on-tertiary-container, #31111d);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  &__intro {
+    font-size: 1.1rem;
+    color: var(--mat-sys-on-surface-variant, #555);
+  }
+
+  &__price {
+    font-size: 1.5rem;
+    font-weight: 700;
+
+    &--old {
+      font-size: 1rem;
+      font-weight: 400;
+      text-decoration: line-through;
+      margin-left: 0.5rem;
+      color: var(--mat-sys-on-surface-variant, #888);
+    }
+  }
+
+  &__not-found {
+    text-align: center;
+    padding: 3rem 1.5rem;
+  }
+}

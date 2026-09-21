@@ -1,0 +1,44 @@
+<div class="product-list">
+  <h1>Prodavnica</h1>
+
+  @if (loading()) {
+    <div class="product-list__spinner">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (products().length === 0) {
+    <p>Trenutno nema dostupnih proizvoda.</p>
+  } @else {
+    <div class="product-list__grid">
+      @for (product of products(); track product.id) {
+        <a [routerLink]="['/prodavnica', product.slug]" class="product-list__card-link">
+          <mat-card class="product-list__card">
+            @if (product.slika?.url) {
+              <img [src]="product.slika!.url | imageUrl" [alt]="product.slika!.alt || product.naziv" class="product-list__image" />
+            }
+            @if (product.oznaka) {
+              <span class="product-list__badge">{{ product.oznaka }}</span>
+            }
+            <mat-card-title>{{ product.naziv }}</mat-card-title>
+            <mat-card-content>
+              <p>{{ product.kratakOpis }}</p>
+              <p class="product-list__price">
+                @if (product.naUpit) {
+                  Cena na upit
+                } @else if (product.cena) {
+                  {{ product.cena }}
+                }
+              </p>
+              @if (!product.naStanju) {
+                <p class="product-list__stock">Nema na stanju</p>
+              }
+            </mat-card-content>
+          </mat-card>
+        </a>
+      }
+    </div>
+
+    @if (meta(); as m) {
+      <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" (page)="onPage($event)" />
+    }
+  }
+</div>

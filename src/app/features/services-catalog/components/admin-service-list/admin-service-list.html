@@ -1,1 +1,66 @@
-<p>admin-service-list works!</p>
+<div class="admin-service-list">
+  <div class="admin-service-list__header">
+    <h1>Usluge</h1>
+    <a mat-flat-button color="primary" routerLink="/admin/usluge/nova">Nova usluga</a>
+  </div>
+
+  <a routerLink="/admin/kategorije" class="admin-service-list__taxonomy-link">Upravljaj kategorijama</a>
+
+  <table mat-table [dataSource]="rows()" class="admin-service-list__table">
+    <ng-container matColumnDef="slika">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        @if (row.slika?.url) {
+          <img [src]="row.slika.url | imageUrl" alt="" width="48" height="48" style="object-fit: cover; border-radius: 4px;" />
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="naziv">
+      <th mat-header-cell *matHeaderCellDef>Naziv</th>
+      <td mat-cell *matCellDef="let row">{{ row.naziv }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="kategorije">
+      <th mat-header-cell *matHeaderCellDef>Kategorije</th>
+      <td mat-cell *matCellDef="let row">{{ row.kategorije.join(', ') }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="brojVarijanti">
+      <th mat-header-cell *matHeaderCellDef>Varijante</th>
+      <td mat-cell *matCellDef="let row">{{ row.brojVarijanti }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="aktivna">
+      <th mat-header-cell *matHeaderCellDef>Aktivna</th>
+      <td mat-cell *matCellDef="let row">{{ row.aktivna }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="akcije">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <a mat-button [routerLink]="['/admin/usluge', row.id, 'pregled']">Pregled</a>
+        <a mat-button [routerLink]="['/admin/usluge', row.id, 'izmena']">Izmeni</a>
+        <button mat-button color="warn" (click)="remove(row)">Obriši</button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  @if (loading()) {
+    <div class="admin-service-list__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (meta(); as m) {
+    <mat-paginator
+      [length]="m.total"
+      [pageSize]="m.limit"
+      [pageIndex]="m.page - 1"
+      (page)="onPage($event)"
+    />
+  }
+</div>

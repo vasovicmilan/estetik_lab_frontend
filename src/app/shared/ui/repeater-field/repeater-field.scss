@@ -1,0 +1,25 @@
+.repeater {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__empty {
+    color: var(--mat-sys-on-surface-variant, #666);
+    font-style: italic;
+    margin: 0;
+  }
+
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  &__field {
+    flex: 1 1 160px;
+    min-width: 120px;
+  }
+}

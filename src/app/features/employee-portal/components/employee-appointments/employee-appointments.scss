@@ -1,0 +1,58 @@
+.employee-appointments {
+  h2 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+  }
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+    border-radius: 8px;
+
+    &:hover {
+      background: var(--mat-sys-surface-variant, #f4f4f4);
+    }
+
+    &-main {
+      font-weight: 500;
+      font-size: 0.9375rem;
+    }
+
+    &-sub {
+      color: var(--mat-sys-on-surface-variant, #666);
+      font-size: 0.8125rem;
+      flex: 1;
+    }
+  }
+
+  &__status {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &__empty {
+    color: var(--mat-sys-on-surface-variant, #666);
+    font-size: 0.9375rem;
+  }
+}

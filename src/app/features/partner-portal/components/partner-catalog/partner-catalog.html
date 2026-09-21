@@ -1,0 +1,139 @@
+<div class="partner-catalog">
+  <h2>Katalog za preporuke</h2>
+
+  <mat-form-field appearance="outline" class="partner-catalog__search">
+    <mat-label>Pretraga</mat-label>
+    <input matInput [ngModel]="search()" (ngModelChange)="onSearch($event)" placeholder="Naziv usluge, paketa ili artikla..." />
+  </mat-form-field>
+
+  @if (loading()) {
+    <div class="partner-catalog__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (catalog(); as c) {
+    <section class="partner-catalog__section">
+      <h3>Usluge</h3>
+      @if (c.services.length) {
+        <ul class="partner-catalog__list">
+          @for (item of c.services; track item.id) {
+            <li class="partner-catalog__item">
+              <span class="partner-catalog__item-name">{{ item.naziv }}</span>
+              @if (item.referralLink) {
+                <button mat-stroked-button type="button" (click)="copyLink(item.referralLink)">Kopiraj</button>
+              } @else {
+                <span class="partner-catalog__no-link">Nema dostupan link</span>
+              }
+            </li>
+          }
+        </ul>
+        @if (c.servicesMeta.totalPages > 1) {
+          <div class="partner-catalog__pager">
+            <button
+              mat-button
+              type="button"
+              [disabled]="c.servicesMeta.page <= 1"
+              (click)="servicesPageChange(c.servicesMeta.page - 1)"
+            >
+              Prethodna
+            </button>
+            <span>{{ c.servicesMeta.page }} / {{ c.servicesMeta.totalPages }}</span>
+            <button
+              mat-button
+              type="button"
+              [disabled]="c.servicesMeta.page >= c.servicesMeta.totalPages"
+              (click)="servicesPageChange(c.servicesMeta.page + 1)"
+            >
+              Sledeća
+            </button>
+          </div>
+        }
+      } @else {
+        <p class="partner-catalog__empty">Nema pronađenih usluga.</p>
+      }
+    </section>
+
+    <section class="partner-catalog__section">
+      <h3>Paketi</h3>
+      @if (c.packages.length) {
+        <ul class="partner-catalog__list">
+          @for (item of c.packages; track item.id) {
+            <li class="partner-catalog__item">
+              <span class="partner-catalog__item-name">{{ item.naziv }}</span>
+              @if (item.referralLink) {
+                <button mat-stroked-button type="button" (click)="copyLink(item.referralLink)">Kopiraj</button>
+              } @else {
+                <span class="partner-catalog__no-link">Nema dostupan link</span>
+              }
+            </li>
+          }
+        </ul>
+        @if (c.packagesMeta.totalPages > 1) {
+          <div class="partner-catalog__pager">
+            <button
+              mat-button
+              type="button"
+              [disabled]="c.packagesMeta.page <= 1"
+              (click)="packagesPageChange(c.packagesMeta.page - 1)"
+            >
+              Prethodna
+            </button>
+            <span>{{ c.packagesMeta.page }} / {{ c.packagesMeta.totalPages }}</span>
+            <button
+              mat-button
+              type="button"
+              [disabled]="c.packagesMeta.page >= c.packagesMeta.totalPages"
+              (click)="packagesPageChange(c.packagesMeta.page + 1)"
+            >
+              Sledeća
+            </button>
+          </div>
+        }
+      } @else {
+        <p class="partner-catalog__empty">Nema pronađenih paketa.</p>
+      }
+    </section>
+
+    @if (c.hasProductDiscount) {
+      <section class="partner-catalog__section">
+        <h3>Artikli</h3>
+        @if (c.products.length) {
+          <ul class="partner-catalog__list">
+            @for (item of c.products; track item.id) {
+              <li class="partner-catalog__item">
+                <span class="partner-catalog__item-name">{{ item.naziv }}</span>
+                @if (item.referralLink) {
+                  <button mat-stroked-button type="button" (click)="copyLink(item.referralLink)">Kopiraj</button>
+                } @else {
+                  <span class="partner-catalog__no-link">Nema dostupan link</span>
+                }
+              </li>
+            }
+          </ul>
+          @if (c.productsMeta.totalPages > 1) {
+            <div class="partner-catalog__pager">
+              <button
+                mat-button
+                type="button"
+                [disabled]="c.productsMeta.page <= 1"
+                (click)="productsPageChange(c.productsMeta.page - 1)"
+              >
+                Prethodna
+              </button>
+              <span>{{ c.productsMeta.page }} / {{ c.productsMeta.totalPages }}</span>
+              <button
+                mat-button
+                type="button"
+                [disabled]="c.productsMeta.page >= c.productsMeta.totalPages"
+                (click)="productsPageChange(c.productsMeta.page + 1)"
+              >
+                Sledeća
+              </button>
+            </div>
+          }
+        } @else {
+          <p class="partner-catalog__empty">Nema pronađenih artikala.</p>
+        }
+      </section>
+    }
+  }
+</div>

@@ -1,0 +1,70 @@
+<div class="admin-business-partner-list">
+  <div class="admin-business-partner-list__header">
+    <h1>Poslovni saradnici</h1>
+    <a mat-flat-button color="primary" routerLink="/admin/poslovni-saradnici/novi">Novi saradnik</a>
+  </div>
+
+  <form [formGroup]="filterForm" class="admin-business-partner-list__filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Pretraga</mat-label>
+      <input matInput formControlName="search" placeholder="Naziv..." />
+    </mat-form-field>
+  </form>
+
+  <table mat-table [dataSource]="rows()" class="admin-business-partner-list__table">
+    <ng-container matColumnDef="slika">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        @if (row.slika?.url) {
+          <img [src]="row.slika.url | imageUrl" [alt]="row.slika.alt || row.naziv" width="48" height="48" style="object-fit: cover; border-radius: 4px;" />
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="naziv">
+      <th mat-header-cell *matHeaderCellDef>Naziv</th>
+      <td mat-cell *matCellDef="let row">{{ row.naziv }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="aktivan">
+      <th mat-header-cell *matHeaderCellDef>Aktivan</th>
+      <td mat-cell *matCellDef="let row">{{ row.aktivan ? 'Da' : 'Ne' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="kreirano">
+      <th mat-header-cell *matHeaderCellDef>Kreirano</th>
+      <td mat-cell *matCellDef="let row">{{ row.kreirano }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="akcije">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <a mat-button [routerLink]="['/admin/poslovni-saradnici', row.id, 'pregled']">Pregled</a>
+        <a mat-button [routerLink]="['/admin/poslovni-saradnici', row.id]">Izmeni</a>
+        <button mat-button color="warn" (click)="remove(row)">Obriši</button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  @if (!loading() && rows().length === 0) {
+    <p class="admin-business-partner-list__empty">Nema poslovnih saradnika koji odgovaraju pretrazi.</p>
+  }
+
+  @if (loading()) {
+    <div class="admin-business-partner-list__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (meta(); as m) {
+    <mat-paginator
+      [length]="m.total"
+      [pageSize]="m.limit"
+      [pageIndex]="m.page - 1"
+      (page)="onPage($event)"
+    />
+  }
+</div>

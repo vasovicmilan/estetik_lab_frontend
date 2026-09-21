@@ -1,0 +1,40 @@
+<div class="package-list">
+  <h1>Paketi</h1>
+
+  @if (loading()) {
+    <div class="package-list__spinner">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (packages().length === 0) {
+    <p>Trenutno nema dostupnih paketa.</p>
+  } @else {
+    <div class="package-list__grid">
+      @for (pkg of packages(); track pkg.id) {
+        <a [routerLink]="['/paketi', pkg.slug]" class="package-list__card-link">
+          <mat-card class="package-list__card">
+            @if (pkg.slika?.url) {
+              <img [src]="pkg.slika!.url | imageUrl" [alt]="pkg.slika!.alt || pkg.naziv" class="package-list__image" />
+            }
+            @if (pkg.oznaka) {
+              <span class="package-list__badge">{{ pkg.oznaka }}</span>
+            }
+            <mat-card-title>{{ pkg.naziv }}</mat-card-title>
+            <mat-card-content>
+              <p>{{ pkg.kratakOpis }}</p>
+              <p class="package-list__price">
+                {{ pkg.cena }}
+                @if (pkg.staraCena) {
+                  <span class="package-list__price--old">{{ pkg.staraCena }}</span>
+                }
+              </p>
+            </mat-card-content>
+          </mat-card>
+        </a>
+      }
+    </div>
+
+    @if (meta(); as m) {
+      <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" (page)="onPage($event)" />
+    }
+  }
+</div>

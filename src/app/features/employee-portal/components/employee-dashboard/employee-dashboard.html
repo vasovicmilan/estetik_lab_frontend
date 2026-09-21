@@ -1,0 +1,73 @@
+<div class="employee-dashboard">
+  @if (loading()) {
+    <div class="employee-dashboard__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (dashboard(); as d) {
+    <div class="employee-dashboard__grid">
+      <section class="employee-dashboard__section">
+        <h2>Danas</h2>
+        @if (d.todayAppointments.length) {
+          <ul class="employee-dashboard__list">
+            @for (a of d.todayAppointments; track a.id) {
+              <li>
+                <a [routerLink]="['/zaposleni-panel/termini', a.id]" class="employee-dashboard__item">
+                  <span class="employee-dashboard__item-main">{{ a.datum }} - {{ a.klijent }}</span>
+                  <span class="employee-dashboard__item-sub">{{ a.usluga }} · {{ a.status }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="employee-dashboard__empty">Nemate termina danas.</p>
+        }
+      </section>
+
+      <section class="employee-dashboard__section">
+        <h2>Ova nedelja</h2>
+        <dl class="employee-dashboard__stats">
+          <dt>Ukupno termina</dt>
+          <dd>{{ d.weekAppointments.length }}</dd>
+          <dt>Na čekanju</dt>
+          <dd>{{ d.pendingCount }}</dd>
+        </dl>
+        <a routerLink="/zaposleni-panel/termini" class="employee-dashboard__link">Svi moji termini</a>
+      </section>
+
+      @if (d.isCommissionBased && d.balance; as balance) {
+        <section class="employee-dashboard__section">
+          <h2>Provizije - stanje</h2>
+          <dl class="employee-dashboard__stats">
+            <dt>Zarađeno</dt>
+            <dd>{{ balance.earned }} RSD</dd>
+            <dt>Isplaćeno</dt>
+            <dd>{{ balance.paid }} RSD</dd>
+            <dt>Rezervisano</dt>
+            <dd>{{ balance.reserved }} RSD</dd>
+            <dt>Raspoloživo</dt>
+            <dd>{{ balance.available }} RSD</dd>
+          </dl>
+          <a routerLink="/zaposleni-panel/zarade" class="employee-dashboard__link">Provizije i isplate</a>
+        </section>
+
+        <section class="employee-dashboard__section">
+          <h2>Poslednje provizije</h2>
+          @if (d.recentCommissions.length) {
+            <ul class="employee-dashboard__list">
+              @for (c of d.recentCommissions; track c._id) {
+                <li>
+                  <span class="employee-dashboard__item">
+                    <span class="employee-dashboard__item-main">{{ c.amount }} RSD</span>
+                    <span class="employee-dashboard__item-sub">{{ c.rate }}% · {{ formatDate(c.createdAt) }}</span>
+                  </span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="employee-dashboard__empty">Još uvek nema provizija.</p>
+          }
+        </section>
+      }
+    </div>
+  }
+</div>

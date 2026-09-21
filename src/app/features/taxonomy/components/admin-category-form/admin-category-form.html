@@ -1,0 +1,64 @@
+@if (loading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="category-form">
+    <h2>{{ categoryId() ? 'Izmena kategorije' : 'Nova kategorija' }}</h2>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Naziv kategorije</mat-label>
+      <input matInput formControlName="name" required />
+      @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+        <mat-error>Naziv je obavezan.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Domen</mat-label>
+      <mat-select formControlName="domain" required>
+        @for (option of domainOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Roditeljska kategorija</mat-label>
+      <mat-select formControlName="parent">
+        <mat-option [value]="null">Bez roditelja</mat-option>
+        @for (option of parentOptions(); track option.id) {
+          <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Kratak opis</mat-label>
+      <textarea matInput formControlName="shortDescription" rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Prioritet</mat-label>
+      <input matInput type="number" formControlName="priority" />
+    </mat-form-field>
+
+    <mat-checkbox formControlName="isIndexable">Indeksabilno (vidljivo pretraživačima)</mat-checkbox>
+    <mat-checkbox formControlName="isActive">Aktivna</mat-checkbox>
+
+    <section class="category-form__image">
+      <h3>Slika</h3>
+      @if (imagePreviewUrl()) {
+        <img [src]="imagePreviewUrl() | imageUrl" alt="" class="category-form__image-preview" />
+      }
+      <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
+      @if (uploadingImage()) {
+        <mat-spinner diameter="20" />
+      }
+    </section>
+
+    <div class="category-form__actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+        {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+      </button>
+    </div>
+  </form>
+}

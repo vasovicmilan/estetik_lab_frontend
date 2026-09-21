@@ -1,0 +1,112 @@
+@if (loading()) {
+  <div class="partner-earnings__spinner">
+    <mat-spinner diameter="32" />
+  </div>
+} @else {
+  <div class="partner-earnings">
+    <h2>Provizije i isplate</h2>
+
+    @if (balance(); as b) {
+      <section class="partner-earnings__section">
+        <h3>Stanje</h3>
+        <dl class="partner-earnings__stats">
+          <dt>Zarađeno</dt>
+          <dd>{{ b.earned }} RSD</dd>
+          <dt>Isplaćeno</dt>
+          <dd>{{ b.paid }} RSD</dd>
+          <dt>Rezervisano</dt>
+          <dd>{{ b.reserved }} RSD</dd>
+          <dt>Raspoloživo</dt>
+          <dd>{{ b.available }} RSD</dd>
+        </dl>
+      </section>
+    }
+
+    <section class="partner-earnings__section">
+      <h3>Zatraži isplatu</h3>
+      <div class="partner-earnings__payout-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Iznos (RSD)</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            [max]="balance()?.available ?? null"
+            [ngModel]="payoutAmount()"
+            (ngModelChange)="payoutAmount.set($event)"
+          />
+        </mat-form-field>
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          [disabled]="requesting() || !payoutAmount() || (balance()?.available ?? 0) <= 0"
+          (click)="requestPayout()"
+        >
+          {{ requesting() ? 'Slanje...' : 'Zatraži isplatu' }}
+        </button>
+      </div>
+      @if ((balance()?.available ?? 0) <= 0) {
+        <p class="partner-earnings__hint">Nemate raspoloživo stanje za isplatu.</p>
+      }
+    </section>
+
+    <section class="partner-earnings__section">
+      <h3>Istorija provizija</h3>
+      @if (commissions().length) {
+        <table class="partner-earnings__table">
+          <thead>
+            <tr>
+              <th>Datum</th>
+              <th>Izvor</th>
+              <th>Procenat</th>
+              <th>Iznos</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of commissions(); track c._id) {
+              <tr>
+                <td>{{ formatDate(c.createdAt) }}</td>
+                <td>{{ sourceTypeLabel(c.sourceType) }}</td>
+                <td>{{ c.rate }}%</td>
+                <td>{{ c.amount }} RSD</td>
+                <td>{{ commissionStatusLabel(c.status) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="partner-earnings__hint">Još uvek nema provizija.</p>
+      }
+    </section>
+
+    <section class="partner-earnings__section">
+      <h3>Istorija isplata</h3>
+      @if (payouts().length) {
+        <table class="partner-earnings__table">
+          <thead>
+            <tr>
+              <th>Zatraženo</th>
+              <th>Iznos</th>
+              <th>Status</th>
+              <th>Napomena admina</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of payouts(); track p.id) {
+              <tr>
+                <td>{{ formatDate(p.requestedAt) }}</td>
+                <td>{{ p.amount }} RSD</td>
+                <td>{{ payoutStatusLabel(p.status) }}</td>
+                <td>{{ p.adminNote ?? '-' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="partner-earnings__hint">Još uvek nema zahteva za isplatu.</p>
+      }
+    </section>
+  </div>
+}

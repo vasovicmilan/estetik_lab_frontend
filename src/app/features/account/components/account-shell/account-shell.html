@@ -1,0 +1,20 @@
+<div class="account-shell">
+  <h1 class="account-shell__title">Moj nalog</h1>
+
+  <nav class="account-shell__nav">
+    <a
+      routerLink="/moj-nalog"
+      routerLinkActive="account-shell__link--active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="account-shell__link"
+      >Profil</a
+    >
+    <a routerLink="/moj-nalog/zakazivanja" routerLinkActive="account-shell__link--active" class="account-shell__link">Moja zakazivanja</a>
+    <a routerLink="/moj-nalog/porudzbine" routerLinkActive="account-shell__link--active" class="account-shell__link">Moje porudžbine</a>
+    <a routerLink="/moj-nalog/adrese" routerLinkActive="account-shell__link--active" class="account-shell__link">Moje adrese</a>
+  </nav>
+
+  <div class="account-shell__body">
+    <router-outlet />
+  </div>
+</div>

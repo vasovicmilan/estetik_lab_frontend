@@ -1,0 +1,94 @@
+<div class="account-addresses">
+  @if (loading()) {
+    <div class="account-addresses__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else {
+    @if (addresses().length === 0) {
+      <p>Nemate sačuvanih adresa.</p>
+    } @else {
+      <div class="account-addresses__list">
+        @for (a of addresses(); track a.id) {
+          <div class="account-addresses__card">
+            <div class="account-addresses__card-body">
+              @if (a.naziv) {
+                <strong>{{ a.naziv }}</strong>
+              }
+              @if (a.podrazumevana) {
+                <span class="account-addresses__badge">Podrazumevana</span>
+              }
+              <p>{{ a.ulica }} {{ a.broj }}, {{ a.postanskiBroj }} {{ a.grad }}</p>
+            </div>
+            <div class="account-addresses__card-actions">
+              @if (!a.podrazumevana) {
+                <button mat-button type="button" [disabled]="acting()" (click)="setDefault(a)">Postavi kao podrazumevanu</button>
+              }
+              <button mat-button color="warn" type="button" [disabled]="acting()" (click)="remove(a)">Obriši</button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="account-addresses__add">
+      <button mat-stroked-button type="button" (click)="toggleAdd()">
+        {{ addingNew() ? 'Zatvori formu' : 'Dodaj adresu' }}
+      </button>
+
+      @if (addingNew()) {
+        <form [formGroup]="form" (ngSubmit)="submitAdd()" class="account-addresses__form">
+          <mat-form-field appearance="outline" class="account-addresses__field">
+            <mat-label>Naziv (opciono)</mat-label>
+            <input matInput formControlName="label" placeholder="npr. Kuća, Posao" />
+          </mat-form-field>
+
+          <div class="account-addresses__row">
+            <mat-form-field appearance="outline" class="account-addresses__field">
+              <mat-label>Grad</mat-label>
+              <input matInput formControlName="city" />
+              @if (form.controls.city.hasError('required') && form.controls.city.touched) {
+                <mat-error>Grad je obavezan.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="account-addresses__field">
+              <mat-label>Poštanski broj</mat-label>
+              <input matInput formControlName="postalCode" />
+              @if (form.controls.postalCode.hasError('required') && form.controls.postalCode.touched) {
+                <mat-error>Poštanski broj je obavezan.</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="account-addresses__row">
+            <mat-form-field appearance="outline" class="account-addresses__field">
+              <mat-label>Ulica</mat-label>
+              <input matInput formControlName="street" />
+              @if (form.controls.street.hasError('required') && form.controls.street.touched) {
+                <mat-error>Ulica je obavezna.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="account-addresses__field account-addresses__field--narrow">
+              <mat-label>Broj</mat-label>
+              <input matInput formControlName="number" />
+              @if (form.controls.number.hasError('required') && form.controls.number.touched) {
+                <mat-error>Broj je obavezan.</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <mat-checkbox formControlName="isDefault">Postavi kao podrazumevanu</mat-checkbox>
+
+          <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid" class="account-addresses__submit">
+            @if (saving()) {
+              <mat-spinner diameter="20" />
+            } @else {
+              Sačuvaj adresu
+            }
+          </button>
+        </form>
+      }
+    </div>
+  }
+</div>

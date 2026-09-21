@@ -1,0 +1,86 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="manual-appointment-form">
+  <div class="manual-appointment-form__header">
+    <h2>Novi termin</h2>
+    <a mat-button routerLink="/admin/zakazivanja">Otkaži</a>
+  </div>
+
+  <p class="manual-appointment-form__hint">
+    Termin se kreira za novi/gost kontakt (nema pretrage postojećih korisnika u ovoj verziji) i po podrazumevanoj ceni
+    varijante, osim ako unesete drugu cenu ispod.
+  </p>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Usluga</mat-label>
+    <mat-select formControlName="serviceId" (selectionChange)="onServiceChange($event.value)">
+      @for (s of services(); track s.id) {
+        <mat-option [value]="s.id">{{ s.naziv }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (loadingVariants()) {
+    <mat-spinner diameter="24" />
+  } @else if (variants().length) {
+    <mat-form-field appearance="outline">
+      <mat-label>Varijanta</mat-label>
+      <mat-select formControlName="servicePackageId">
+        @for (v of variants(); track v.id) {
+          <mat-option [value]="v.id">{{ v.naziv }} - {{ v.trajanje }} - {{ v.cena }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+
+  <mat-form-field appearance="outline">
+    <mat-label>Datum i vreme</mat-label>
+    <input matInput type="datetime-local" formControlName="startTime" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Terapeut (opciono, automatski ako se ne izabere)</mat-label>
+    <mat-select formControlName="employeeId">
+      <mat-option value="">Automatski</mat-option>
+      @for (employee of employees(); track employee.id) {
+        <mat-option [value]="employee.id">{{ employee.imePrezime }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <h3>Klijent</h3>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Ime</mat-label>
+    <input matInput formControlName="firstName" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Prezime (opciono)</mat-label>
+    <input matInput formControlName="lastName" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput type="email" formControlName="email" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Telefon</mat-label>
+    <input matInput type="tel" formControlName="phone" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Napomena (opciono)</mat-label>
+    <textarea matInput formControlName="note" rows="3"></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Cena (opciono - podrazumevana cena varijante ako se ne unese)</mat-label>
+    <input matInput type="number" formControlName="priceOverride" />
+  </mat-form-field>
+
+  <div class="manual-appointment-form__actions">
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+      {{ saving() ? 'Kreiranje...' : 'Kreiraj termin' }}
+    </button>
+  </div>
+</form>

@@ -1,0 +1,72 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled poslovnog saradnika</h1>
+    <div class="admin-detail__actions">
+      @if (partnerId(); as id) {
+        <a mat-flat-button color="primary" [routerLink]="['/admin/poslovni-saradnici', id]">Izmeni</a>
+      }
+      <a mat-button routerLink="/admin/poslovni-saradnici">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      @if (d.slika?.url) {
+        <img [src]="d.slika!.url | imageUrl" [alt]="d.slika!.alt || d.naziv" class="admin-detail__image" />
+      }
+
+      <dl class="admin-detail__list">
+        <dt>Naziv</dt>
+        <dd>{{ d.naziv }}</dd>
+
+        <dt>Slug</dt>
+        <dd>{{ d.slug }}</dd>
+
+        <dt>Kratak opis</dt>
+        <dd>{{ d.kratakOpis || '-' }}</dd>
+
+        <dt>Adresa</dt>
+        <dd>{{ d.adresa || '-' }}</dd>
+
+        @if (d.imaMapu && d.geo) {
+          <dt>Koordinate</dt>
+          <dd>{{ d.geo.latitude }}, {{ d.geo.longitude }}</dd>
+        }
+
+        <dt>Spoljni link</dt>
+        <dd><a [href]="d.outboundUrl" target="_blank" rel="noopener">{{ d.outboundUrl }}</a></dd>
+
+        <dt>CTA oznaka</dt>
+        <dd>{{ d.ctaLabel || '-' }}</dd>
+
+        <dt>Aktivan</dt>
+        <dd>{{ d.aktivan ? 'Da' : 'Ne' }}</dd>
+
+        <dt>Kreirano</dt>
+        <dd>{{ d.vreme.kreiran }}</dd>
+
+        <dt>Ažurirano</dt>
+        <dd>{{ d.vreme.azuriran }}</dd>
+      </dl>
+
+      @if (d.sadrzaj.length) {
+        <section class="admin-detail__section">
+          <h2>Sadržaj</h2>
+          <app-content-blocks [blocks]="d.sadrzaj" />
+        </section>
+      }
+
+      <button mat-stroked-button color="warn" [disabled]="deleting()" (click)="remove()">
+        {{ deleting() ? 'Brisanje...' : 'Obriši saradnika' }}
+      </button>
+    </div>
+  } @else if (!loading()) {
+    <p>Poslovni saradnik nije pronađen.</p>
+  }
+</div>

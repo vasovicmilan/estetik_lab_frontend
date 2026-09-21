@@ -6,4 +6,6 @@ import { Component } from '@angular/core';
   templateUrl: './footer.html',
   styleUrl: './footer.scss',
 })
-export class Footer {}
+export class Footer {
+  protected readonly year = new Date().getFullYear();
+}

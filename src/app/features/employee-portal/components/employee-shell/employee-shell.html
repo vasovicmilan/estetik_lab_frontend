@@ -1,0 +1,22 @@
+<div class="employee-shell">
+  <h1 class="employee-shell__title">Panel zaposlenog</h1>
+
+  <nav class="employee-shell__nav">
+    <a
+      routerLink="/zaposleni-panel"
+      routerLinkActive="employee-shell__link--active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="employee-shell__link"
+      >Pregled</a
+    >
+    <a routerLink="/zaposleni-panel/termini" routerLinkActive="employee-shell__link--active" class="employee-shell__link">Moji termini</a>
+    <a routerLink="/zaposleni-panel/profil" routerLinkActive="employee-shell__link--active" class="employee-shell__link">Profil</a>
+    @if (isCommissionBased()) {
+      <a routerLink="/zaposleni-panel/zarade" routerLinkActive="employee-shell__link--active" class="employee-shell__link">Provizije</a>
+    }
+  </nav>
+
+  <div class="employee-shell__body">
+    <router-outlet />
+  </div>
+</div>

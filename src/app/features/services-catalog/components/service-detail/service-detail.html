@@ -1,1 +1,66 @@
-<p>service-detail works!</p>
+@if (service(); as s) {
+  <article class="service-detail">
+    @if (s.slika?.url) {
+      <img [src]="s.slika!.url | imageUrl" [alt]="s.slika!.alt || s.naziv" class="service-detail__hero" />
+    }
+
+    <h1>{{ s.naziv }}</h1>
+    <p class="service-detail__intro">{{ s.kratakOpis }}</p>
+
+    @if (s.kategorije.length) {
+      <mat-chip-set>
+        @for (kategorija of s.kategorije; track kategorija) {
+          <mat-chip>{{ kategorija }}</mat-chip>
+        }
+      </mat-chip-set>
+    }
+
+    <div class="service-detail__body" [innerHTML]="s.dugiOpis"></div>
+
+    @if (s.varijante.length) {
+      <section class="service-detail__variants">
+        <h2>Varijante</h2>
+        <div class="service-detail__variant-grid">
+          @for (variant of s.varijante; track variant.id) {
+            <mat-card>
+              <mat-card-title>{{ variant.naziv }}</mat-card-title>
+              <mat-card-content>
+                <p>{{ variant.trajanje }} - {{ variant.brojSeansi }} seansi</p>
+                <p class="service-detail__price">
+                  {{ variant.cena }}
+                  @if (variant.staraCena) {
+                    <span class="service-detail__price--old">{{ variant.staraCena }}</span>
+                  }
+                </p>
+                <button mat-stroked-button color="primary" type="button" (click)="toggleBooking(variant)">
+                  {{ bookingVariant()?.id === variant.id ? 'Zatvori' : 'Zakaži termin' }}
+                </button>
+                @if (bookingVariant()?.id === variant.id) {
+                  <app-booking-widget [serviceSlug]="s.slug" [servicePackageId]="variant.id" [variantName]="variant.naziv" />
+                }
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </section>
+    }
+
+    @if (s.faq.length) {
+      <section class="service-detail__faq">
+        <h2>Pitanja i odgovori</h2>
+        @for (item of s.faq; track item.pitanje) {
+          <details>
+            <summary>{{ item.pitanje }}</summary>
+            <p>{{ item.odgovor }}</p>
+          </details>
+        }
+      </section>
+    }
+  </article>
+} @else {
+  <div class="service-detail__not-found">
+    <h1>Usluga nije pronađena</h1>
+    <p>Usluga koju tražite ne postoji ili je uklonjena.</p>
+    <a routerLink="/usluge">Nazad na usluge</a>
+  </div>
+}

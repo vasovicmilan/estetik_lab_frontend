@@ -1,0 +1,84 @@
+<div class="booking-widget">
+  @if (confirmedAppointmentId()) {
+    <p class="booking-widget__success">
+      Termin je uspešno zakazan! Poslaćemo vam potvrdu na email.
+    </p>
+  } @else {
+    <h3>Zakažite termin @if (variantName()) { - {{ variantName() }} }</h3>
+
+    @if (errorMessage()) {
+      <p class="booking-widget__error">{{ errorMessage() }}</p>
+    }
+
+    <label class="booking-widget__date-label">
+      Datum
+      <input
+        type="date"
+        [min]="today"
+        [value]="selectedDate()"
+        (change)="onDateChange($any($event.target).value)"
+        class="booking-widget__date-input"
+      />
+    </label>
+
+    @if (loadingSlots()) {
+      <mat-spinner diameter="28" />
+    } @else if (slotsResponse()) {
+      @if (slotsResponse()!.slots.length === 0) {
+        <p>Nema slobodnih termina za izabrani datum.</p>
+      } @else {
+        <div class="booking-widget__slots">
+          @for (slot of slotsResponse()!.slots; track slot.startTime) {
+            <button
+              type="button"
+              class="booking-widget__slot"
+              [class.booking-widget__slot--selected]="selectedSlot() === slot"
+              (click)="pickSlot(slot)"
+            >
+              {{ formatTime(slot.startTime) }}
+            </button>
+          }
+        </div>
+      }
+    }
+
+    @if (selectedSlot()) {
+      <form [formGroup]="contactForm" (ngSubmit)="submit()" class="booking-widget__form">
+        <input type="text" formControlName="nickname" class="booking-widget__honeypot" tabindex="-1" autocomplete="off" />
+
+        <mat-form-field appearance="outline" class="booking-widget__field">
+          <mat-label>Ime</mat-label>
+          <input matInput formControlName="firstName" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="booking-widget__field">
+          <mat-label>Prezime (opciono)</mat-label>
+          <input matInput formControlName="lastName" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="booking-widget__field">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="booking-widget__field">
+          <mat-label>Telefon</mat-label>
+          <input matInput type="tel" formControlName="phone" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="booking-widget__field">
+          <mat-label>Napomena (opciono)</mat-label>
+          <textarea matInput formControlName="note" rows="2"></textarea>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="confirming() || contactForm.invalid || !selectedSlot()">
+          @if (confirming()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Potvrdi zakazivanje
+          }
+        </button>
+      </form>
+    }
+  }
+</div>

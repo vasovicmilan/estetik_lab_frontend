@@ -1,0 +1,79 @@
+.employee-earnings {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  &__section {
+    border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+    border-radius: 8px;
+    padding: 1.25rem;
+
+    h3 {
+      margin: 0 0 0.75rem;
+      font-size: 1.0625rem;
+    }
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 1rem;
+    margin: 0;
+
+    dt {
+      color: var(--mat-sys-on-surface-variant, #666);
+      font-size: 0.875rem;
+    }
+
+    dd {
+      margin: 0;
+      font-size: 0.9375rem;
+      font-weight: 500;
+    }
+  }
+
+  &__payout-form {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+
+    mat-form-field {
+      width: 200px;
+    }
+  }
+
+  &__hint {
+    color: var(--mat-sys-on-surface-variant, #666);
+    font-size: 0.875rem;
+    margin: 0.5rem 0 0;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+
+    th,
+    td {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+    }
+
+    th {
+      color: var(--mat-sys-on-surface-variant, #666);
+      font-weight: 600;
+    }
+  }
+}

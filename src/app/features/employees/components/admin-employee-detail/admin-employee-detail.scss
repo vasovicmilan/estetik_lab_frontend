@@ -1,0 +1,73 @@
+.admin-employee-detail {
+  padding: 1.5rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 640px;
+  }
+
+  &__section {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+
+    h2 {
+      margin-top: 0;
+    }
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 1rem;
+    margin: 0 0 1rem;
+
+    dt {
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    dd {
+      margin: 0;
+    }
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 999px;
+      padding: 0.15rem 0.75rem;
+      font-size: 0.85rem;
+    }
+  }
+
+  &__hint {
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+
+  &__not-found {
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+}

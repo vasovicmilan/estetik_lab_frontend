@@ -1,0 +1,96 @@
+<div class="account-appointment-detail">
+  <div class="account-appointment-detail__header">
+    <h1>Pregled zakazivanja</h1>
+    <a routerLink="/moj-nalog/zakazivanja">Nazad na listu</a>
+  </div>
+
+  @if (loading()) {
+    <div class="account-appointment-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (detail(); as d) {
+    <div class="account-appointment-detail__body">
+      <section class="account-appointment-detail__section">
+        <h2>Usluga i termin</h2>
+        <dl class="account-appointment-detail__list">
+          <dt>Usluga</dt>
+          <dd>{{ d.usluga.naziv }}</dd>
+          <dt>Trajanje</dt>
+          <dd>{{ d.usluga.trajanje ?? '-' }}</dd>
+          <dt>Cena usluge</dt>
+          <dd>{{ d.usluga.cena ?? '-' }}</dd>
+          <dt>Početak</dt>
+          <dd>{{ d.termin.pocetak }}</dd>
+          <dt>Kraj</dt>
+          <dd>{{ d.termin.kraj }}</dd>
+          <dt>Terapeut</dt>
+          <dd>{{ d.terapeut }}</dd>
+          <dt>Konačna cena</dt>
+          <dd>{{ d.konacnaCena ?? '-' }}</dd>
+          @if (d.popust) {
+            <dt>Popust</dt>
+            <dd>{{ d.popust }}</dd>
+          }
+          @if (d.kupon) {
+            <dt>Kupon</dt>
+            <dd>{{ d.kupon }}</dd>
+          }
+          @if (d.napomena) {
+            <dt>Napomena</dt>
+            <dd>{{ d.napomena }}</dd>
+          }
+        </dl>
+      </section>
+
+      <section class="account-appointment-detail__section">
+        <h2>Status: <span [class]="'account-appointment-detail__status account-appointment-detail__status--' + d.statusRaw">{{ d.status }}</span></h2>
+
+        @if (d.statusRaw === 'rejected' && d.razlogOdbijanja) {
+          <p class="account-appointment-detail__reason-text"><strong>Razlog odbijanja:</strong> {{ d.razlogOdbijanja }}</p>
+        }
+        @if (d.statusRaw === 'cancelled' && d.razlogOtkazivanja) {
+          <p class="account-appointment-detail__reason-text"><strong>Razlog otkazivanja:</strong> {{ d.razlogOtkazivanja }}</p>
+        }
+
+        @if (canAct(d)) {
+          <div class="account-appointment-detail__actions">
+            <button mat-stroked-button type="button" [disabled]="acting()" (click)="toggleReschedule()">Pomeri termin</button>
+            <button mat-stroked-button color="warn" type="button" [disabled]="acting()" (click)="toggleCancel()">Otkaži termin</button>
+          </div>
+
+          @if (rescheduling()) {
+            <div class="account-appointment-detail__inline-form">
+              <mat-form-field appearance="outline">
+                <mat-label>Novo vreme</mat-label>
+                <input matInput type="datetime-local" [ngModel]="rescheduleValue()" (ngModelChange)="rescheduleValue.set($event)" />
+              </mat-form-field>
+              <div class="account-appointment-detail__inline-form-actions">
+                <button mat-flat-button color="primary" type="button" [disabled]="acting() || !rescheduleValue()" (click)="submitReschedule()">Potvrdi pomeranje</button>
+                <button mat-button type="button" (click)="rescheduling.set(false)">Otkaži</button>
+              </div>
+            </div>
+          }
+
+          @if (cancelling()) {
+            <div class="account-appointment-detail__inline-form">
+              <mat-form-field appearance="outline">
+                <mat-label>Razlog otkazivanja (opciono)</mat-label>
+                <textarea matInput rows="2" maxlength="500" [ngModel]="cancelReason()" (ngModelChange)="cancelReason.set($event)"></textarea>
+              </mat-form-field>
+              <div class="account-appointment-detail__inline-form-actions">
+                <button mat-flat-button color="warn" type="button" [disabled]="acting()" (click)="submitCancel()">Otkaži termin</button>
+                <button mat-button type="button" (click)="cancelling.set(false)">Zatvori</button>
+              </div>
+            </div>
+          }
+        }
+      </section>
+    </div>
+  } @else if (notFound()) {
+    <div class="account-appointment-detail__not-found">
+      <h1>Zakazivanje nije pronađeno</h1>
+      <p>Zakazivanje koje tražite ne postoji ili nije vaše.</p>
+      <a routerLink="/moj-nalog/zakazivanja">Nazad na listu</a>
+    </div>
+  }
+</div>

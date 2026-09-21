@@ -1,0 +1,52 @@
+@if (pkg(); as p) {
+  <article class="package-detail">
+    @if (p.slika?.url) {
+      <img [src]="p.slika!.url | imageUrl" [alt]="p.slika!.alt || p.naziv" class="package-detail__hero" />
+    }
+
+    @if (p.oznaka) {
+      <span class="package-detail__badge">{{ p.oznaka }}</span>
+    }
+
+    <h1>{{ p.naziv }}</h1>
+    <p class="package-detail__intro">{{ p.kratakOpis }}</p>
+
+    <p class="package-detail__price">
+      {{ p.cena }} RSD
+      @if (p.staraCena) {
+        <span class="package-detail__price--old">{{ p.staraCena }} RSD</span>
+      }
+    </p>
+
+    <div class="package-detail__body" [innerHTML]="p.opis"></div>
+
+    @if (p.stavke.length) {
+      <section class="package-detail__items">
+        <h2>Šta uključuje</h2>
+        <ul>
+          @for (stavka of p.stavke; track $index) {
+            <li>{{ stavka.usluga.naziv }} @if (stavka.varijanta.naziv) { - {{ stavka.varijanta.naziv }} } x{{ stavka.brojSeansi }}</li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (p.faq.length) {
+      <section class="package-detail__faq">
+        <h2>Pitanja i odgovori</h2>
+        @for (item of p.faq; track item.pitanje) {
+          <details>
+            <summary>{{ item.pitanje }}</summary>
+            <p>{{ item.odgovor }}</p>
+          </details>
+        }
+      </section>
+    }
+  </article>
+} @else {
+  <div class="package-detail__not-found">
+    <h1>Paket nije pronađen</h1>
+    <p>Paket koji tražite ne postoji ili je uklonjen.</p>
+    <a routerLink="/paketi">Nazad na pakete</a>
+  </div>
+}

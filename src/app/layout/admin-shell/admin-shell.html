@@ -1,0 +1,83 @@
+<mat-sidenav-container class="admin-shell">
+  <mat-sidenav mode="side" opened class="admin-shell__sidenav">
+    <div class="admin-shell__title">Admin panel</div>
+
+    <mat-nav-list class="admin-shell__nav">
+      <a mat-list-item routerLink="/admin" routerLinkActive="admin-shell__link--active" [routerLinkActiveOptions]="{ exact: true }">Početna</a>
+
+      @if (auth.hasPermission('manage_appointments_all')) {
+        <a mat-list-item routerLink="/admin/zakazivanja" routerLinkActive="admin-shell__link--active">Zakazivanja</a>
+      }
+
+      @if (auth.hasPermission('manage_services') || auth.hasPermission('manage_packages') || auth.hasPermission('manage_products') || auth.hasPermission('manage_orders') || auth.hasPermission('manage_coupons')) {
+        <div class="admin-shell__group-label">Katalog</div>
+
+        @if (auth.hasPermission('manage_services')) {
+          <a mat-list-item routerLink="/admin/usluge" routerLinkActive="admin-shell__link--active">Usluge</a>
+        }
+        @if (auth.hasPermission('manage_packages')) {
+          <a mat-list-item routerLink="/admin/paketi" routerLinkActive="admin-shell__link--active">Paketi</a>
+        }
+        @if (auth.hasPermission('manage_products')) {
+          <a mat-list-item routerLink="/admin/prodavnica" routerLinkActive="admin-shell__link--active">Prodavnica</a>
+        }
+        @if (auth.hasPermission('manage_orders')) {
+          <a mat-list-item routerLink="/admin/porudzbine" routerLinkActive="admin-shell__link--active">Porudžbine</a>
+          <a mat-list-item routerLink="/admin/privremene-porudzbine" routerLinkActive="admin-shell__link--active">Privremene porudžbine</a>
+        }
+        @if (auth.hasPermission('manage_coupons')) {
+          <a mat-list-item routerLink="/admin/kuponi" routerLinkActive="admin-shell__link--active">Kuponi</a>
+        }
+      }
+
+      @if (auth.hasPermission('manage_employees') || auth.hasPermission('manage_blog')) {
+        <div class="admin-shell__group-label">Sadržaj</div>
+
+        @if (auth.hasPermission('manage_employees')) {
+          <a mat-list-item routerLink="/admin/tim" routerLinkActive="admin-shell__link--active">Tim</a>
+          <a mat-list-item routerLink="/admin/zaposleni" routerLinkActive="admin-shell__link--active">Zaposleni</a>
+        }
+        @if (auth.hasPermission('manage_blog')) {
+          <a mat-list-item routerLink="/admin/blog" routerLinkActive="admin-shell__link--active">Blog</a>
+        }
+      }
+
+      @if (auth.hasPermission('manage_users')) {
+        <div class="admin-shell__group-label">Korisnici</div>
+        <a mat-list-item routerLink="/admin/korisnici" routerLinkActive="admin-shell__link--active">Korisnici</a>
+      }
+
+      @if (auth.hasPermission('manage_taxonomy') || auth.hasPermission('manage_resources')) {
+        <div class="admin-shell__group-label">Podešavanja</div>
+
+        @if (auth.hasPermission('manage_taxonomy')) {
+          <a mat-list-item routerLink="/admin/kategorije" routerLinkActive="admin-shell__link--active">Kategorije</a>
+          <a mat-list-item routerLink="/admin/tagovi" routerLinkActive="admin-shell__link--active">Tagovi</a>
+        }
+        @if (auth.hasPermission('manage_resources')) {
+          <a mat-list-item routerLink="/admin/resursi" routerLinkActive="admin-shell__link--active">Resursi</a>
+        }
+      }
+
+      @if (auth.hasPermission('manage_partners') || auth.hasPermission('manage_marketing')) {
+        <div class="admin-shell__group-label">Partneri</div>
+
+        @if (auth.hasPermission('manage_partners')) {
+          <a mat-list-item routerLink="/admin/partneri" routerLinkActive="admin-shell__link--active">Partneri</a>
+        }
+        @if (auth.hasPermission('manage_marketing')) {
+          <a mat-list-item routerLink="/admin/poslovni-saradnici" routerLinkActive="admin-shell__link--active">Poslovni saradnici</a>
+        }
+      }
+    </mat-nav-list>
+
+    <a routerLink="/" class="admin-shell__back">
+      <mat-icon>arrow_back</mat-icon>
+      Nazad na sajt
+    </a>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="admin-shell__content">
+    <router-outlet />
+  </mat-sidenav-content>
+</mat-sidenav-container>

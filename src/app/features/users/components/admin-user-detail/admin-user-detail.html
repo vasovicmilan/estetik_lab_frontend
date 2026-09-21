@@ -1,0 +1,117 @@
+<div class="admin-user-detail">
+  <div class="admin-user-detail__header">
+    <h1>Pregled korisnika</h1>
+    <a mat-button routerLink="/admin/korisnici">Nazad na listu</a>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-user-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (detail(); as d) {
+    <div class="admin-user-detail__body">
+      <section class="admin-user-detail__section">
+        <h2>Profil</h2>
+        <dl class="admin-user-detail__list">
+          @if (d.avatar) {
+            <dt>Slika</dt>
+            <dd><img [src]="d.avatar | imageUrl" [alt]="d.imePrezime" class="admin-user-detail__avatar" /></dd>
+          }
+          <dt>Ime i prezime</dt>
+          <dd>{{ d.imePrezime }}</dd>
+          <dt>Email</dt>
+          <dd>{{ d.email }}</dd>
+          <dt>Telefon</dt>
+          <dd>{{ d.telefon ?? '-' }}</dd>
+          <dt>Način prijave</dt>
+          <dd>{{ d.nacinPrijave }}</dd>
+          <dt>Email potvrđen</dt>
+          <dd>{{ d.potvrdjenEmail }}</dd>
+          <dt>Poslednja prijava</dt>
+          <dd>{{ d.poslednjiLogin ?? 'Nikada' }}</dd>
+          <dt>Registrovan</dt>
+          <dd>{{ d.vreme.registrovan }}</dd>
+          <dt>Ažuriran</dt>
+          <dd>{{ d.vreme.azuriran }}</dd>
+        </dl>
+
+        <button mat-stroked-button type="button" [disabled]="acting()" (click)="toggleEditProfile()">
+          {{ editingProfile() ? 'Zatvori izmenu' : 'Izmeni profil' }}
+        </button>
+
+        @if (editingProfile()) {
+          <div class="admin-user-detail__profile-form">
+            <mat-form-field appearance="outline">
+              <mat-label>Ime</mat-label>
+              <input matInput [ngModel]="editFirstName()" (ngModelChange)="editFirstName.set($event)" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Prezime</mat-label>
+              <input matInput [ngModel]="editLastName()" (ngModelChange)="editLastName.set($event)" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Telefon</mat-label>
+              <input matInput [ngModel]="editPhone()" (ngModelChange)="editPhone.set($event)" />
+            </mat-form-field>
+            <button mat-flat-button color="primary" type="button" [disabled]="acting()" (click)="submitProfile()">Sačuvaj</button>
+          </div>
+        }
+
+        @if (!d.potvrdjenEmail || d.potvrdjenEmail === 'Ne') {
+          <button mat-stroked-button type="button" [disabled]="acting()" (click)="verify()">Verifikuj email</button>
+        }
+      </section>
+
+      <section class="admin-user-detail__section">
+        <h2>Status: <span [class]="'admin-user-detail__status admin-user-detail__status--' + d.statusRaw">{{ d.status }}</span></h2>
+
+        <div class="admin-user-detail__inline-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Novi status</mat-label>
+            <mat-select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
+              @for (option of statusOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="button" [disabled]="acting() || selectedStatus() === d.statusRaw" (click)="submitStatus()">Sačuvaj status</button>
+        </div>
+      </section>
+
+      <section class="admin-user-detail__section">
+        <h2>Uloga: {{ d.uloga }}</h2>
+
+        @if (roleOptions().length) {
+          <div class="admin-user-detail__inline-form">
+            <mat-form-field appearance="outline">
+              <mat-label>Nova uloga</mat-label>
+              <mat-select [ngModel]="selectedRoleId()" (ngModelChange)="selectedRoleId.set($event)">
+                @for (option of roleOptions(); track option.id) {
+                  <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <button mat-flat-button color="primary" type="button" [disabled]="acting() || selectedRoleId() === d.roleId || !selectedRoleId()" (click)="submitRole()">Sačuvaj ulogu</button>
+          </div>
+        } @else {
+          <p class="admin-user-detail__hint">Nemate ovlašćenje za upravljanje ulogama (manage_roles), ili nijedna uloga nije dostupna.</p>
+        }
+      </section>
+
+      <section class="admin-user-detail__section admin-user-detail__section--danger">
+        <h2>Opasna zona</h2>
+        <p class="admin-user-detail__hint">Ove radnje su nepovratne.</p>
+        <div class="admin-user-detail__danger-actions">
+          <button mat-stroked-button color="warn" type="button" [disabled]="acting()" (click)="anonymize()">Anonimizuj nalog</button>
+          <button mat-flat-button color="warn" type="button" [disabled]="acting()" (click)="remove()">Obriši nalog</button>
+        </div>
+      </section>
+    </div>
+  } @else if (notFound()) {
+    <div class="admin-user-detail__not-found">
+      <h1>Korisnik nije pronađen</h1>
+      <p>Korisnik kojeg tražite ne postoji ili je uklonjen.</p>
+      <a routerLink="/admin/korisnici">Nazad na listu</a>
+    </div>
+  }
+</div>

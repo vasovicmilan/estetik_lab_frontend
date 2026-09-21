@@ -1,0 +1,115 @@
+.content-block {
+  margin-bottom: 1.25rem;
+
+  &__figure {
+    margin: 0;
+  }
+
+  &__image {
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  &__gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.5rem;
+  }
+
+  &__gallery-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  &__quote {
+    border-left: 3px solid var(--mat-sys-primary, #b3568c);
+    padding: 0.25rem 0 0.25rem 1rem;
+    font-style: italic;
+    color: var(--mat-sys-on-surface-variant, #555);
+
+    cite {
+      display: block;
+      margin-top: 0.5rem;
+      font-style: normal;
+      font-size: 0.85rem;
+      color: var(--mat-sys-on-surface-variant, #777);
+    }
+  }
+
+  &__video video {
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+  }
+
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  &__card {
+    padding: 1rem;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  &__callout {
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid;
+
+    &--info {
+      background: #eef6fb;
+      border-color: #4a90c4;
+    }
+    &--success {
+      background: #eaf7ee;
+      border-color: #3fa860;
+    }
+    &--warning {
+      background: #fff8e6;
+      border-color: #d9a72a;
+    }
+    &--danger {
+      background: #fbecec;
+      border-color: #c94b4b;
+    }
+  }
+
+  &__cta {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  &__cta-button {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.6rem 1.5rem;
+    border-radius: 999px;
+    background: var(--mat-sys-primary, #b3568c);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  &__divider {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 1.5rem 0;
+  }
+}

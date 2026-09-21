@@ -1,0 +1,171 @@
+<div class="admin-appointment-detail">
+  <div class="admin-appointment-detail__header">
+    <h1>Pregled zakazivanja</h1>
+    <a mat-button routerLink="/admin/zakazivanja">Nazad na listu</a>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-appointment-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (detail(); as d) {
+    <div class="admin-appointment-detail__body">
+      <section class="admin-appointment-detail__section">
+        <h2>Klijent</h2>
+        <dl class="admin-appointment-detail__list">
+          <dt>Ime</dt>
+          <dd>{{ d.korisnik.ime }}</dd>
+          <dt>Email</dt>
+          <dd>{{ d.korisnik.email ?? '-' }}</dd>
+          <dt>Telefon</dt>
+          <dd>{{ d.korisnik.telefon ?? '-' }}</dd>
+        </dl>
+      </section>
+
+      <section class="admin-appointment-detail__section">
+        <h2>Usluga i termin</h2>
+        <dl class="admin-appointment-detail__list">
+          <dt>Usluga</dt>
+          <dd>{{ d.usluga.naziv }}</dd>
+          <dt>Trajanje</dt>
+          <dd>{{ d.usluga.trajanje ?? '-' }}</dd>
+          <dt>Cena usluge</dt>
+          <dd>{{ d.usluga.cena ?? '-' }}</dd>
+          <dt>Početak</dt>
+          <dd>{{ d.termin.pocetak }}</dd>
+          <dt>Kraj</dt>
+          <dd>{{ d.termin.kraj }}</dd>
+          <dt>Konačna cena</dt>
+          <dd>{{ d.konacnaCena ?? '-' }}</dd>
+          @if (d.popust) {
+            <dt>Popust</dt>
+            <dd>{{ d.popust }}</dd>
+          }
+          @if (d.kupon) {
+            <dt>Kupon</dt>
+            <dd>{{ d.kupon }}</dd>
+          }
+          <dt>Ručno kreiran</dt>
+          <dd>{{ d.rucnoKreiran ? 'Da' : 'Ne' }}</dd>
+          @if (d.napomena) {
+            <dt>Napomena</dt>
+            <dd>{{ d.napomena }}</dd>
+          }
+        </dl>
+      </section>
+
+      <section class="admin-appointment-detail__section">
+        <h2>Status: <span [class]="'admin-appointment-detail__status admin-appointment-detail__status--' + d.statusRaw">{{ d.status }}</span></h2>
+
+        <div class="admin-appointment-detail__actions">
+          @if (d.statusRaw === 'pending') {
+            <button mat-flat-button color="primary" type="button" [disabled]="acting()" (click)="confirm()">Potvrdi</button>
+            <button mat-stroked-button color="warn" type="button" [disabled]="acting()" (click)="toggleReasonAction('reject')">Odbij</button>
+          }
+
+          @if (d.statusRaw === 'confirmed') {
+            <button mat-flat-button color="primary" type="button" [disabled]="acting()" (click)="complete()">Označi završeno</button>
+            <button mat-stroked-button type="button" [disabled]="acting()" (click)="toggleReasonAction('no_show')">Nije se pojavio/la</button>
+            <button mat-stroked-button color="warn" type="button" [disabled]="acting()" (click)="toggleReasonAction('cancel')">Otkaži</button>
+          }
+
+          @if (d.statusRaw === 'rejected' || d.statusRaw === 'cancelled' || d.statusRaw === 'completed' || d.statusRaw === 'no_show') {
+            <button mat-stroked-button type="button" [disabled]="acting()" (click)="reopen()">Ponovo otvori</button>
+          }
+        </div>
+
+        @if (reasonAction(); as action) {
+          <div class="admin-appointment-detail__reason">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ action === 'no_show' ? 'Napomena (opciono)' : 'Razlog (opciono)' }}</mat-label>
+              <textarea matInput rows="2" maxlength="500" [ngModel]="reasonText()" (ngModelChange)="reasonText.set($event)"></textarea>
+            </mat-form-field>
+            <div class="admin-appointment-detail__reason-actions">
+              <button mat-flat-button color="primary" type="button" [disabled]="acting()" (click)="submitReasonAction()">Potvrdi</button>
+              <button mat-button type="button" (click)="reasonAction.set(null)">Otkaži</button>
+            </div>
+          </div>
+        }
+
+        <dl class="admin-appointment-detail__list admin-appointment-detail__list--audit">
+          @if (d.statusRaw === 'confirmed' && d.potvrdio) {
+            <dt>Potvrdio</dt>
+            <dd>{{ d.potvrdio }} @if (d.potvrdjenU) { ({{ d.potvrdjenU }}) }</dd>
+          }
+          @if (d.statusRaw === 'rejected') {
+            @if (d.odbio) {
+              <dt>Odbio</dt>
+              <dd>{{ d.odbio }} @if (d.odbijenU) { ({{ d.odbijenU }}) }</dd>
+            }
+            @if (d.razlogOdbijanja) {
+              <dt>Razlog odbijanja</dt>
+              <dd>{{ d.razlogOdbijanja }}</dd>
+            }
+          }
+          @if (d.statusRaw === 'cancelled') {
+            @if (d.otkazao) {
+              <dt>Otkazao</dt>
+              <dd>{{ d.otkazao }} @if (d.otkazanU) { ({{ d.otkazanU }}) }</dd>
+            }
+            @if (d.razlogOtkazivanja) {
+              <dt>Razlog otkazivanja</dt>
+              <dd>{{ d.razlogOtkazivanja }}</dd>
+            }
+          }
+          @if (d.statusRaw === 'no_show') {
+            @if (d.oznacioNeDosao) {
+              <dt>Označio</dt>
+              <dd>{{ d.oznacioNeDosao }} @if (d.neDosaoU) { ({{ d.neDosaoU }}) }</dd>
+            }
+            @if (d.napomenaNeDosao) {
+              <dt>Napomena</dt>
+              <dd>{{ d.napomenaNeDosao }}</dd>
+            }
+          }
+        </dl>
+      </section>
+
+      <section class="admin-appointment-detail__section">
+        <h2>Terapeut</h2>
+        <p>Trenutno: {{ d.terapeut ?? d.dodeljenTerapeut ?? 'Nedodeljen' }}</p>
+
+        @if (employeesLoaded() && eligibleEmployees().length) {
+          <div class="admin-appointment-detail__inline-form">
+            <mat-form-field appearance="outline">
+              <mat-label>Preraspoređi na</mat-label>
+              <mat-select [ngModel]="reassignEmployeeId()" (ngModelChange)="reassignEmployeeId.set($event)">
+                @for (employee of eligibleEmployees(); track employee.id) {
+                  <mat-option [value]="employee.id">{{ employee.imePrezime }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <button mat-stroked-button type="button" [disabled]="acting() || !reassignEmployeeId()" (click)="reassign()">Preraspoređi</button>
+          </div>
+        } @else if (employeesLoaded()) {
+          <p class="admin-appointment-detail__hint">Nema dostupnih terapeuta za preraspoređivanje (ili nemate ovlašćenje za upravljanje timom).</p>
+        }
+      </section>
+
+      <section class="admin-appointment-detail__section">
+        <h2>Pomeri termin</h2>
+        <div class="admin-appointment-detail__inline-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Novo vreme</mat-label>
+            <input matInput type="datetime-local" [ngModel]="rescheduleValue()" (ngModelChange)="rescheduleValue.set($event)" />
+          </mat-form-field>
+          <button mat-stroked-button type="button" [disabled]="acting() || !rescheduleValue()" (click)="reschedule()">Pomeri</button>
+        </div>
+      </section>
+
+      <section class="admin-appointment-detail__section admin-appointment-detail__section--danger">
+        <button mat-stroked-button color="warn" type="button" [disabled]="acting()" (click)="remove()">Obriši zakazivanje</button>
+      </section>
+    </div>
+  } @else if (notFound()) {
+    <div class="admin-appointment-detail__not-found">
+      <h1>Zakazivanje nije pronađeno</h1>
+      <p>Zakazivanje koje tražite ne postoji ili je uklonjeno.</p>
+      <a routerLink="/admin/zakazivanja">Nazad na listu</a>
+    </div>
+  }
+</div>

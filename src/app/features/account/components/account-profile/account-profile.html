@@ -1,0 +1,132 @@
+<div class="account-profile">
+  @if (loading()) {
+    <div class="account-profile__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (profile(); as p) {
+    <section class="account-profile__card">
+      <h2>Podaci o nalogu</h2>
+      <dl class="account-profile__list">
+        <dt>Email</dt>
+        <dd>{{ p.email }}</dd>
+        <dt>Način prijave</dt>
+        <dd>{{ p.nacinPrijave }}</dd>
+        <dt>Uloga</dt>
+        <dd>{{ p.uloga }}</dd>
+        <dt>Status</dt>
+        <dd>{{ p.status }}</dd>
+        <dt>Član od</dt>
+        <dd>{{ p.clanOd }}</dd>
+        @if (p.poslednjiLogin) {
+          <dt>Poslednja prijava</dt>
+          <dd>{{ p.poslednjiLogin }}</dd>
+        }
+      </dl>
+    </section>
+
+    <section class="account-profile__card">
+      <h2>Izmena podataka</h2>
+      <form [formGroup]="profileForm" (ngSubmit)="submitProfile()" class="account-profile__form">
+        <div class="account-profile__row">
+          <mat-form-field appearance="outline" class="account-profile__field">
+            <mat-label>Ime</mat-label>
+            <input matInput formControlName="firstName" />
+            @if (profileForm.controls.firstName.hasError('minlength') && profileForm.controls.firstName.touched) {
+              <mat-error>Ime mora imati najmanje 2 karaktera.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="account-profile__field">
+            <mat-label>Prezime</mat-label>
+            <input matInput formControlName="lastName" />
+            @if (profileForm.controls.lastName.hasError('minlength') && profileForm.controls.lastName.touched) {
+              <mat-error>Prezime mora imati najmanje 2 karaktera.</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="account-profile__field">
+          <mat-label>Telefon</mat-label>
+          <input matInput type="tel" formControlName="phone" />
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="savingProfile() || profileForm.invalid">
+          @if (savingProfile()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Sačuvaj izmene
+          }
+        </button>
+      </form>
+    </section>
+
+    <section class="account-profile__card">
+      <h2>Promena lozinke</h2>
+      <form [formGroup]="passwordForm" (ngSubmit)="submitPassword()" class="account-profile__form">
+        <mat-form-field appearance="outline" class="account-profile__field">
+          <mat-label>Trenutna lozinka</mat-label>
+          <input matInput type="password" formControlName="oldPassword" autocomplete="current-password" />
+          @if (passwordForm.controls.oldPassword.hasError('required') && passwordForm.controls.oldPassword.touched) {
+            <mat-error>Trenutna lozinka je obavezna.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="account-profile__field">
+          <mat-label>Nova lozinka</mat-label>
+          <input matInput type="password" formControlName="newPassword" autocomplete="new-password" />
+          @if (passwordForm.controls.newPassword.hasError('required') && passwordForm.controls.newPassword.touched) {
+            <mat-error>Nova lozinka je obavezna.</mat-error>
+          }
+          @if (passwordForm.controls.newPassword.hasError('minlength') && passwordForm.controls.newPassword.touched) {
+            <mat-error>Nova lozinka mora imati najmanje 8 karaktera.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="account-profile__field">
+          <mat-label>Potvrda nove lozinke</mat-label>
+          <input matInput type="password" formControlName="confirmPassword" autocomplete="new-password" />
+          @if (
+            passwordForm.controls.confirmPassword.valid &&
+            passwordForm.value.newPassword !== passwordForm.value.confirmPassword &&
+            passwordForm.controls.confirmPassword.touched
+          ) {
+            <mat-error>Lozinke se ne poklapaju.</mat-error>
+          }
+        </mat-form-field>
+
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="savingPassword() || passwordForm.invalid || passwordForm.value.newPassword !== passwordForm.value.confirmPassword"
+        >
+          @if (savingPassword()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Promeni lozinku
+          }
+        </button>
+      </form>
+    </section>
+
+    <section class="account-profile__card account-profile__card--danger">
+      <h2>Deaktivacija naloga</h2>
+      <p>Deaktivacija naloga je nepovratna radnja iz ove aplikacije. Nakon deaktivacije nećete moći da se prijavite.</p>
+
+      @if (isLocalAccount) {
+        <mat-form-field appearance="outline" class="account-profile__field">
+          <mat-label>Lozinka</mat-label>
+          <input matInput type="password" [ngModel]="deactivatePassword()" (ngModelChange)="deactivatePassword.set($event)" [ngModelOptions]="{ standalone: true }" />
+        </mat-form-field>
+      }
+
+      <button mat-stroked-button color="warn" type="button" [disabled]="deactivating()" (click)="deactivate()">
+        @if (deactivating()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          Deaktiviraj nalog
+        }
+      </button>
+    </section>
+  }
+</div>

@@ -1,0 +1,113 @@
+.admin-user-detail {
+  padding: 1.5rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 640px;
+  }
+
+  &__section {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+
+    h2 {
+      margin-top: 0;
+    }
+
+    &--danger {
+      border-color: #f5c2c7;
+      background: #fff5f5;
+    }
+  }
+
+  &__avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 1rem;
+    margin: 0 0 1rem;
+
+    dt {
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    dd {
+      margin: 0;
+    }
+  }
+
+  &__profile-form,
+  &__inline-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 0.75rem;
+  }
+
+  &__danger-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  &__hint {
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+
+  &__status {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    &--guest,
+    &--pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    &--active {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    &--inactive {
+      background: #e2e3e5;
+      color: #41464b;
+    }
+
+    &--suspended {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  }
+
+  &__not-found {
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+}

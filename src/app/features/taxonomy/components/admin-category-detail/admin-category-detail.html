@@ -1,0 +1,62 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled kategorije</h1>
+    <div class="admin-detail__actions">
+      @if (categoryId(); as id) {
+        <a mat-flat-button color="primary" [routerLink]="['/admin/kategorije', id, 'izmena']">Izmeni</a>
+      }
+      <a mat-button routerLink="/admin/kategorije">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      @if (d.slika?.url) {
+        <img [src]="d.slika!.url | imageUrl" [alt]="d.slika!.opis || d.naziv" class="admin-detail__image" />
+      }
+
+      <dl class="admin-detail__list">
+        <dt>Naziv</dt>
+        <dd>{{ d.naziv }}</dd>
+
+        <dt>Slug</dt>
+        <dd>{{ d.slug }}</dd>
+
+        <dt>Domen</dt>
+        <dd>{{ d.domen }}</dd>
+
+        <dt>Roditelj</dt>
+        <dd>{{ d.roditelj?.naziv ?? '-' }}</dd>
+
+        <dt>Kratak opis</dt>
+        <dd>{{ d.kratakOpis || '-' }}</dd>
+
+        <dt>Dugi opis</dt>
+        <dd [innerHTML]="d.dugiOpis || '-'"></dd>
+
+        <dt>Indeksiranje</dt>
+        <dd>{{ d.meta.indeksiranje }}</dd>
+
+        <dt>Prioritet</dt>
+        <dd>{{ d.meta.prioritet }}</dd>
+
+        <dt>Aktivna</dt>
+        <dd>{{ d.meta.aktivna }}</dd>
+
+        <dt>Kreirano</dt>
+        <dd>{{ d.vreme.kreirano }}</dd>
+
+        <dt>Ažurirano</dt>
+        <dd>{{ d.vreme.azurirano }}</dd>
+      </dl>
+    </div>
+  } @else if (!loading()) {
+    <p>Kategorija nije pronađena.</p>
+  }
+</div>

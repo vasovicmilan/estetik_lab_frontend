@@ -1,0 +1,23 @@
+<div class="employee-appointments">
+  <h2>Moji termini</h2>
+
+  @if (loading()) {
+    <div class="employee-appointments__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (appointments().length) {
+    <ul class="employee-appointments__list">
+      @for (a of appointments(); track a.id) {
+        <li>
+          <a [routerLink]="[a.id]" class="employee-appointments__item">
+            <span class="employee-appointments__item-main">{{ a.datum }} - {{ a.klijent }}</span>
+            <span class="employee-appointments__item-sub">{{ a.usluga }} @if (a.cena) { · {{ a.cena }} }</span>
+            <span [class]="'employee-appointments__status'">{{ a.status }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="employee-appointments__empty">Nemate dodeljenih termina.</p>
+  }
+</div>

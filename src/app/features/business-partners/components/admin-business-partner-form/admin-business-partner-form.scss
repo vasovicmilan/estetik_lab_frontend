@@ -1,0 +1,36 @@
+.business-partner-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 640px;
+  padding: 1.5rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__image {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__image-preview {
+    width: 160px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  &__hint {
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0;
+    font-size: 0.85rem;
+  }
+
+  &__actions {
+    margin-top: 1rem;
+  }
+}

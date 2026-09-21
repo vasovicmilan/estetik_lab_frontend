@@ -1,0 +1,63 @@
+@if (loading() || optionsLoading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="partner-form">
+    <div class="partner-form__header">
+      <h2>{{ partnerId() ? 'Izmena partnera' : 'Novi partner' }}</h2>
+      <a mat-button routerLink="/admin/partneri">Nazad na listu</a>
+    </div>
+
+    @if (!partnerId()) {
+      <mat-form-field appearance="outline">
+        <mat-label>Korisnik</mat-label>
+        <mat-select formControlName="userId" required>
+          @for (option of userOptions(); track option.id) {
+            <mat-option [value]="option.id">{{ option.imePrezime }} ({{ option.email }})</mat-option>
+          }
+        </mat-select>
+        @if (form.get('userId')?.hasError('required') && form.get('userId')?.touched) {
+          <mat-error>Korisnik je obavezan.</mat-error>
+        }
+      </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>Procenat provizije - usluge</mat-label>
+      <input matInput type="number" min="0" max="100" formControlName="commissionRateServices" required />
+      @if (form.get('commissionRateServices')?.invalid && form.get('commissionRateServices')?.touched) {
+        <mat-error>Unesite vrednost između 0 i 100.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Procenat provizije - artikli</mat-label>
+      <input matInput type="number" min="0" max="100" formControlName="commissionRateProducts" required />
+      @if (form.get('commissionRateProducts')?.invalid && form.get('commissionRateProducts')?.touched) {
+        <mat-error>Unesite vrednost između 0 i 100.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Maks. iznos provizije - usluge (opciono)</mat-label>
+      <input matInput type="number" min="0" formControlName="maxCommissionAmountServices" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Maks. iznos provizije - artikli (opciono)</mat-label>
+      <input matInput type="number" min="0" formControlName="maxCommissionAmountProducts" />
+    </mat-form-field>
+
+    <mat-checkbox formControlName="isActive">Aktivan</mat-checkbox>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Napomena</mat-label>
+      <textarea matInput formControlName="notes" rows="3" maxlength="500"></textarea>
+    </mat-form-field>
+
+    <div class="partner-form__actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+        {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+      </button>
+    </div>
+  </form>
+}

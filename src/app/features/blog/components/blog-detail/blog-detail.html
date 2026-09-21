@@ -1,0 +1,28 @@
+@if (post(); as p) {
+  <article class="blog-detail">
+    @if (p.slika?.url) {
+      <img [src]="p.slika!.url | imageUrl" [alt]="p.slika!.alt || p.naslov" class="blog-detail__hero" />
+    }
+
+    <h1>{{ p.naslov }}</h1>
+    <p class="blog-detail__meta">{{ p.autor.ime }} &middot; {{ p.datumObjave }} &middot; {{ p.vremeCitanja }}</p>
+
+    @if (p.kategorije.length) {
+      <mat-chip-set>
+        @for (kategorija of p.kategorije; track kategorija) {
+          <mat-chip>{{ kategorija }}</mat-chip>
+        }
+      </mat-chip-set>
+    }
+
+    <div class="blog-detail__body">
+      <app-content-blocks [blocks]="p.sadrzaj" />
+    </div>
+  </article>
+} @else {
+  <div class="blog-detail__not-found">
+    <h1>Tekst nije pronađen</h1>
+    <p>Objava koju tražite ne postoji ili je uklonjena.</p>
+    <a routerLink="/blog">Nazad na blog</a>
+  </div>
+}

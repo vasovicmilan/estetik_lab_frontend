@@ -1,0 +1,99 @@
+<div class="admin-detail">
+  <div class="admin-detail__header">
+    <h1>Pregled paketa</h1>
+    <div class="admin-detail__actions">
+      @if (packageId(); as id) {
+        <a mat-flat-button color="primary" [routerLink]="['/admin/paketi', id, 'izmena']">Izmeni</a>
+      }
+      <a mat-button routerLink="/admin/paketi">Nazad na listu</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-detail__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  }
+
+  @if (detail(); as d) {
+    <div class="admin-detail__body">
+      @if (d.slika?.url) {
+        <img [src]="d.slika!.url | imageUrl" [alt]="d.slika!.alt || d.naziv" class="admin-detail__image" />
+      }
+
+      <dl class="admin-detail__list">
+        <dt>Naziv</dt>
+        <dd>{{ d.naziv }}</dd>
+
+        <dt>Slug</dt>
+        <dd>{{ d.slug }}</dd>
+
+        <dt>Kratak opis</dt>
+        <dd>{{ d.kratakOpis || '-' }}</dd>
+
+        <dt>Opis</dt>
+        <dd [innerHTML]="d.opis"></dd>
+
+        <dt>Cena</dt>
+        <dd>{{ d.cena }} RSD @if (d.staraCena) { <span class="admin-detail__old-price">{{ d.staraCena }} RSD</span> }</dd>
+
+        <dt>Ukupno trajanje</dt>
+        <dd>{{ d.ukupnoTrajanje ?? '-' }}</dd>
+
+        <dt>Oznaka</dt>
+        <dd>{{ d.oznaka || '-' }}</dd>
+
+        <dt>Najbolji izbor</dt>
+        <dd>{{ d.najbolji ? 'Da' : 'Ne' }}</dd>
+
+        <dt>Redosled</dt>
+        <dd>{{ d.redosled }}</dd>
+
+        <dt>Aktivan</dt>
+        <dd>{{ d.aktivan ? 'Da' : 'Ne' }}</dd>
+      </dl>
+
+      @if (d.stavke.length) {
+        <section class="admin-detail__section">
+          <h2>Stavke paketa</h2>
+          <ul>
+            @for (stavka of d.stavke; track $index) {
+              <li>
+                {{ stavka.usluga.naziv }}
+                @if (stavka.varijanta.naziv) {
+                  - {{ stavka.varijanta.naziv }}
+                }
+                x{{ stavka.brojSeansi }}
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (d.galerija.length) {
+        <section class="admin-detail__section">
+          <h2>Galerija</h2>
+          <div class="admin-detail__gallery">
+            @for (img of d.galerija; track $index) {
+              <img [src]="img.url | imageUrl" [alt]="img.alt || ''" />
+            }
+          </div>
+        </section>
+      }
+
+      @if (d.faq.length) {
+        <section class="admin-detail__section">
+          <h2>Pitanja i odgovori</h2>
+          @for (item of d.faq; track item.pitanje) {
+            <details>
+              <summary>{{ item.pitanje }}</summary>
+              <p>{{ item.odgovor }}</p>
+            </details>
+          }
+        </section>
+      }
+    </div>
+  } @else if (!loading()) {
+    <p>Paket nije pronađen.</p>
+  }
+</div>
