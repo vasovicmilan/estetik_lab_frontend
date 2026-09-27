@@ -66,6 +66,13 @@
     <div class="admin-product-list__spinner">
       <mat-spinner diameter="32" />
     </div>
+  } @else if (error(); as err) {
+    <div class="admin-product-list__error">
+      <p>{{ err }}</p>
+      <button mat-button color="primary" (click)="load(meta()?.page ?? 1)">Pokušaj ponovo</button>
+    </div>
+  } @else if (rows().length === 0) {
+    <p class="admin-product-list__empty">Nema proizvoda.</p>
   }
 
   @if (meta(); as m) {

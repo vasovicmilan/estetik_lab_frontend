@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { Partner } from '../../services/partner';
 import { PartnerAdminDetail } from '../../models/partner';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Read-only view of GET /admin/partners/:id (Partner.getById() -> PartnerAdminDetail).
  * Mounted at /admin/partneri/:id/pregled (see partners.routes.ts). Delete surfaces
@@ -23,6 +24,7 @@ export class AdminPartnerDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   partnerId = signal<string | null>(null);
   detail = signal<PartnerAdminDetail | null>(null);
@@ -48,18 +50,20 @@ export class AdminPartnerDetail implements OnInit {
     const id = this.partnerId();
     const detail = this.detail();
     if (!id || !detail) return;
-    if (!confirm(`Obrisati partnera "${detail.korisnik.imePrezime}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati partnera "${detail.korisnik.imePrezime}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.deleting.set(true);
-    this.partner
-      .delete(id)
-      .pipe(finalize(() => this.deleting.set(false)))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Partner je obrisan.', 'U redu', { duration: 3000 });
-          this.router.navigate(['/admin/partneri']);
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 5000 }),
-      });
+      this.deleting.set(true);
+      this.partner
+        .delete(id)
+        .pipe(finalize(() => this.deleting.set(false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Partner je obrisan.', 'U redu', { duration: 3000 });
+            this.router.navigate(['/admin/partneri']);
+          },
+          error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 5000 }),
+        });
+    });
   }
 }

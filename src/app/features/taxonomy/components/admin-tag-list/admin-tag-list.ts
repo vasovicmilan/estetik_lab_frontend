@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Tag } from '../../services/tag';
 import { TagAdminListItem } from '../../models/tag';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Mirrors services-catalog's admin-service-list - see that component's header
  * for the load/paginate/delete pattern this repeats. */
@@ -21,6 +22,7 @@ import { ApiMeta } from '../../../../core/models/api-response';
 export class AdminTagList implements OnInit {
   private tag = inject(Tag);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['naziv', 'domen', 'aktivan', 'akcije'];
   rows = signal<TagAdminListItem[]>([]);
@@ -48,14 +50,16 @@ export class AdminTagList implements OnInit {
   }
 
   remove(row: TagAdminListItem): void {
-    if (!confirm(`Obrisati tag "${row.naziv}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati tag "${row.naziv}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.tag.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Tag je obrisan.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.tag.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Tag je obrisan.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }

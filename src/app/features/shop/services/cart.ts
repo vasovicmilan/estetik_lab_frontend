@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Api } from '../../../core/services/api';
-import { Cart as CartModel, CheckoutPayload, CheckoutResponse } from '../models/cart';
+import { Cart as CartModel, CheckoutPayload, CheckoutResponse, OrderConfirmDetail } from '../models/cart';
 
 /**
  * All of cart.routes.js sits behind apiAuthMiddleware - unlike booking, there's no
@@ -33,5 +33,13 @@ export class Cart {
 
   checkout(payload: CheckoutPayload): Observable<CheckoutResponse> {
     return this.api.post<CheckoutResponse>('orders/checkout', payload);
+  }
+
+  // GET /orders/:orderId/confirm/:token - the one method here that is NOT
+  // auth-gated (see cart.routes.js: this route sits outside the router.use()
+  // apiAuthMiddleware block) - reached from the emailed order-confirmation link,
+  // by a guest or a logged-in customer alike.
+  confirmOrder(orderId: string, token: string): Observable<OrderConfirmDetail> {
+    return this.api.get<OrderConfirmDetail>(`orders/${orderId}/confirm/${token}`);
   }
 }

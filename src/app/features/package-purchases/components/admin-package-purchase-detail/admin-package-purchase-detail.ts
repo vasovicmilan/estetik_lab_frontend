@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { PackagePurchase } from '../../services/package-purchase';
 import { PackagePurchaseAdminDetail as PackagePurchaseAdminDetailModel } from '../../models/package-purchase';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Read + inline-edit view of GET /admin/package-purchases/:id. Mounted at
  * /admin/kupljeni-paketi/:id/pregled (see package-purchases.routes.ts). Same
@@ -29,6 +30,7 @@ export class AdminPackagePurchaseDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   purchaseId = signal<string | null>(null);
   detail = signal<PackagePurchaseAdminDetailModel | null>(null);
@@ -85,36 +87,40 @@ export class AdminPackagePurchaseDetail implements OnInit {
   cancelPurchase(): void {
     const id = this.purchaseId();
     if (!id) return;
-    if (!confirm('Otkazati ovaj kupljeni paket?')) return;
+    this.confirmDialog.confirm({ message: 'Otkazati ovaj kupljeni paket?' }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.acting.set(true);
-    this.packagePurchase
-      .cancel(id)
-      .pipe(finalize(() => this.acting.set(false)))
-      .subscribe({
-        next: (detail) => {
-          this.detail.set(detail);
-          this.snackBar.open('Kupljeni paket je otkazan.', 'U redu', { duration: 3000 });
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Otkazivanje nije uspelo.', 'U redu', { duration: 4000 }),
-      });
+      this.acting.set(true);
+      this.packagePurchase
+        .cancel(id)
+        .pipe(finalize(() => this.acting.set(false)))
+        .subscribe({
+          next: (detail) => {
+            this.detail.set(detail);
+            this.snackBar.open('Kupljeni paket je otkazan.', 'U redu', { duration: 3000 });
+          },
+          error: (error) => this.snackBar.open(error?.message || 'Otkazivanje nije uspelo.', 'U redu', { duration: 4000 }),
+        });
+    });
   }
 
   remove(): void {
     const id = this.purchaseId();
     if (!id) return;
-    if (!confirm('Obrisati ovaj kupljeni paket? Ova radnja je trajna.')) return;
+    this.confirmDialog.confirm({ message: 'Obrisati ovaj kupljeni paket? Ova radnja je trajna.' }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.acting.set(true);
-    this.packagePurchase
-      .delete(id)
-      .pipe(finalize(() => this.acting.set(false)))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Kupljeni paket je obrisan.', 'U redu', { duration: 3000 });
-          this.router.navigate(['/admin/kupljeni-paketi']);
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
-      });
+      this.acting.set(true);
+      this.packagePurchase
+        .delete(id)
+        .pipe(finalize(() => this.acting.set(false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Kupljeni paket je obrisan.', 'U redu', { duration: 3000 });
+            this.router.navigate(['/admin/kupljeni-paketi']);
+          },
+          error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+        });
+    });
   }
 }

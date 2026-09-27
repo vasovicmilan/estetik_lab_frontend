@@ -53,3 +53,46 @@ export interface CheckoutResponse {
   tokenExpiration: string;
   requiresShippingQuote: boolean;
 }
+
+// ---- Order confirmation - GET /orders/:orderId/confirm/:token ----
+// Mirrors mapOrderForUserDetail's shape (order.mapper.js) - same "user, detail"
+// view the logged-in customer gets from GET /me/orders/:id (see the account
+// feature's MyOrderDetail), just reached via the emailed confirmation link
+// instead of a logged-in session, since checkout can be done as a guest.
+
+export interface OrderConfirmAddress {
+  grad: string;
+  postanskiBroj: string;
+  ulica: string;
+  broj: string;
+}
+
+export interface OrderConfirmLineItem {
+  productId: string;
+  variantId?: string;
+  naziv: string;
+  varijanta?: string;
+  sku: string | null;
+  /** Raw number - append " RSD" when rendering. */
+  cena: number;
+  kolicina: number;
+  ukupno: number;
+  slika: ImageDisplay | null;
+}
+
+export interface OrderConfirmDetail {
+  id: string;
+  adresa: OrderConfirmAddress | null;
+  stavke: OrderConfirmLineItem[];
+  subtotal: number;
+  dostava: number;
+  zahtevaProceenuDostave: boolean;
+  kupon: string | null;
+  popust: number;
+  /** Pre-formatted, unlike subtotal/dostava/popust - render as-is, no " RSD" suffix. */
+  ukupnaCena: string | null;
+  napomena: string | null;
+  status: string;
+  statusRaw: string;
+  datum: string;
+}

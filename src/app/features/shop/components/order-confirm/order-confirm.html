@@ -1,0 +1,95 @@
+<div class="order-confirm">
+  @if (loading()) {
+    <div class="order-confirm__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (order(); as d) {
+    <div class="order-confirm__header">
+      <h1>Porudžbina je potvrđena</h1>
+      <p class="order-confirm__hint">Hvala na kupovini! Poslaćemo vam još jedan email kada porudžbina bude na putu.</p>
+    </div>
+
+    <div class="order-confirm__body">
+      <section class="order-confirm__section">
+        <h2>Adresa dostave</h2>
+        @if (d.adresa) {
+          <dl class="order-confirm__list">
+            <dt>Grad</dt>
+            <dd>{{ d.adresa.grad }}</dd>
+            <dt>Poštanski broj</dt>
+            <dd>{{ d.adresa.postanskiBroj }}</dd>
+            <dt>Ulica</dt>
+            <dd>{{ d.adresa.ulica }}</dd>
+            <dt>Broj</dt>
+            <dd>{{ d.adresa.broj }}</dd>
+          </dl>
+        } @else {
+          <p class="order-confirm__muted">Adresa nije uneta.</p>
+        }
+      </section>
+
+      <section class="order-confirm__section">
+        <h2>Stavke</h2>
+        <table class="order-confirm__items">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Naziv</th>
+              <th>Varijanta</th>
+              <th>SKU</th>
+              <th>Cena</th>
+              <th>Kol.</th>
+              <th>Ukupno</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (stavka of d.stavke; track $index) {
+              <tr>
+                <td>
+                  @if (stavka.slika?.url) {
+                    <img [src]="stavka.slika!.url | imageUrl" [alt]="stavka.naziv" class="order-confirm__item-image" />
+                  }
+                </td>
+                <td>{{ stavka.naziv }}</td>
+                <td>{{ stavka.varijanta ?? '-' }}</td>
+                <td>{{ stavka.sku ?? '-' }}</td>
+                <td>{{ stavka.cena }} RSD</td>
+                <td>{{ stavka.kolicina }}</td>
+                <td>{{ stavka.ukupno }} RSD</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <dl class="order-confirm__list order-confirm__list--totals">
+          <dt>Međuzbir</dt>
+          <dd>{{ d.subtotal }} RSD</dd>
+          <dt>Dostava</dt>
+          <dd>{{ d.zahtevaProceenuDostave ? 'Cena dostave se procenjuje ručno' : d.dostava + ' RSD' }}</dd>
+          @if (d.kupon) {
+            <dt>Kupon</dt>
+            <dd>{{ d.kupon }}</dd>
+          }
+          @if (d.popust) {
+            <dt>Popust</dt>
+            <dd>{{ d.popust }} RSD</dd>
+          }
+          <dt>Ukupno</dt>
+          <dd>{{ d.ukupnaCena ?? '-' }}</dd>
+          @if (d.napomena) {
+            <dt>Napomena</dt>
+            <dd>{{ d.napomena }}</dd>
+          }
+        </dl>
+      </section>
+    </div>
+
+    <a mat-flat-button color="primary" routerLink="/">Nazad na početnu</a>
+  } @else {
+    <div class="order-confirm__not-found">
+      <h1>Potvrda nije uspela</h1>
+      <p class="order-confirm__error">{{ errorMessage() }}</p>
+      <a mat-stroked-button routerLink="/">Nazad na početnu</a>
+    </div>
+  }
+</div>

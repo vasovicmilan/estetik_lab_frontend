@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Api } from '../../../core/services/api';
-import { PasswordChangePayload, ProfileUpdatePayload, UserProfile } from '../models/profile';
+import { PasswordChangePayload, ProfileUpdatePayload, SetPasswordPayload, UserProfile } from '../models/profile';
 
 /** Method names mirror the backend's /api/v1/me routes - gated only by
  * apiAuthMiddleware (any logged-in user), no manage_* permission required. */
@@ -19,6 +19,12 @@ export class Profile {
 
   changePassword(payload: PasswordChangePayload): Observable<{ message: string }> {
     return this.api.put<{ message: string }>('me/password', payload);
+  }
+
+  /** Only for an account with no password yet (hasPassword === false on the
+   * profile) - the backend rejects this with 400 once a password is set. */
+  setPassword(payload: SetPasswordPayload): Observable<{ message: string }> {
+    return this.api.put<{ message: string }>('me/set-password', payload);
   }
 
   /** password is optional - Google-login accounts have none, so the backend

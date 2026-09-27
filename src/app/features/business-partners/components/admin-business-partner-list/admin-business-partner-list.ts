@@ -14,6 +14,7 @@ import { BusinessPartner } from '../../services/business-partner';
 import { BusinessPartnerAdminListItem } from '../../models/business-partner';
 import { ApiMeta } from '../../../../core/models/api-response';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Mirrors admin-user-list's search-filter + admin-category-list's
  * paginate/delete pattern. */
@@ -38,6 +39,7 @@ export class AdminBusinessPartnerList implements OnInit {
   private businessPartner = inject(BusinessPartner);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['slika', 'naziv', 'aktivan', 'kreirano', 'akcije'];
   rows = signal<BusinessPartnerAdminListItem[]>([]);
@@ -79,14 +81,16 @@ export class AdminBusinessPartnerList implements OnInit {
   }
 
   remove(row: BusinessPartnerAdminListItem): void {
-    if (!confirm(`Obrisati saradnika "${row.naziv}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati saradnika "${row.naziv}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.businessPartner.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Poslovni saradnik je obrisan.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.businessPartner.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Poslovni saradnik je obrisan.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }

@@ -10,6 +10,7 @@ import { finalize } from 'rxjs';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { Testimonial } from '../../services/testimonial';
 import { TestimonialAdminDetail as TestimonialAdminDetailModel } from '../../models/testimonial';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Read+act view of GET /admin/testimonials/:id - full submitted content,
  * linked service/package/product if any, submitting registered user if any,
@@ -32,6 +33,7 @@ export class AdminTestimonialDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   testimonialId = signal<string | null>(null);
   detail = signal<TestimonialAdminDetailModel | null>(null);
@@ -104,18 +106,20 @@ export class AdminTestimonialDetail implements OnInit {
     const id = this.testimonialId();
     const ime = this.detail()?.osnovno.ime;
     if (!id) return;
-    if (!confirm(`Obrisati utisak od "${ime}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati utisak od "${ime}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.deleting.set(true);
-    this.testimonial
-      .delete(id)
-      .pipe(finalize(() => this.deleting.set(false)))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Utisak je obrisan.', 'U redu', { duration: 3000 });
-          this.router.navigate(['/admin/utisci']);
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
-      });
+      this.deleting.set(true);
+      this.testimonial
+        .delete(id)
+        .pipe(finalize(() => this.deleting.set(false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Utisak je obrisan.', 'U redu', { duration: 3000 });
+            this.router.navigate(['/admin/utisci']);
+          },
+          error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+        });
+    });
   }
 }

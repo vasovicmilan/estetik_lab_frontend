@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { Subscriber } from '../../services/subscriber';
 import { SubscriberAdminDetail as SubscriberAdminDetailModel } from '../../models/subscriber';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Read-only view of GET /admin/newsletter-subscribers/:id (Subscriber.getById()
  * -> SubscriberAdminDetail). Mounted at /admin/pretplatnici/:id/pregled (see
@@ -24,6 +25,7 @@ export class AdminSubscriberDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   subscriberId = signal<string | null>(null);
   detail = signal<SubscriberAdminDetailModel | null>(null);
@@ -49,18 +51,20 @@ export class AdminSubscriberDetail implements OnInit {
     const id = this.subscriberId();
     const email = this.detail()?.osnovno.email;
     if (!id) return;
-    if (!confirm(`Obrisati pretplatnika "${email}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati pretplatnika "${email}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.deleting.set(true);
-    this.subscriber
-      .delete(id)
-      .pipe(finalize(() => this.deleting.set(false)))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Pretplatnik je obrisan.', 'U redu', { duration: 3000 });
-          this.router.navigate(['/admin/pretplatnici']);
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
-      });
+      this.deleting.set(true);
+      this.subscriber
+        .delete(id)
+        .pipe(finalize(() => this.deleting.set(false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Pretplatnik je obrisan.', 'U redu', { duration: 3000 });
+            this.router.navigate(['/admin/pretplatnici']);
+          },
+          error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+        });
+    });
   }
 }

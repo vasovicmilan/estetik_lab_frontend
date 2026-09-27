@@ -60,6 +60,50 @@
       </form>
     </section>
 
+    @if (!p.hasPassword) {
+      <section class="account-profile__card">
+        <h2>Podesi lozinku</h2>
+        <p>Vaš nalog je povezan preko Google-a i nema podešenu lozinku. Ovde možete podesiti lozinku i prijavljivati se i putem email-a.</p>
+        <form [formGroup]="setPasswordForm" (ngSubmit)="submitSetPassword()" class="account-profile__form">
+          <mat-form-field appearance="outline" class="account-profile__field">
+            <mat-label>Nova lozinka</mat-label>
+            <input matInput type="password" formControlName="newPassword" autocomplete="new-password" />
+            @if (setPasswordForm.controls.newPassword.hasError('required') && setPasswordForm.controls.newPassword.touched) {
+              <mat-error>Lozinka je obavezna.</mat-error>
+            }
+            @if (setPasswordForm.controls.newPassword.hasError('minlength') && setPasswordForm.controls.newPassword.touched) {
+              <mat-error>Lozinka mora imati najmanje 8 karaktera.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="account-profile__field">
+            <mat-label>Potvrda nove lozinke</mat-label>
+            <input matInput type="password" formControlName="confirmPassword" autocomplete="new-password" />
+            @if (
+              setPasswordForm.controls.confirmPassword.valid &&
+              setPasswordForm.value.newPassword !== setPasswordForm.value.confirmPassword &&
+              setPasswordForm.controls.confirmPassword.touched
+            ) {
+              <mat-error>Lozinke se ne poklapaju.</mat-error>
+            }
+          </mat-form-field>
+
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="savingSetPassword() || setPasswordForm.invalid || setPasswordForm.value.newPassword !== setPasswordForm.value.confirmPassword"
+          >
+            @if (savingSetPassword()) {
+              <mat-spinner diameter="20" />
+            } @else {
+              Podesi lozinku
+            }
+          </button>
+        </form>
+      </section>
+    }
+
     <section class="account-profile__card">
       <h2>Promena lozinke</h2>
       <form [formGroup]="passwordForm" (ngSubmit)="submitPassword()" class="account-profile__form">

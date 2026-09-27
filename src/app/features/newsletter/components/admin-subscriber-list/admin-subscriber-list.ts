@@ -14,6 +14,7 @@ import { debounceTime } from 'rxjs';
 import { Subscriber } from '../../services/subscriber';
 import { SubscriberAdminListItem, SubscriberStatus } from '../../models/subscriber';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** List + filter bar for admin/pretplatnici. Paginated, same debounced-search +
  * MatPaginatorModule/PageEvent pattern as admin-coupon-list.ts. No "novi" route -
@@ -39,6 +40,7 @@ export class AdminSubscriberList implements OnInit {
   private subscriber = inject(Subscriber);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['email', 'status', 'interesovanja', 'prijavljen', 'akcije'];
   rows = signal<SubscriberAdminListItem[]>([]);
@@ -88,14 +90,16 @@ export class AdminSubscriberList implements OnInit {
   }
 
   remove(row: SubscriberAdminListItem): void {
-    if (!confirm(`Obrisati pretplatnika "${row.email}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati pretplatnika "${row.email}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.subscriber.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Pretplatnik je obrisan.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.subscriber.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Pretplatnik je obrisan.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }

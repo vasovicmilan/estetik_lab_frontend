@@ -3,7 +3,16 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
 import { Api } from './api';
-import { AuthUser, LoginPayload, LoginResponse, RegisterPayload, RegisterResponse } from '../models/auth';
+import {
+  AuthUser,
+  LoginPayload,
+  LoginResponse,
+  RegisterPayload,
+  RegisterResponse,
+  ResetPasswordPayload,
+  ResetPasswordResponse,
+  VerifyAccountResponse,
+} from '../models/auth';
 
 const TOKEN_KEY = 'estetik_lab_token';
 
@@ -40,6 +49,20 @@ export class Auth {
     return this.api.post<RegisterResponse>('auth/register', payload);
   }
 
+  // GET /api/v1/auth/verify/:token - reached from the emailed verification link
+  // (buildLink("verifyAccount", ...)). Not auth-gated: the token itself is the
+  // credential, there's no session yet.
+  verifyAccount(token: string) {
+    return this.api.get<VerifyAccountResponse>(`auth/verify/${token}`);
+  }
+
+  // PUT /api/v1/auth/reset-password/:token - shared by both the "forgot password"
+  // flow AND the "claim your account" flow (see ResetPasswordPayload's comment) -
+  // same endpoint, same payload shape, only the emailed link's copy/route differs.
+  resetPassword(token: string, payload: ResetPasswordPayload) {
+    return this.api.put<ResetPasswordResponse>(`auth/reset-password/${token}`, payload);
+  }
+
   logout(): void {
     this.clearSession();
     this.router.navigate(['/prijava']);
@@ -65,6 +88,7 @@ export class Auth {
       this.hasPermission('manage_products') ||
       this.hasPermission('manage_orders') ||
       this.hasPermission('manage_users') ||
+      this.hasPermission('manage_roles') ||
       this.hasPermission('manage_employees') ||
       this.hasPermission('manage_blog') ||
       this.hasPermission('manage_taxonomy') ||

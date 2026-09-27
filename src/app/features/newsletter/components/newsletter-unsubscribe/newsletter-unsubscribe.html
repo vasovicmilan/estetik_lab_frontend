@@ -1,0 +1,17 @@
+<div class="newsletter-unsubscribe">
+  <div class="newsletter-unsubscribe__card">
+    @if (loading()) {
+      <div class="newsletter-unsubscribe__spinner">
+        <mat-spinner diameter="32" />
+      </div>
+    } @else if (successMessage(); as msg) {
+      <h1>Odjavljeni ste</h1>
+      <p>{{ msg }}</p>
+      <a mat-flat-button color="primary" routerLink="/">Nazad na početnu</a>
+    } @else {
+      <h1>Odjava nije uspela</h1>
+      <p class="newsletter-unsubscribe__error">{{ errorMessage() }}</p>
+      <a mat-stroked-button routerLink="/">Nazad na početnu</a>
+    }
+  </div>
+</div>

@@ -12,6 +12,7 @@ import { finalize } from 'rxjs';
 import { User } from '../../services/user';
 import { RoleOption, UserAdminDetail as UserAdminDetailModel, UserStatus } from '../../models/user';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Rich read+act view of GET /admin/users/:userId - profile, status change,
  * role change, verify-email, inline simple profile edit, and the two
@@ -40,6 +41,7 @@ export class AdminUserDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   userId = signal<string | null>(null);
   detail = signal<UserAdminDetailModel | null>(null);
@@ -190,38 +192,49 @@ export class AdminUserDetail implements OnInit {
   anonymize(): void {
     const id = this.userId();
     if (!id) return;
-    if (!confirm('Ova radnja je nepovratna. Da biste anonimizovali ovaj nalog, otkucajte "anonimizuj" u sledećem prozoru.')) return;
-    const typed = prompt('Otkucajte "anonimizuj" da potvrdite:');
-    if (typed?.trim().toLowerCase() !== 'anonimizuj') return;
+    this.confirmDialog
+      .confirm({
+        message: 'Ova radnja je nepovratna. Da biste anonimizovali ovaj nalog, otkucajte "anonimizuj" u sledećem prozoru.',
+      })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        const typed = prompt('Otkucajte "anonimizuj" da potvrdite:');
+        if (typed?.trim().toLowerCase() !== 'anonimizuj') return;
 
-    this.acting.set(true);
-    this.user
-      .anonymize(id)
-      .pipe(finalize(() => this.acting.set(false)))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Nalog je anonimizovan.', 'U redu', { duration: 3000 });
-          this.load();
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Anonimizacija nije uspela.', 'U redu', { duration: 4000 }),
+        this.acting.set(true);
+        this.user
+          .anonymize(id)
+          .pipe(finalize(() => this.acting.set(false)))
+          .subscribe({
+            next: () => {
+              this.snackBar.open('Nalog je anonimizovan.', 'U redu', { duration: 3000 });
+              this.load();
+            },
+            error: (error) => this.snackBar.open(error?.message || 'Anonimizacija nije uspela.', 'U redu', { duration: 4000 }),
+          });
       });
   }
 
   remove(): void {
     const id = this.userId();
     if (!id) return;
-    if (!confirm('Ova radnja je nepovratna i trajno briše nalog. Da li ste sigurni?')) return;
+    this.confirmDialog.confirm({ message: 'Ova radnja je nepovratna i trajno briše nalog. Da li ste sigurni?' }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.acting.set(true);
-    this.user
-      .delete(id)
-      .pipe(finalize(() => this.acting.set(false)))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Korisnik je obrisan.', 'U redu', { duration: 3000 });
-          this.router.navigate(['/admin/korisnici']);
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo (korisnik možda ima porudžbine/zakazivanja).', 'U redu', { duration: 5000 }),
-      });
+      this.acting.set(true);
+      this.user
+        .delete(id)
+        .pipe(finalize(() => this.acting.set(false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Korisnik je obrisan.', 'U redu', { duration: 3000 });
+            this.router.navigate(['/admin/korisnici']);
+          },
+          error: (error) =>
+            this.snackBar.open(error?.message || 'Brisanje nije uspelo (korisnik možda ima porudžbine/zakazivanja).', 'U redu', {
+              duration: 5000,
+            }),
+        });
+    });
   }
 }

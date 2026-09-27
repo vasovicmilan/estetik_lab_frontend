@@ -18,6 +18,32 @@ export const routes: Routes = [
     path: 'registracija',
     loadComponent: () => import('./features/auth/components/register/register').then((m) => m.Register),
   },
+  /**
+   * The four routes below are never linked from site navigation - each is the
+   * frontend landing spot for a link the backend puts in a transactional email
+   * (link.builder.js's LINK_ROUTES, "frontend" column). All four fire their
+   * one-shot API call on load with no form beyond set-password's - see each
+   * component's own header comment.
+   */
+  {
+    path: 'verifikacija/:token',
+    loadComponent: () => import('./features/auth/components/verify-account/verify-account').then((m) => m.VerifyAccount),
+  },
+  {
+    path: 'resetovanje-lozinke/:token',
+    data: { variant: 'reset' },
+    loadComponent: () => import('./features/auth/components/set-password/set-password').then((m) => m.SetPassword),
+  },
+  {
+    path: 'preuzmi-nalog/:token',
+    data: { variant: 'claim' },
+    loadComponent: () => import('./features/auth/components/set-password/set-password').then((m) => m.SetPassword),
+  },
+  {
+    path: 'newsletter/odjava/:token',
+    loadComponent: () =>
+      import('./features/newsletter/components/newsletter-unsubscribe/newsletter-unsubscribe').then((m) => m.NewsletterUnsubscribe),
+  },
   {
     path: 'usluge',
     loadChildren: () => import('./features/services-catalog/services-catalog.routes').then((m) => m.SERVICES_CATALOG_ROUTES),
@@ -129,11 +155,19 @@ export const routes: Routes = [
    * section keeps its own permissionGuard + `data.permission` unchanged so a
    * logged-in admin without a given manage_* permission still can't reach that
    * child - nothing about the actual protection changed, only the nesting.
+   *
+   * permissionGuard + `data.permission: 'access_admin_panel'` is applied here
+   * too, on the shell itself, so the dashboard ('') and 'profil' children -
+   * which have no manage_* permission of their own - aren't reachable by just
+   * any logged-in customer. Matches the backend's admin-ops router, which
+   * requires this same `access_admin_panel` permission as its own base gate
+   * (see admin-profile.routes.ts's and dashboard.ts's header comments).
    */
   {
     path: 'admin',
     component: AdminShell,
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: { permission: 'access_admin_panel' },
     children: [
       {
         path: '',
@@ -180,6 +214,12 @@ export const routes: Routes = [
         canActivate: [permissionGuard],
         data: { permission: 'manage_users' },
         loadChildren: () => import('./features/users/users.routes').then((m) => m.USERS_ADMIN_ROUTES),
+      },
+      {
+        path: 'role',
+        canActivate: [permissionGuard],
+        data: { permission: 'manage_roles' },
+        loadChildren: () => import('./features/roles/roles.routes').then((m) => m.ROLES_ADMIN_ROUTES),
       },
       {
         path: 'tim',

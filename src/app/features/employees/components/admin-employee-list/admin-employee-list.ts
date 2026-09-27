@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Employee } from '../../services/employee';
 import { EmployeeAdminListItem } from '../../models/employee';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Mirrors admin-resource-list/admin-order-list's load/paginate/delete pattern. */
 @Component({
@@ -20,6 +21,7 @@ import { ApiMeta } from '../../../../core/models/api-response';
 export class AdminEmployeeList implements OnInit {
   private employee = inject(Employee);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['imePrezime', 'email', 'brojUsluga', 'aktivan', 'kreiran', 'akcije'];
   rows = signal<EmployeeAdminListItem[]>([]);
@@ -47,14 +49,16 @@ export class AdminEmployeeList implements OnInit {
   }
 
   remove(row: EmployeeAdminListItem): void {
-    if (!confirm(`Obrisati zaposlenog "${row.imePrezime}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati zaposlenog "${row.imePrezime}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.employee.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Zaposleni je obrisan.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.employee.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Zaposleni je obrisan.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }

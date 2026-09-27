@@ -52,3 +52,25 @@ export interface RegisterResponse {
   isFirstUser: boolean;
   message: string;
 }
+
+// GET /api/v1/auth/verify/:token - link comes from the verification email
+// (buildLink("verifyAccount", ...) in email.service.js). One-shot: the token is
+// consumed on first successful call, a second click errors out server-side.
+export interface VerifyAccountResponse {
+  email: string;
+  message: string;
+}
+
+// Matches validateResetPassword exactly (see auth.validator.js) - same body shape
+// used by both PUT /auth/reset-password/:token (forgot-password flow) and the
+// account-claim flow, which is the exact same backend endpoint under a different
+// emailed link/copy (see auth.controller.js's web resetPasswordForm - there is no
+// separate "claim" endpoint).
+export interface ResetPasswordPayload {
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}

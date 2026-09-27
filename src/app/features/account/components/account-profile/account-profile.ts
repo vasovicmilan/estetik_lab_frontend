@@ -36,6 +36,7 @@ export class AccountProfile implements OnInit {
   loading = signal(false);
   savingProfile = signal(false);
   savingPassword = signal(false);
+  savingSetPassword = signal(false);
   deactivating = signal(false);
 
   profileForm = this.fb.group({
@@ -46,6 +47,14 @@ export class AccountProfile implements OnInit {
 
   passwordForm = this.fb.group({
     oldPassword: ['', [Validators.required]],
+    newPassword: ['', [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', [Validators.required]],
+  });
+
+  /** Same shape/validation as passwordForm above, minus oldPassword - only
+   * shown while profile().hasPassword is false (see setPassword.html's
+   * app-set-password equivalent for the same two-field pattern). */
+  setPasswordForm = this.fb.group({
     newPassword: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', [Validators.required]],
   });
@@ -129,6 +138,37 @@ export class AccountProfile implements OnInit {
           this.passwordForm.reset();
         },
         error: (error) => this.snackBar.open(error?.message || 'Izmena lozinke nije uspela.', 'U redu', { duration: 4000 }),
+      });
+  }
+
+  /** Only reachable while profile().hasPassword is false - the backend rejects
+   * it with 400 once a password exists, pointing the caller at submitPassword
+   * instead (same "Nalog već ima podešenu lozinku." message shown there). */
+  submitSetPassword(): void {
+    if (this.setPasswordForm.invalid) {
+      this.setPasswordForm.markAllAsTouched();
+      return;
+    }
+    const { newPassword, confirmPassword } = this.setPasswordForm.getRawValue();
+    if (newPassword !== confirmPassword) {
+      this.snackBar.open('Lozinke se ne poklapaju.', 'U redu', { duration: 4000 });
+      return;
+    }
+
+    this.savingSetPassword.set(true);
+    this.profileService
+      .setPassword({ newPassword: newPassword!, confirmPassword: confirmPassword! })
+      .pipe(finalize(() => this.savingSetPassword.set(false)))
+      .subscribe({
+        next: (res) => {
+          this.snackBar.open(res.message || 'Lozinka je podešena.', 'U redu', { duration: 3000 });
+          this.setPasswordForm.reset();
+          // Optimistic flip (same approach as deactivate()'s local session clear
+          // below) rather than a refetch - the section now hides itself since
+          // it's only rendered while hasPassword is false.
+          this.profile.update((p) => (p ? { ...p, hasPassword: true } : p));
+        },
+        error: (error) => this.snackBar.open(error?.message || 'Podešavanje lozinke nije uspelo.', 'U redu', { duration: 4000 }),
       });
   }
 

@@ -10,6 +10,7 @@ import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { Product } from '../../services/product';
 import { ProductAdminListItem } from '../../models/product';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 @Component({
   selector: 'app-admin-product-list',
@@ -20,11 +21,13 @@ import { ApiMeta } from '../../../../core/models/api-response';
 export class AdminProductList implements OnInit {
   private product = inject(Product);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['slika', 'naziv', 'kategorije', 'cena', 'stanje', 'brojVarijanti', 'aktivan', 'akcije'];
   rows = signal<ProductAdminListItem[]>([]);
   meta = signal<ApiMeta | null>(null);
   loading = signal(false);
+  error = signal<string | null>(null);
 
   ngOnInit(): void {
     this.load(1);
@@ -32,13 +35,17 @@ export class AdminProductList implements OnInit {
 
   load(page: number): void {
     this.loading.set(true);
+    this.error.set(null);
     this.product.listAdmin({ page, limit: 10 }).subscribe({
       next: ({ data, meta }) => {
         this.rows.set(data);
         this.meta.set(meta ?? null);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: (error) => {
+        this.error.set(error?.message || 'Greška pri učitavanju proizvoda.');
+        this.loading.set(false);
+      },
     });
   }
 
@@ -47,14 +54,16 @@ export class AdminProductList implements OnInit {
   }
 
   remove(row: ProductAdminListItem): void {
-    if (!confirm(`Obrisati proizvod "${row.naziv}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati proizvod "${row.naziv}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.product.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Proizvod je obrisan.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.product.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Proizvod je obrisan.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }

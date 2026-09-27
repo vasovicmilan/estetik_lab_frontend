@@ -1,0 +1,61 @@
+@if (loading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="role-form">
+    <h2>{{ roleId() ? 'Izmena role' : 'Nova rola' }}</h2>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Naziv role</mat-label>
+      <input matInput formControlName="name" required />
+      @if (isReserved()) {
+        <mat-hint>Rezervisan naziv - ne može biti promenjen.</mat-hint>
+      } @else {
+        <mat-hint>Malim slovima, brojevi/crtice/donje crte dozvoljeni (2-50 karaktera).</mat-hint>
+      }
+      @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+        <mat-error>Naziv je obavezan.</mat-error>
+      }
+      @if (form.get('name')?.hasError('pattern') && form.get('name')?.touched) {
+        <mat-error>Naziv mora počinjati slovom i sadržati samo mala slova, brojeve, razmake, crtice ili donje crte.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Prioritet</mat-label>
+      <input matInput type="number" min="0" formControlName="priority" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Opis</mat-label>
+      <textarea matInput formControlName="description" rows="3" maxlength="300"></textarea>
+      <mat-hint>Najviše 300 karaktera.</mat-hint>
+    </mat-form-field>
+
+    <mat-checkbox formControlName="isDefault">Podrazumevana rola za nove korisnike</mat-checkbox>
+
+    <fieldset class="role-form__permissions">
+      <legend>Permisije</legend>
+      <p class="role-form__permissions-hint">
+        "Pristup Admin Panelu" je obavezan da bi rola uopšte mogla da uđe u /admin - bez njega, ni jedna od ostalih
+        permisija ovde neće imati efekta.
+      </p>
+
+      <div class="role-form__permissions-grid">
+        @for (option of permissionOptions; track option.value) {
+          <mat-checkbox
+            [checked]="isChecked(option.value)"
+            (change)="togglePermission(option.value, $event)"
+          >
+            {{ option.label }}
+          </mat-checkbox>
+        }
+      </div>
+    </fieldset>
+
+    <div class="role-form__actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
+        {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
+      </button>
+    </div>
+  </form>
+}

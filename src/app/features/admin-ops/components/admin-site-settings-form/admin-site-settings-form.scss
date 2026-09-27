@@ -37,4 +37,35 @@
     object-fit: cover;
     border-radius: 4px;
   }
+
+  &__hint {
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &__working-hours {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__working-hours-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__day-label {
+    min-width: 110px;
+    font-weight: 500;
+  }
+
+  &__closed-date-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
 }

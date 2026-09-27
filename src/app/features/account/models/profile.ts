@@ -19,6 +19,10 @@ export interface UserProfile {
   status: string;
   poslednjiLogin: string | null;
   clanOd: string;
+  /** false for a Google-only account that never set a local password yet - drives
+   * whether the account page shows "set a password" (this) or "change password"
+   * (PasswordChangePayload below) UI. */
+  hasPassword: boolean;
 }
 
 /** Body for PUT /me - every field optional and independently updatable. */
@@ -32,6 +36,14 @@ export interface ProfileUpdatePayload {
  * client-side for instant feedback, but the backend re-validates regardless. */
 export interface PasswordChangePayload {
   oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+/** Body for PUT /me/set-password - only reachable when hasPassword is false
+ * (no oldPassword field, unlike PasswordChangePayload above: there's no old
+ * password to confirm). Rejected with 400 if the account already has one. */
+export interface SetPasswordPayload {
   newPassword: string;
   confirmPassword: string;
 }

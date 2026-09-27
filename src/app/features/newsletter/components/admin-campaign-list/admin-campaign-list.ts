@@ -14,6 +14,7 @@ import { debounceTime } from 'rxjs';
 import { Campaign } from '../../services/campaign';
 import { CampaignAdminListItem, CampaignStatus } from '../../models/campaign';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** List + filter bar for admin/kampanje. Paginated, same debounced-search +
  * MatPaginatorModule/PageEvent pattern as admin-coupon-list.ts. Edit link is
@@ -40,6 +41,7 @@ export class AdminCampaignList implements OnInit {
   private campaign = inject(Campaign);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['naslov', 'segment', 'status', 'zakazanoZa', 'poslatoZa', 'poslato', 'kreirano', 'akcije'];
   rows = signal<CampaignAdminListItem[]>([]);
@@ -94,14 +96,16 @@ export class AdminCampaignList implements OnInit {
   }
 
   remove(row: CampaignAdminListItem): void {
-    if (!confirm(`Obrisati kampanju "${row.naslov}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati kampanju "${row.naslov}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.campaign.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Kampanja je obrisana.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.campaign.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Kampanja je obrisana.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }

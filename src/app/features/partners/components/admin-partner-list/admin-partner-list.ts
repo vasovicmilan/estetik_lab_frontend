@@ -13,6 +13,7 @@ import { debounceTime } from 'rxjs';
 import { Partner } from '../../services/partner';
 import { PartnerAdminListItem } from '../../models/partner';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Mirrors admin-user-list's filter-bar + admin-category-list's paginate/delete
  * pattern. `isActive` is optional on the backend (omit the param for "all"),
@@ -27,6 +28,7 @@ export class AdminPartnerList implements OnInit {
   private partner = inject(Partner);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['imePrezime', 'email', 'procenatProvizijeUsluge', 'procenatProvizijeArtikli', 'aktivan', 'kreiran', 'akcije'];
   rows = signal<PartnerAdminListItem[]>([]);
@@ -74,14 +76,16 @@ export class AdminPartnerList implements OnInit {
   }
 
   remove(row: PartnerAdminListItem): void {
-    if (!confirm(`Obrisati partnera "${row.imePrezime}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati partnera "${row.imePrezime}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.partner.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Partner je obrisan.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 5000 }),
+      this.partner.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Partner je obrisan.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 5000 }),
+      });
     });
   }
 }

@@ -10,6 +10,7 @@ import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { Service } from '../../services/service';
 import { ServiceListItem } from '../../models/service';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 @Component({
   selector: 'app-admin-service-list',
@@ -20,6 +21,7 @@ import { ApiMeta } from '../../../../core/models/api-response';
 export class AdminServiceList implements OnInit {
   private service = inject(Service);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['slika', 'naziv', 'kategorije', 'brojVarijanti', 'aktivna', 'akcije'];
   rows = signal<ServiceListItem[]>([]);
@@ -47,14 +49,16 @@ export class AdminServiceList implements OnInit {
   }
 
   remove(row: ServiceListItem): void {
-    if (!confirm(`Obrisati uslugu "${row.naziv}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati uslugu "${row.naziv}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.service.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Usluga je obrisana.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.service.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Usluga je obrisana.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }

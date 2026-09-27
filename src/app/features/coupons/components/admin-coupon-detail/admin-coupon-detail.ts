@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { Coupon } from '../../services/coupon';
 import { CouponAdminDetail as CouponAdminDetailModel } from '../../models/coupon';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Read-only view of GET /admin/coupons/:id (Coupon.getById() -> CouponAdminDetail).
  * Mounted at /admin/kuponi/:id/pregled (see coupons.routes.ts). Same
@@ -22,6 +23,7 @@ export class AdminCouponDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   couponId = signal<string | null>(null);
   detail = signal<CouponAdminDetailModel | null>(null);
@@ -47,18 +49,20 @@ export class AdminCouponDetail implements OnInit {
     const id = this.couponId();
     const kod = this.detail()?.osnovno.kod;
     if (!id) return;
-    if (!confirm(`Obrisati kupon "${kod}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati kupon "${kod}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.deleting.set(true);
-    this.coupon
-      .delete(id)
-      .pipe(finalize(() => this.deleting.set(false)))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Kupon je obrisan.', 'U redu', { duration: 3000 });
-          this.router.navigate(['/admin/kuponi']);
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
-      });
+      this.deleting.set(true);
+      this.coupon
+        .delete(id)
+        .pipe(finalize(() => this.deleting.set(false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Kupon je obrisan.', 'U redu', { duration: 3000 });
+            this.router.navigate(['/admin/kuponi']);
+          },
+          error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+        });
+    });
   }
 }

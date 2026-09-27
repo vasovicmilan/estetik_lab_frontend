@@ -10,6 +10,7 @@ import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { Team } from '../../services/team';
 import { ExpertAdminListItem } from '../../models/expert';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 @Component({
   selector: 'app-admin-team-list',
@@ -20,6 +21,7 @@ import { ApiMeta } from '../../../../core/models/api-response';
 export class AdminTeamList implements OnInit {
   private team = inject(Team);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['slika', 'imePrezime', 'titula', 'brojUsluga', 'aktivan', 'akcije'];
   rows = signal<ExpertAdminListItem[]>([]);
@@ -47,14 +49,16 @@ export class AdminTeamList implements OnInit {
   }
 
   remove(row: ExpertAdminListItem): void {
-    if (!confirm(`Obrisati člana tima "${row.imePrezime}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati člana tima "${row.imePrezime}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.team.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Član tima je obrisan.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.team.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Član tima je obrisan.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }

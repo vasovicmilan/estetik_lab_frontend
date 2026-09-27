@@ -1,0 +1,17 @@
+<div class="verify-account">
+  <div class="verify-account__card">
+    @if (loading()) {
+      <div class="verify-account__spinner">
+        <mat-spinner diameter="32" />
+      </div>
+    } @else if (email(); as verifiedEmail) {
+      <h1>Nalog je verifikovan</h1>
+      <p>Email <strong>{{ verifiedEmail }}</strong> je uspešno potvrđen. Sada možete da se prijavite.</p>
+      <a mat-flat-button color="primary" routerLink="/prijava">Prijavi se</a>
+    } @else {
+      <h1>Verifikacija nije uspela</h1>
+      <p class="verify-account__error">{{ errorMessage() }}</p>
+      <a mat-stroked-button routerLink="/">Nazad na početnu</a>
+    }
+  </div>
+</div>

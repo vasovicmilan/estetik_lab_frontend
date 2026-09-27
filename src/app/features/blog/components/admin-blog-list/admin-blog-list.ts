@@ -10,6 +10,7 @@ import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { Post } from '../../services/post';
 import { PostAdminListItem } from '../../models/post';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 @Component({
   selector: 'app-admin-blog-list',
@@ -20,6 +21,7 @@ import { ApiMeta } from '../../../../core/models/api-response';
 export class AdminBlogList implements OnInit {
   private post = inject(Post);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['slika', 'naslov', 'status', 'autor', 'kategorije', 'pregledi', 'istaknut', 'akcije'];
   rows = signal<PostAdminListItem[]>([]);
@@ -47,14 +49,16 @@ export class AdminBlogList implements OnInit {
   }
 
   remove(row: PostAdminListItem): void {
-    if (!confirm(`Obrisati objavu "${row.naslov}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati objavu "${row.naslov}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.post.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Objava je obrisana.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.post.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Objava je obrisana.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }

@@ -105,5 +105,82 @@
         }
       </button>
     </form>
+
+    <form [formGroup]="workingHoursForm" (ngSubmit)="saveWorkingHours()" class="site-settings-form__form">
+      <section class="site-settings-form__section">
+        <h2>Radno vreme (prikaz na sajtu)</h2>
+        <p class="site-settings-form__hint">
+          Ovo je samo informativni prikaz za posetioce (kontakt strana, footer, SEO) - ne utiče na to koji termini su
+          zaista dostupni za zakazivanje (to i dalje zavisi od radnog vremena svakog zaposlenog).
+        </p>
+
+        <div class="site-settings-form__working-hours">
+          @for (day of weekDays; track day.value) {
+            <div [formGroupName]="day.value" class="site-settings-form__working-hours-row">
+              <span class="site-settings-form__day-label">{{ day.label }}</span>
+              <mat-checkbox formControlName="isOpen">Radimo</mat-checkbox>
+              <mat-form-field appearance="outline">
+                <mat-label>Od</mat-label>
+                <input matInput type="time" formControlName="from" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Do</mat-label>
+                <input matInput type="time" formControlName="to" />
+              </mat-form-field>
+            </div>
+          }
+        </div>
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="savingWorkingHours() || workingHoursForm.invalid">
+          @if (savingWorkingHours()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Sačuvaj radno vreme
+          }
+        </button>
+      </section>
+    </form>
+
+    <form (ngSubmit)="saveClosedDates()" class="site-settings-form__form">
+      <section class="site-settings-form__section">
+        <h2>Neradni dani / praznici</h2>
+        <p class="site-settings-form__hint">
+          Dodati datum se salon-wide zatvara za zakazivanje tog dana - bez obzira na radno vreme pojedinačnih
+          zaposlenih. "Ponavlja se svake godine" zatvara isti dan i mesec svake naredne godine (npr. 1. januar).
+        </p>
+
+        @for (group of closedDateGroups; track $index) {
+          <div [formGroup]="group" class="site-settings-form__closed-date-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Datum</mat-label>
+              <input matInput type="date" formControlName="date" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Razlog (opciono)</mat-label>
+              <input matInput formControlName="reason" maxlength="200" />
+            </mat-form-field>
+            <mat-checkbox formControlName="recurringYearly">Ponavlja se svake godine</mat-checkbox>
+            <button mat-icon-button type="button" color="warn" (click)="removeClosedDate($index)" aria-label="Ukloni">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+
+        <button mat-stroked-button type="button" (click)="addClosedDate()">
+          <mat-icon>add</mat-icon>
+          Dodaj neradni dan
+        </button>
+
+        <div>
+          <button mat-flat-button color="primary" type="submit" [disabled]="savingClosedDates() || closedDatesForm.invalid">
+            @if (savingClosedDates()) {
+              <mat-spinner diameter="20" />
+            } @else {
+              Sačuvaj neradne dane
+            }
+          </button>
+        </div>
+      </section>
+    </form>
   }
 </div>

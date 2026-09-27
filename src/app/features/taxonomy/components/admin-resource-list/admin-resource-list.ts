@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Resource } from '../../services/resource';
 import { ResourceAdminListItem } from '../../models/resource';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Mirrors services-catalog's admin-service-list - see that component's header
  * for the load/paginate/delete pattern this repeats. */
@@ -21,6 +22,7 @@ import { ApiMeta } from '../../../../core/models/api-response';
 export class AdminResourceList implements OnInit {
   private resource = inject(Resource);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['naziv', 'kapacitet', 'aktivan', 'akcije'];
   rows = signal<ResourceAdminListItem[]>([]);
@@ -48,14 +50,16 @@ export class AdminResourceList implements OnInit {
   }
 
   remove(row: ResourceAdminListItem): void {
-    if (!confirm(`Obrisati resurs "${row.naziv}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati resurs "${row.naziv}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.resource.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Resurs je obrisan.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.resource.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Resurs je obrisan.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }

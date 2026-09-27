@@ -14,6 +14,7 @@ import { debounceTime } from 'rxjs';
 import { Coupon } from '../../services/coupon';
 import { CouponAdminListItem } from '../../models/coupon';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** List + filter bar for admin/kuponi. Paginated, same debounced-search +
  * MatPaginatorModule/PageEvent pattern as admin-order-list.ts. `isActive` filter
@@ -40,6 +41,7 @@ export class AdminCouponList implements OnInit {
   private coupon = inject(Coupon);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['kod', 'tip', 'popust', 'maxUpotreba', 'iskorisceno', 'aktivnost', 'vaziDo', 'akcije'];
   rows = signal<CouponAdminListItem[]>([]);
@@ -89,14 +91,16 @@ export class AdminCouponList implements OnInit {
   }
 
   remove(row: CouponAdminListItem): void {
-    if (!confirm(`Obrisati kupon "${row.kod}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati kupon "${row.kod}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.coupon.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Kupon je obrisan.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.coupon.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Kupon je obrisan.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }

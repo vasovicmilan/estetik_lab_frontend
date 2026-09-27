@@ -11,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, finalize } from 'rxjs';
 import { Appointment } from '../../services/appointment';
 import { AppointmentAdminDetail as AppointmentAdminDetailModel, EmployeePickerItem } from '../../models/appointment';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Reason/note-collecting actions - each shows a small inline expanding text
  * field instead of a prompt()/dialog, matching the task's "no dialog library"
@@ -41,6 +42,7 @@ export class AdminAppointmentDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   appointmentId = signal<string | null>(null);
   detail = signal<AppointmentAdminDetailModel | null>(null);
@@ -193,19 +195,21 @@ export class AdminAppointmentDetail implements OnInit {
   remove(): void {
     const id = this.appointmentId();
     if (!id) return;
-    if (!confirm('Obrisati ovo zakazivanje? Ova radnja se ne može poništiti.')) return;
+    this.confirmDialog.confirm({ message: 'Obrisati ovo zakazivanje? Ova radnja se ne može poništiti.' }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.acting.set(true);
-    this.appointment
-      .delete(id)
-      .pipe(finalize(() => this.acting.set(false)))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Zakazivanje je obrisano.', 'U redu', { duration: 3000 });
-          this.router.navigate(['/admin/zakazivanja']);
-        },
-        error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
-      });
+      this.acting.set(true);
+      this.appointment
+        .delete(id)
+        .pipe(finalize(() => this.acting.set(false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Zakazivanje je obrisano.', 'U redu', { duration: 3000 });
+            this.router.navigate(['/admin/zakazivanja']);
+          },
+          error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+        });
+    });
   }
 
   // ---- Shared action runner ----

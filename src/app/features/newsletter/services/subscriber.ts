@@ -33,4 +33,11 @@ export class Subscriber {
   subscribe(payload: SubscriberSubmitPayload): Observable<{ message: string }> {
     return this.api.post<{ message: string }>('newsletter-subscribe', payload);
   }
+
+  // POST /api/v1/newsletter/unsubscribe/:token - reached from the emailed
+  // unsubscribe link (buildLink("newsletterUnsubscribe", ...)). Unauthenticated,
+  // one-shot: the token is the subscriber's identity here, there's no session.
+  unsubscribe(token: string): Observable<{ message: string }> {
+    return this.api.post<{ message: string }>(`newsletter/unsubscribe/${token}`, {});
+  }
 }

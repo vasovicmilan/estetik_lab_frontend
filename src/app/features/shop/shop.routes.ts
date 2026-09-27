@@ -30,6 +30,17 @@ export const CART_ROUTES: Routes = [
     path: 'placanje',
     loadComponent: () => import('./components/checkout/checkout').then((m) => m.Checkout),
   },
+  /**
+   * Reached from the order-confirmation email, not site navigation - matches
+   * buildLink("orderConfirm", ...)'s frontend route (link.builder.js's
+   * LINK_ROUTES) exactly: /korpa/potvrda/:orderId/:token. Unguarded like the
+   * two routes above - a guest checkout's confirmation link has no session to
+   * gate on (see OrderConfirm's own header comment).
+   */
+  {
+    path: 'potvrda/:orderId/:token',
+    loadComponent: () => import('./components/order-confirm/order-confirm').then((m) => m.OrderConfirm),
+  },
 ];
 
 /** Admin routes - mounted at /admin/prodavnica. The outer authGuard/permissionGuard

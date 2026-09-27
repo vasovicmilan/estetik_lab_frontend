@@ -10,6 +10,7 @@ import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { Package } from '../../services/package';
 import { PackageListItem } from '../../models/package';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 @Component({
   selector: 'app-admin-package-list',
@@ -20,6 +21,7 @@ import { ApiMeta } from '../../../../core/models/api-response';
 export class AdminPackageList implements OnInit {
   private pkg = inject(Package);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['slika', 'naziv', 'stavke', 'cena', 'najbolji', 'aktivan', 'akcije'];
   rows = signal<PackageListItem[]>([]);
@@ -47,14 +49,16 @@ export class AdminPackageList implements OnInit {
   }
 
   remove(row: PackageListItem): void {
-    if (!confirm(`Obrisati paket "${row.naziv}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati paket "${row.naziv}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.pkg.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Paket je obrisan.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.pkg.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Paket je obrisan.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }

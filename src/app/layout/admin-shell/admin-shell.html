@@ -43,9 +43,14 @@
         }
       }
 
-      @if (auth.hasPermission('manage_users')) {
+      @if (auth.hasPermission('manage_users') || auth.hasPermission('manage_roles')) {
         <div class="admin-shell__group-label">Korisnici</div>
-        <a mat-list-item routerLink="/admin/korisnici" routerLinkActive="admin-shell__link--active">Korisnici</a>
+        @if (auth.hasPermission('manage_users')) {
+          <a mat-list-item routerLink="/admin/korisnici" routerLinkActive="admin-shell__link--active">Korisnici</a>
+        }
+        @if (auth.hasPermission('manage_roles')) {
+          <a mat-list-item routerLink="/admin/role" routerLinkActive="admin-shell__link--active">Role</a>
+        }
       }
 
       @if (auth.hasPermission('manage_taxonomy') || auth.hasPermission('manage_resources')) {

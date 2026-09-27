@@ -1,16 +1,18 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { AdminSiteSettings } from '../../services/site-settings';
-import { SiteSettings } from '../../models/site-settings';
+import { SiteSettings, SiteSettingsWeekDay } from '../../models/site-settings';
 
 /** Single settings form - hero image + alt, booking policy (minutes/hours),
  * currency, minimum session commission. One "Sačuvaj" button, no wizard.
@@ -20,10 +22,32 @@ import { SiteSettings } from '../../models/site-settings';
  * carries bookingPolicy/currency/commissionPolicy (see SiteSettingsPolicyUpdate's
  * comment), so after a successful save the hero fields already held locally
  * are merged back in rather than re-fetching GET. Mounted at
- * /admin/podesavanja-sajta. */
+ * /admin/podesavanja-sajta.
+ *
+ * Two extra sections, each its own form + save button + PUT endpoint (NOT
+ * part of the main submit() above):
+ * - Radno vreme: the salon-wide DISPLAY schedule (kontakt/footer/SEO JSON-LD)
+ *   - fixed 7-day table, same pattern as admin-employee-form's weekDays, but
+ *   simpler (one open/close range per day, no shift-block FormArray) since
+ *   this is purely informational and NEVER touches Employee.workingHours or
+ *   real booking-slot availability.
+ * - Neradni dani: one-off closures/praznici (FormArray, add/remove rows) - a
+ *   hard, salon-wide override for booking availability, checked before any
+ *   individual employee's own schedule (see availability.service.js). */
 @Component({
   selector: 'app-admin-site-settings-form',
-  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatProgressSpinnerModule, ImageUrlPipe],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatProgressSpinnerModule,
+    ImageUrlPipe,
+  ],
   templateUrl: './admin-site-settings-form.html',
   styleUrl: './admin-site-settings-form.scss',
 })
@@ -35,6 +59,64 @@ export class AdminSiteSettingsForm implements OnInit {
   loading = signal(false);
   saving = signal(false);
   uploadingImage = signal(false);
+  savingWorkingHours = signal(false);
+  savingClosedDates = signal(false);
+
+  /** Fixed 7 rows (Monday-Sunday), same "hardcoded Serbian labels" convention
+   * as admin-employee-form's weekDays. This is the salon-wide DISPLAY
+   * schedule only (kontakt/footer/SEO) - NOT Employee.workingHours, which
+   * stays edited on the employee form and keeps driving real booking-slot
+   * availability untouched. */
+  weekDays: { value: SiteSettingsWeekDay; label: string }[] = [
+    { value: 'monday', label: 'Ponedeljak' },
+    { value: 'tuesday', label: 'Utorak' },
+    { value: 'wednesday', label: 'Sreda' },
+    { value: 'thursday', label: 'Četvrtak' },
+    { value: 'friday', label: 'Petak' },
+    { value: 'saturday', label: 'Subota' },
+    { value: 'sunday', label: 'Nedelja' },
+  ];
+
+  /** Keyed by day (not user-addable, always all 7 - the backend rejects
+   * anything else), one open/close range each - much simpler than
+   * admin-employee-form's per-day FormArray of slots, since this schedule has
+   * no shift-block concept. */
+  workingHoursForm: FormGroup = this.fb.group(
+    Object.fromEntries(
+      this.weekDays.map((d) => [
+        d.value,
+        this.fb.group({
+          isOpen: [false],
+          from: ['09:00'],
+          to: ['20:00'],
+        }),
+      ])
+    )
+  );
+
+  /** Add/remove rows freely - a full replace is sent on save (see
+   * SiteSettingsClosedDatesUpdatePayload's comment). */
+  closedDatesForm: FormArray = this.fb.array([]) as FormArray;
+
+  get closedDateGroups(): FormGroup[] {
+    return this.closedDatesForm.controls as FormGroup[];
+  }
+
+  private buildClosedDateGroup(date = '', reason = '', recurringYearly = false): FormGroup {
+    return this.fb.group({
+      date: [date, Validators.required],
+      reason: [reason, Validators.maxLength(200)],
+      recurringYearly: [recurringYearly],
+    });
+  }
+
+  addClosedDate(): void {
+    this.closedDatesForm.push(this.buildClosedDateGroup());
+  }
+
+  removeClosedDate(index: number): void {
+    this.closedDatesForm.removeAt(index);
+  }
 
   /** The currently-known hero image path, used both as the preview and as
    * the fallback merged back in after a save (see header comment). */
@@ -89,6 +171,18 @@ export class AdminSiteSettingsForm implements OnInit {
       currencySymbolPosition: settings.currency.symbolPosition,
       minimumSessionCommission: settings.commissionPolicy.minimumSessionCommission,
     });
+
+    for (const entry of settings.workingHours ?? []) {
+      this.workingHoursForm.get(entry.day)?.patchValue({ isOpen: entry.isOpen, from: entry.from, to: entry.to });
+    }
+
+    this.closedDatesForm.clear();
+    for (const entry of settings.closedDates ?? []) {
+      // stored/returned as a full ISO datetime - only the date part is
+      // editable here (matches the plain <input type="date"> in the template)
+      const dateOnly = (entry.date || '').slice(0, 10);
+      this.closedDatesForm.push(this.buildClosedDateGroup(dateOnly, entry.reason ?? '', !!entry.recurringYearly));
+    }
   }
 
   /** New reference set only when a new file is picked - unset stays whatever
@@ -144,6 +238,53 @@ export class AdminSiteSettingsForm implements OnInit {
           this.snackBar.open('Podešavanja sajta su sačuvana.', 'U redu', { duration: 3000 });
         },
         error: (error) => this.snackBar.open(error?.message || 'Čuvanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
+  }
+
+  /** Separate save (own PUT endpoint, own button) from the main form above -
+   * a working-hours table doesn't belong in the same submit as the hero
+   * image/booking policy, same reasoning as site-settings.routes.js's own
+   * separate "/radno-vreme" route. Always sends the full 7-day list, in the
+   * fixed weekDays order, since that's what the backend requires. */
+  saveWorkingHours(): void {
+    if (this.workingHoursForm.invalid) {
+      this.workingHoursForm.markAllAsTouched();
+      return;
+    }
+
+    const workingHours = this.weekDays.map((d) => {
+      const raw = this.workingHoursForm.get(d.value)!.getRawValue();
+      return { day: d.value, isOpen: raw.isOpen, from: raw.from, to: raw.to };
+    });
+
+    this.savingWorkingHours.set(true);
+    this.siteSettings
+      .updateWorkingHours({ workingHours })
+      .pipe(finalize(() => this.savingWorkingHours.set(false)))
+      .subscribe({
+        next: () => this.snackBar.open('Radno vreme je sačuvano.', 'U redu', { duration: 3000 }),
+        error: (error) => this.snackBar.open(error?.message || 'Čuvanje radnog vremena nije uspelo.', 'U redu', { duration: 4000 }),
+      });
+  }
+
+  /** Separate save (own PUT endpoint, own button) for the one-off closed-
+   * dates/praznici list - a full replace of whatever rows are currently in
+   * the form. */
+  saveClosedDates(): void {
+    if (this.closedDatesForm.invalid) {
+      this.closedDatesForm.markAllAsTouched();
+      return;
+    }
+
+    const closedDates = this.closedDatesForm.getRawValue();
+
+    this.savingClosedDates.set(true);
+    this.siteSettings
+      .updateClosedDates({ closedDates })
+      .pipe(finalize(() => this.savingClosedDates.set(false)))
+      .subscribe({
+        next: () => this.snackBar.open('Neradni dani su sačuvani.', 'U redu', { duration: 3000 }),
+        error: (error) => this.snackBar.open(error?.message || 'Čuvanje neradnih dana nije uspelo.', 'U redu', { duration: 4000 }),
       });
   }
 }

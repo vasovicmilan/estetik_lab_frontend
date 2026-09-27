@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { TemporaryOrder } from '../../services/temporary-order';
 import { TemporaryOrderAdminDetail as TemporaryOrderAdminDetailModel } from '../../models/temporary-order';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Read+act view of GET /admin/temporary-orders/:id - contact/address/items/
  * pricing, a shipping-quote input (only shown while a freight quote is pending
@@ -30,6 +31,7 @@ export class AdminTemporaryOrderDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   orderId = signal<string | null>(null);
   detail = signal<TemporaryOrderAdminDetailModel | null>(null);
@@ -86,18 +88,22 @@ export class AdminTemporaryOrderDetail implements OnInit {
   confirm(): void {
     const id = this.orderId();
     if (!id) return;
-    if (!confirm('Potvrditi ovu porudžbinu u ime klijenta? Ova radnja kreira novu porudžbinu.')) return;
+    this.confirmDialog
+      .confirm({ message: 'Potvrditi ovu porudžbinu u ime klijenta? Ova radnja kreira novu porudžbinu.' })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
 
-    this.acting.set(true);
-    this.temporaryOrder
-      .confirm(id)
-      .pipe(finalize(() => this.acting.set(false)))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Porudžbina je potvrđena.', 'U redu', { duration: 3000 });
-          this.router.navigate(['/admin/porudzbine']);
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Potvrda porudžbine nije uspela.', 'U redu', { duration: 4000 }),
+        this.acting.set(true);
+        this.temporaryOrder
+          .confirm(id)
+          .pipe(finalize(() => this.acting.set(false)))
+          .subscribe({
+            next: () => {
+              this.snackBar.open('Porudžbina je potvrđena.', 'U redu', { duration: 3000 });
+              this.router.navigate(['/admin/porudzbine']);
+            },
+            error: (error) => this.snackBar.open(error?.message || 'Potvrda porudžbine nije uspela.', 'U redu', { duration: 4000 }),
+          });
       });
   }
 }

@@ -8,6 +8,7 @@ import { finalize } from 'rxjs';
 import { ContentBlocks } from '../../../../shared/ui/content-blocks/content-blocks';
 import { Campaign } from '../../services/campaign';
 import { CampaignAdminDetail as CampaignAdminDetailModel } from '../../models/campaign';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Read-only view of GET /admin/newsletter-campaigns/:id (Campaign.getById() ->
  * CampaignAdminDetail). Mounted at /admin/kampanje/:id/pregled (see
@@ -27,6 +28,7 @@ export class AdminCampaignDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   campaignId = signal<string | null>(null);
   detail = signal<CampaignAdminDetailModel | null>(null);
@@ -60,18 +62,22 @@ export class AdminCampaignDetail implements OnInit {
     const id = this.campaignId();
     const naslov = this.detail()?.naslov;
     if (!id) return;
-    if (!confirm(`Poslati kampanju "${naslov}" odmah svim pretplatnicima iz segmenta? Ova radnja se ne može poništiti.`)) return;
+    this.confirmDialog
+      .confirm({ message: `Poslati kampanju "${naslov}" odmah svim pretplatnicima iz segmenta? Ova radnja se ne može poništiti.` })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
 
-    this.sending.set(true);
-    this.campaign
-      .sendNow(id)
-      .pipe(finalize(() => this.sending.set(false)))
-      .subscribe({
-        next: (detail) => {
-          this.detail.set(detail);
-          this.snackBar.open('Kampanja je poslata.', 'U redu', { duration: 3000 });
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Slanje nije uspelo.', 'U redu', { duration: 4000 }),
+        this.sending.set(true);
+        this.campaign
+          .sendNow(id)
+          .pipe(finalize(() => this.sending.set(false)))
+          .subscribe({
+            next: (detail) => {
+              this.detail.set(detail);
+              this.snackBar.open('Kampanja je poslata.', 'U redu', { duration: 3000 });
+            },
+            error: (error) => this.snackBar.open(error?.message || 'Slanje nije uspelo.', 'U redu', { duration: 4000 }),
+          });
       });
   }
 
@@ -79,18 +85,20 @@ export class AdminCampaignDetail implements OnInit {
     const id = this.campaignId();
     const naslov = this.detail()?.naslov;
     if (!id) return;
-    if (!confirm(`Obrisati kampanju "${naslov}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati kampanju "${naslov}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.deleting.set(true);
-    this.campaign
-      .delete(id)
-      .pipe(finalize(() => this.deleting.set(false)))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Kampanja je obrisana.', 'U redu', { duration: 3000 });
-          this.router.navigate(['/admin/kampanje']);
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
-      });
+      this.deleting.set(true);
+      this.campaign
+        .delete(id)
+        .pipe(finalize(() => this.deleting.set(false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Kampanja je obrisana.', 'U redu', { duration: 3000 });
+            this.router.navigate(['/admin/kampanje']);
+          },
+          error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+        });
+    });
   }
 }

@@ -9,6 +9,7 @@ import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { ContentBlocks } from '../../../../shared/ui/content-blocks/content-blocks';
 import { BusinessPartner } from '../../services/business-partner';
 import { BusinessPartnerAdminDetail } from '../../models/business-partner';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Read-only view of GET /admin/business-partners/:id
  * (BusinessPartner.getById() -> BusinessPartnerAdminDetail). Mounted at
@@ -26,6 +27,7 @@ export class AdminBusinessPartnerDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   partnerId = signal<string | null>(null);
   detail = signal<BusinessPartnerAdminDetail | null>(null);
@@ -51,18 +53,20 @@ export class AdminBusinessPartnerDetail implements OnInit {
     const id = this.partnerId();
     const detail = this.detail();
     if (!id || !detail) return;
-    if (!confirm(`Obrisati saradnika "${detail.naziv}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati saradnika "${detail.naziv}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.deleting.set(true);
-    this.businessPartner
-      .delete(id)
-      .pipe(finalize(() => this.deleting.set(false)))
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Poslovni saradnik je obrisan.', 'U redu', { duration: 3000 });
-          this.router.navigate(['/admin/poslovni-saradnici']);
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
-      });
+      this.deleting.set(true);
+      this.businessPartner
+        .delete(id)
+        .pipe(finalize(() => this.deleting.set(false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Poslovni saradnik je obrisan.', 'U redu', { duration: 3000 });
+            this.router.navigate(['/admin/poslovni-saradnici']);
+          },
+          error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+        });
+    });
   }
 }

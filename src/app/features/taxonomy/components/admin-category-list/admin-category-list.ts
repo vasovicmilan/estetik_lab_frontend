@@ -10,6 +10,7 @@ import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { Category } from '../../services/category';
 import { CategoryAdminListItem } from '../../models/category';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
 
 /** Mirrors services-catalog's admin-service-list exactly - see that component's
  * header for the load/paginate/delete pattern this repeats. */
@@ -22,6 +23,7 @@ import { ApiMeta } from '../../../../core/models/api-response';
 export class AdminCategoryList implements OnInit {
   private category = inject(Category);
   private snackBar = inject(MatSnackBar);
+  private confirmDialog = inject(ConfirmDialogService);
 
   displayedColumns = ['slika', 'naziv', 'domen', 'roditelj', 'prioritet', 'aktivna', 'akcije'];
   rows = signal<CategoryAdminListItem[]>([]);
@@ -49,14 +51,16 @@ export class AdminCategoryList implements OnInit {
   }
 
   remove(row: CategoryAdminListItem): void {
-    if (!confirm(`Obrisati kategoriju "${row.naziv}"?`)) return;
+    this.confirmDialog.confirm({ message: `Obrisati kategoriju "${row.naziv}"?` }).subscribe((confirmed) => {
+      if (!confirmed) return;
 
-    this.category.delete(row.id).subscribe({
-      next: () => {
-        this.snackBar.open('Kategorija je obrisana.', 'U redu', { duration: 3000 });
-        this.load(this.meta()?.page ?? 1);
-      },
-      error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      this.category.delete(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('Kategorija je obrisana.', 'U redu', { duration: 3000 });
+          this.load(this.meta()?.page ?? 1);
+        },
+        error: () => this.snackBar.open('Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
     });
   }
 }
