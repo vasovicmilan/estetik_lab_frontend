@@ -1,1 +1,18 @@
-<p>card works!</p>
+<mat-card class="app-card" [class.app-card--stat]="variant() === 'stat'">
+  <div class="app-card__media">
+    <ng-content select="[cardMedia]" />
+  </div>
+  <mat-card-content class="app-card__body">
+    <div class="app-card__heading">
+      <ng-content select="[cardTitle]" />
+      <ng-content select="[cardTrend]" />
+      <ng-content select="[cardSubtitle]" />
+    </div>
+    <div class="app-card__content">
+      <ng-content />
+    </div>
+  </mat-card-content>
+  <mat-card-actions class="app-card__actions" [align]="actionsAlign()">
+    <ng-content select="[cardActions]" />
+  </mat-card-actions>
+</mat-card>

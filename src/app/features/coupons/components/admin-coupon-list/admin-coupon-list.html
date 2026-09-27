@@ -20,71 +20,19 @@
     </mat-form-field>
   </form>
 
-  <table mat-table [dataSource]="rows()" class="admin-coupon-list__table">
-    <ng-container matColumnDef="kod">
-      <th mat-header-cell *matHeaderCellDef>Kod</th>
-      <td mat-cell *matCellDef="let row">{{ row.kod }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="tip">
-      <th mat-header-cell *matHeaderCellDef>Tip</th>
-      <td mat-cell *matCellDef="let row">{{ row.tip }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="popust">
-      <th mat-header-cell *matHeaderCellDef>Popust</th>
-      <td mat-cell *matCellDef="let row">{{ row.popust }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="maxUpotreba">
-      <th mat-header-cell *matHeaderCellDef>Max upotreba</th>
-      <td mat-cell *matCellDef="let row">{{ row.maxUpotreba }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="iskorisceno">
-      <th mat-header-cell *matHeaderCellDef>Iskorišćeno</th>
-      <td mat-cell *matCellDef="let row">{{ row.iskorisceno }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="aktivnost">
-      <th mat-header-cell *matHeaderCellDef>Status</th>
-      <td mat-cell *matCellDef="let row">{{ row.aktivnost }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="vaziDo">
-      <th mat-header-cell *matHeaderCellDef>Važi do</th>
-      <td mat-cell *matCellDef="let row">{{ row.vaziDo }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="akcije">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let row">
-        <a mat-button [routerLink]="['/admin/kuponi', row.id, 'pregled']">Pregled</a>
-        <a mat-button [routerLink]="['/admin/kuponi', row.id]">Izmeni</a>
-        <button mat-button color="warn" (click)="remove(row)">Obriši</button>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
-
-  @if (!loading() && rows().length === 0) {
-    <p class="admin-coupon-list__empty">Nema kupona koji odgovaraju filterima.</p>
-  }
-
-  @if (loading()) {
-    <div class="admin-coupon-list__spinner">
-      <mat-spinner diameter="32" />
-    </div>
-  }
-
-  @if (meta(); as m) {
-    <mat-paginator
-      [length]="m.total"
-      [pageSize]="m.limit"
-      [pageIndex]="m.page - 1"
-      (page)="onPage($event)"
-    />
-  }
+  <app-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [loading]="loading()"
+    [error]="error()"
+    emptyLabel="Nema kupona koji odgovaraju filterima."
+    [totalCount]="meta()?.total ?? 0"
+    [pageSize]="meta()?.limit ?? 10"
+    [pageIndex]="(meta()?.page ?? 1) - 1"
+    [pageSizeOptions]="[10, 25, 50, 100]"
+    [actions]="actions"
+    (pageChange)="onPage($event)"
+    (sortChange)="onSort($event)"
+    (retry)="load(meta()?.page ?? 1)"
+  />
 </div>

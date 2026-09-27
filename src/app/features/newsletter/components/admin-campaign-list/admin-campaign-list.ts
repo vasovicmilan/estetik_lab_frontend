@@ -1,20 +1,21 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { PageEvent } from '@angular/material/paginator';
+import { Sort } from '@angular/material/sort';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { debounceTime } from 'rxjs';
 import { Campaign } from '../../services/campaign';
 import { CampaignAdminListItem, CampaignStatus } from '../../models/campaign';
 import { ApiMeta } from '../../../../core/models/api-response';
-import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confirm-dialog.service';
+import { DataTable } from '../../../../shared/ui/data-table/data-table';
+import { DataTableAction, DataTableColumn } from '../../../../shared/ui/data-table/data-table.models';
+import { DataTableCellDef } from '../../../../shared/ui/data-table/data-table-cell-def';
 
 /** List + filter bar for admin/kampanje. Paginated, same debounced-search +
  * MatPaginatorModule/PageEvent pattern as admin-coupon-list.ts. Edit link is
@@ -26,13 +27,12 @@ import { ConfirmDialogService } from '../../../../shared/ui/confirm-dialog/confi
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
-    MatTableModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatPaginatorModule,
-    MatProgressSpinnerModule,
+    DataTable,
+    DataTableCellDef,
   ],
   templateUrl: './admin-campaign-list.html',
   styleUrl: './admin-campaign-list.scss',
@@ -41,12 +41,47 @@ export class AdminCampaignList implements OnInit {
   private campaign = inject(Campaign);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
-  private confirmDialog = inject(ConfirmDialogService);
+  private router = inject(Router);
 
-  displayedColumns = ['naslov', 'segment', 'status', 'zakazanoZa', 'poslatoZa', 'poslato', 'kreirano', 'akcije'];
   rows = signal<CampaignAdminListItem[]>([]);
   meta = signal<ApiMeta | null>(null);
   loading = signal(false);
+  error = signal<string | null>(null);
+
+  private limit = 10;
+  /** `naslov`/`predmet`/`status`/`zakazanoZa`/`poslatoZa`/`kreirano` are plain
+   * scalar columns (title, subject, status, scheduledFor, sentAt, createdAt)
+   * on the Campaign schema - see CAMPAIGN_SORT_FIELDS in
+   * admin-marketing.controller.js. `segment` (formatted from
+   * targetInterests[]) and `poslato` (combined sentCount/failedCount display)
+   * are NOT sortable. */
+  private sort: string | null = null;
+  private order: 'asc' | 'desc' | null = null;
+
+  /** Matches the backend's own default ({ createdAt: -1, _id: -1 } in
+   * campaign.repository.js/findCampaigns). */
+  defaultSort = { active: 'kreirano', direction: 'desc' as const };
+
+  columns: DataTableColumn<CampaignAdminListItem>[] = [
+    { key: 'naslov', label: 'Naslov', sortable: true },
+    { key: 'segment', label: 'Segment' },
+    { key: 'status', label: 'Status', type: 'custom', sortable: true },
+    { key: 'zakazanoZa', label: 'Zakazano za', sortable: true, value: (row) => row.zakazanoZa ?? '-' },
+    { key: 'poslatoZa', label: 'Poslato', sortable: true, value: (row) => row.poslatoZa ?? '-' },
+    { key: 'poslato', label: 'Uspešno / neuspešno', value: (row) => `${row.poslato} / ${row.neuspesno}` },
+    { key: 'kreirano', label: 'Kreirano', sortable: true },
+  ];
+
+  actions: DataTableAction<CampaignAdminListItem>[] = [
+    { icon: 'visibility', label: 'Pregled', onClick: (row) => this.router.navigate(['/admin/kampanje', row.id, 'pregled']) },
+    {
+      icon: 'edit',
+      label: 'Izmeni',
+      visible: (row) => row.statusRaw !== 'sent',
+      onClick: (row) => this.router.navigate(['/admin/kampanje', row.id]),
+    },
+    { icon: 'delete', label: 'Obriši', color: 'warn', confirm: 'Obrisati kampanju?', onClick: (row) => this.remove(row) },
+  ];
 
   statusOptions: { value: '' | CampaignStatus; label: string }[] = [
     { value: '', label: 'Svi' },
@@ -70,12 +105,15 @@ export class AdminCampaignList implements OnInit {
     const { search, status } = this.filterForm.value;
 
     this.loading.set(true);
+    this.error.set(null);
     this.campaign
       .listAdmin({
         page,
-        limit: 10,
+        limit: this.limit,
         search: search || undefined,
         status: status || undefined,
+        sort: this.sort ?? undefined,
+        order: this.order ?? undefined,
       })
       .subscribe({
         next: ({ data, meta }) => {
@@ -83,12 +121,22 @@ export class AdminCampaignList implements OnInit {
           this.meta.set(meta ?? null);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false),
+        error: (error) => {
+          this.error.set(error?.message || 'Greška pri učitavanju kampanja.');
+          this.loading.set(false);
+        },
       });
   }
 
   onPage(event: PageEvent): void {
+    this.limit = event.pageSize;
     this.load(event.pageIndex + 1);
+  }
+
+  onSort(sort: Sort): void {
+    this.sort = sort.direction ? sort.active : null;
+    this.order = sort.direction ? (sort.direction as 'asc' | 'desc') : null;
+    this.load(1);
   }
 
   statusClass(statusRaw: CampaignStatus): string {
@@ -96,16 +144,12 @@ export class AdminCampaignList implements OnInit {
   }
 
   remove(row: CampaignAdminListItem): void {
-    this.confirmDialog.confirm({ message: `Obrisati kampanju "${row.naslov}"?` }).subscribe((confirmed) => {
-      if (!confirmed) return;
-
-      this.campaign.delete(row.id).subscribe({
-        next: () => {
-          this.snackBar.open('Kampanja je obrisana.', 'U redu', { duration: 3000 });
-          this.load(this.meta()?.page ?? 1);
-        },
-        error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
-      });
+    this.campaign.delete(row.id).subscribe({
+      next: () => {
+        this.snackBar.open('Kampanja je obrisana.', 'U redu', { duration: 3000 });
+        this.load(this.meta()?.page ?? 1);
+      },
+      error: (error) => this.snackBar.open(error?.message || 'Brisanje nije uspelo.', 'U redu', { duration: 4000 }),
     });
   }
 }

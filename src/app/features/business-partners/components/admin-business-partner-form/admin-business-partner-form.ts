@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -12,6 +12,9 @@ import { finalize, Observable } from 'rxjs';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { BusinessPartner } from '../../services/business-partner';
 import { BusinessPartnerCoverImage, BusinessPartnerEditPayload, BusinessPartnerWritePayload } from '../../models/business-partner';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /**
  * Create + edit, same pattern as admin-category-form: loads the RAW edit shape
@@ -37,7 +40,6 @@ import { BusinessPartnerCoverImage, BusinessPartnerEditPayload, BusinessPartnerW
   selector: 'app-admin-business-partner-form',
   imports: [
     CommonModule,
-    RouterLink,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -45,6 +47,9 @@ import { BusinessPartnerCoverImage, BusinessPartnerEditPayload, BusinessPartnerW
     MatCheckboxModule,
     MatProgressSpinnerModule,
     ImageUrlPipe,
+    FormLayout,
+    FormSection,
+    FormActions,
   ],
   templateUrl: './admin-business-partner-form.html',
   styleUrl: './admin-business-partner-form.scss',

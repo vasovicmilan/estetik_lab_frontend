@@ -8,8 +8,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatStepperModule } from '@angular/material/stepper';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { finalize, Observable } from 'rxjs';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { finalize, map, Observable } from 'rxjs';
 import { Coupon } from '../../services/coupon';
 import { CouponDiscountType, CouponEditPayload, CouponWritePayload } from '../../models/coupon';
 import { Service } from '../../../services-catalog/services/service';
@@ -22,6 +25,10 @@ import { Category } from '../../../taxonomy/services/category';
 import { CategoryAdminListItem } from '../../../taxonomy/models/category';
 import { Partner } from '../../../partners/services/partner';
 import { PartnerAdminListItem } from '../../../partners/models/partner';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
+import { DatePicker } from '../../../../shared/ui/date-picker/date-picker';
 
 /**
  * Create + edit, same pattern as admin-category-form/admin-business-partner-form:
@@ -41,7 +48,23 @@ import { PartnerAdminListItem } from '../../../partners/models/partner';
  *
  * The product-discount block (`productDiscountType`/Value/MaxAmount/
  * MinOrderValue/`applicableProducts`/`excludedCategories`) is revealed by the
- * `productDiscountEnabled` checkbox, per the task's field spec.
+ * `productDiscountEnabled` checkbox, per the task's field spec. It lives
+ * inside the "Pravila popusta" step (see `form`) rather than its own step,
+ * since it's fundamentally more discount configuration, not a separate concern.
+ *
+ * STEPPER: per the business owner's feedback, this is the first `mat-stepper`
+ * usage in the codebase (a reference example for later complex-form
+ * migrations) - one step per former `FormSection` (Osnovni podaci / Pravila
+ * popusta / Važnost / Ograničenja upotrebe), `linear` so a step with invalid
+ * fields blocks moving forward, each with its own nested `FormGroup` bound via
+ * `[stepControl]` (Material's documented reactive-forms stepper pattern).
+ * Nesting was chosen over flat-group + manual per-step validity checks because
+ * there are zero cross-group validators/values here (`validUntil`'s `[min]`
+ * binding is a UI hint, not a validator) - `code`/`discountValue`/etc.'s
+ * validators are all local to their own control, so splitting the single flat
+ * group into 4 nested ones needed no validator surgery, only updating
+ * `patchForm()`/`submit()` to read/write the new nested paths instead of
+ * top-level ones.
  */
 @Component({
   selector: 'app-admin-coupon-form',
@@ -55,6 +78,11 @@ import { PartnerAdminListItem } from '../../../partners/models/partner';
     MatSelectModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
+    MatStepperModule,
+    FormLayout,
+    FormSection,
+    FormActions,
+    DatePicker,
   ],
   templateUrl: './admin-coupon-form.html',
   styleUrl: './admin-coupon-form.scss',
@@ -70,10 +98,20 @@ export class AdminCouponForm implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private breakpointObserver = inject(BreakpointObserver);
 
   couponId = signal<string | null>(null);
   loading = signal(false);
   saving = signal(false);
+
+  /** Same breakpoint DataTable/AdminShell already established (see DataTable's
+   * `isHandset` for the rationale) - a horizontal stepper with 4 steps is
+   * cramped on a phone, so it switches to vertical below that width. */
+  private isHandset = toSignal(
+    this.breakpointObserver.observe(['(max-width: 768px)']).pipe(map((state) => state.matches)),
+    { initialValue: false },
+  );
+  stepperOrientation = () => (this.isHandset() ? 'vertical' : 'horizontal');
 
   serviceOptions = signal<ServiceListItem[]>([]);
   packageOptions = signal<PackageListItem[]>([]);
@@ -86,28 +124,68 @@ export class AdminCouponForm implements OnInit {
     { value: 'fixed', label: 'Fiksni iznos' },
   ];
 
+  // One nested FormGroup per stepper step (see class doc comment for why
+  // nesting was chosen over a flat group + manual per-step validity checks).
+  // `form.get('<step>.<field>')` reaches any control from outside; the
+  // template additionally uses `formGroupName="<step>"` on each step's
+  // `app-form-section` so its own field bindings stay unqualified.
   form: FormGroup = this.fb.group({
-    code: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30), Validators.pattern(/^[A-Za-z0-9_-]+$/)]],
-    discountType: ['percentage' as CouponDiscountType, Validators.required],
-    discountValue: [0, [Validators.required, Validators.min(0)]],
-    maxDiscountAmount: [null as number | null, Validators.min(0)],
-    minValue: [0, Validators.min(0)],
-    maxUses: [null as number | null, [Validators.min(0)]],
-    maxUsesPerUser: [null as number | null, [Validators.min(0)]],
-    applicableServices: [[] as string[]],
-    applicablePackages: [[] as string[]],
-    productDiscountEnabled: [false],
-    productDiscountType: ['percentage' as CouponDiscountType],
-    productDiscountValue: [0, Validators.min(0)],
-    productDiscountMaxAmount: [null as number | null, Validators.min(0)],
-    productMinOrderValue: [0, Validators.min(0)],
-    applicableProducts: [[] as string[]],
-    excludedCategories: [[] as string[]],
-    partner: [null as string | null],
-    validFrom: ['' as string],
-    validUntil: ['' as string],
-    isActive: [true],
+    basicInfo: this.fb.group({
+      code: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30), Validators.pattern(/^[A-Za-z0-9_-]+$/)]],
+      partner: [null as string | null],
+      isActive: [true],
+    }),
+    discountRules: this.fb.group({
+      discountType: ['percentage' as CouponDiscountType, Validators.required],
+      discountValue: [0, [Validators.required, Validators.min(0)]],
+      maxDiscountAmount: [null as number | null, Validators.min(0)],
+      minValue: [0, Validators.min(0)],
+      applicableServices: [[] as string[]],
+      applicablePackages: [[] as string[]],
+      productDiscountEnabled: [false],
+      productDiscountType: ['percentage' as CouponDiscountType],
+      productDiscountValue: [0, Validators.min(0)],
+      productDiscountMaxAmount: [null as number | null, Validators.min(0)],
+      productMinOrderValue: [0, Validators.min(0)],
+      applicableProducts: [[] as string[]],
+      excludedCategories: [[] as string[]],
+    }),
+    validity: this.fb.group({
+      // Date | null (DatePicker's ControlValueAccessor value type) - converted
+      // to/from an ISO date string at the API boundary in patchForm()/submit(),
+      // same as the plain <input type="date"> fields did before.
+      validFrom: [null as Date | null],
+      validUntil: [null as Date | null],
+    }),
+    usageLimits: this.fb.group({
+      maxUses: [null as number | null, [Validators.min(0)]],
+      maxUsesPerUser: [null as number | null, [Validators.min(0)]],
+    }),
   });
+
+  // Typed handles to each step's group - used for [stepControl] and by the
+  // template's per-step error checks (form.get('basicInfo.code') also works,
+  // these just avoid repeating that lookup/cast everywhere).
+  get basicInfoGroup(): FormGroup {
+    return this.form.get('basicInfo') as FormGroup;
+  }
+  get discountRulesGroup(): FormGroup {
+    return this.form.get('discountRules') as FormGroup;
+  }
+  get validityGroup(): FormGroup {
+    return this.form.get('validity') as FormGroup;
+  }
+  get usageLimitsGroup(): FormGroup {
+    return this.form.get('usageLimits') as FormGroup;
+  }
+
+  /** Bound to each step's Next button - `matStepperNext` already blocks
+   * advancing while the step's `stepControl` is invalid (linear mode), but it
+   * doesn't itself surface *why* by marking controls touched, so the user
+   * would otherwise see a stuck button with no visible errors. */
+  revealErrors(group: FormGroup): void {
+    group.markAllAsTouched();
+  }
 
   ngOnInit(): void {
     this.service.listAdmin({ limit: 200 }).subscribe({
@@ -147,26 +225,34 @@ export class AdminCouponForm implements OnInit {
 
   private patchForm(payload: CouponEditPayload): void {
     this.form.patchValue({
-      code: payload.code,
-      discountType: payload.discountType,
-      discountValue: payload.discountValue,
-      maxDiscountAmount: payload.maxDiscountAmount,
-      minValue: payload.minValue,
-      maxUses: payload.maxUses,
-      maxUsesPerUser: payload.maxUsesPerUser,
-      applicableServices: payload.applicableServices ?? [],
-      applicablePackages: payload.applicablePackages ?? [],
-      productDiscountEnabled: payload.productDiscountEnabled,
-      productDiscountType: payload.productDiscountType,
-      productDiscountValue: payload.productDiscountValue,
-      productDiscountMaxAmount: payload.productDiscountMaxAmount,
-      productMinOrderValue: payload.productMinOrderValue,
-      applicableProducts: payload.applicableProducts ?? [],
-      excludedCategories: payload.excludedCategories ?? [],
-      partner: payload.partner,
-      validFrom: payload.validFrom ? payload.validFrom.slice(0, 10) : '',
-      validUntil: payload.validUntil ? payload.validUntil.slice(0, 10) : '',
-      isActive: payload.isActive,
+      basicInfo: {
+        code: payload.code,
+        partner: payload.partner,
+        isActive: payload.isActive,
+      },
+      discountRules: {
+        discountType: payload.discountType,
+        discountValue: payload.discountValue,
+        maxDiscountAmount: payload.maxDiscountAmount,
+        minValue: payload.minValue,
+        applicableServices: payload.applicableServices ?? [],
+        applicablePackages: payload.applicablePackages ?? [],
+        productDiscountEnabled: payload.productDiscountEnabled,
+        productDiscountType: payload.productDiscountType,
+        productDiscountValue: payload.productDiscountValue,
+        productDiscountMaxAmount: payload.productDiscountMaxAmount,
+        productMinOrderValue: payload.productMinOrderValue,
+        applicableProducts: payload.applicableProducts ?? [],
+        excludedCategories: payload.excludedCategories ?? [],
+      },
+      validity: {
+        validFrom: payload.validFrom ? new Date(payload.validFrom) : null,
+        validUntil: payload.validUntil ? new Date(payload.validUntil) : null,
+      },
+      usageLimits: {
+        maxUses: payload.maxUses,
+        maxUsesPerUser: payload.maxUsesPerUser,
+      },
     });
   }
 
@@ -177,27 +263,35 @@ export class AdminCouponForm implements OnInit {
     }
 
     const raw = this.form.value;
+    const basicInfo = raw.basicInfo;
+    const discountRules = raw.discountRules;
+    const validity = raw.validity;
+    const usageLimits = raw.usageLimits;
     const payload: CouponWritePayload = {
-      code: raw.code,
-      discountType: raw.discountType,
-      discountValue: raw.discountValue,
-      maxDiscountAmount: raw.maxDiscountAmount === '' ? null : raw.maxDiscountAmount,
-      minValue: raw.minValue ?? 0,
-      maxUses: raw.maxUses === '' || raw.maxUses == null ? null : raw.maxUses,
-      maxUsesPerUser: raw.maxUsesPerUser === '' || raw.maxUsesPerUser == null ? null : raw.maxUsesPerUser,
-      applicableServices: raw.applicableServices ?? [],
-      applicablePackages: raw.applicablePackages ?? [],
-      productDiscountEnabled: raw.productDiscountEnabled,
-      productDiscountType: raw.productDiscountType,
-      productDiscountValue: raw.productDiscountValue ?? 0,
-      productDiscountMaxAmount: raw.productDiscountMaxAmount === '' ? null : raw.productDiscountMaxAmount,
-      productMinOrderValue: raw.productMinOrderValue ?? 0,
-      applicableProducts: raw.applicableProducts ?? [],
-      excludedCategories: raw.excludedCategories ?? [],
-      partner: raw.partner || null,
-      validFrom: raw.validFrom || null,
-      validUntil: raw.validUntil || null,
-      isActive: raw.isActive,
+      code: basicInfo.code,
+      discountType: discountRules.discountType,
+      discountValue: discountRules.discountValue,
+      maxDiscountAmount: discountRules.maxDiscountAmount === '' ? null : discountRules.maxDiscountAmount,
+      minValue: discountRules.minValue ?? 0,
+      maxUses: usageLimits.maxUses === '' || usageLimits.maxUses == null ? null : usageLimits.maxUses,
+      maxUsesPerUser: usageLimits.maxUsesPerUser === '' || usageLimits.maxUsesPerUser == null ? null : usageLimits.maxUsesPerUser,
+      applicableServices: discountRules.applicableServices ?? [],
+      applicablePackages: discountRules.applicablePackages ?? [],
+      productDiscountEnabled: discountRules.productDiscountEnabled,
+      productDiscountType: discountRules.productDiscountType,
+      productDiscountValue: discountRules.productDiscountValue ?? 0,
+      productDiscountMaxAmount: discountRules.productDiscountMaxAmount === '' ? null : discountRules.productDiscountMaxAmount,
+      productMinOrderValue: discountRules.productMinOrderValue ?? 0,
+      applicableProducts: discountRules.applicableProducts ?? [],
+      excludedCategories: discountRules.excludedCategories ?? [],
+      partner: basicInfo.partner || null,
+      // DatePicker hands back a Date | null - convert to the yyyy-MM-dd ISO
+      // date string the API expects (CouponWritePayload.validFrom/validUntil
+      // stayed string | null), matching DatePicker's own documented
+      // conversion convention.
+      validFrom: (validity.validFrom as Date | null)?.toISOString().slice(0, 10) ?? null,
+      validUntil: (validity.validUntil as Date | null)?.toISOString().slice(0, 10) ?? null,
+      isActive: basicInfo.isActive,
     };
     const id = this.couponId();
 

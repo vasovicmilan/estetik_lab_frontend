@@ -1,18 +1,19 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { PageEvent } from '@angular/material/paginator';
+import { Sort } from '@angular/material/sort';
 import { debounceTime } from 'rxjs';
 import { Testimonial } from '../../services/testimonial';
 import { TestimonialAdminListItem, TestimonialStatus } from '../../models/testimonial';
 import { ApiMeta } from '../../../../core/models/api-response';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
+import { DataTable } from '../../../../shared/ui/data-table/data-table';
+import { DataTableAction, DataTableColumn } from '../../../../shared/ui/data-table/data-table.models';
+import { DataTableCellDef } from '../../../../shared/ui/data-table/data-table-cell-def';
 
 /** List + filter bar for admin/utisci. Paginated, same debounced-filter +
  * MatPaginatorModule/PageEvent pattern as admin-coupon-list.ts. Defaults to the
@@ -22,29 +23,48 @@ import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
  * the rest. `isFeatured` is a separate, optional tri-state filter. */
 @Component({
   selector: 'app-admin-testimonial-list',
-  imports: [
-    CommonModule,
-    RouterLink,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatPaginatorModule,
-    MatProgressSpinnerModule,
-    ImageUrlPipe,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatSelectModule, ImageUrlPipe, DataTable, DataTableCellDef],
   templateUrl: './admin-testimonial-list.html',
   styleUrl: './admin-testimonial-list.scss',
 })
 export class AdminTestimonialList implements OnInit {
   private testimonial = inject(Testimonial);
   private fb = inject(FormBuilder);
+  private router = inject(Router);
 
-  displayedColumns = ['slika', 'ime', 'ocena', 'komentar', 'usluga', 'status', 'istaknut', 'kreiran', 'akcije'];
   rows = signal<TestimonialAdminListItem[]>([]);
   meta = signal<ApiMeta | null>(null);
   loading = signal(false);
+  error = signal<string | null>(null);
+
+  private limit = 10;
+  /** `ime`/`ocena`/`komentar`/`status`/`istaknut`/`kreiran` map to plain scalar
+   * columns (name, rating, message, status, isFeatured, createdAt) on the
+   * Testimonial schema - see TESTIMONIAL_SORT_FIELDS in
+   * admin-marketing.controller.js. `usluga` (the linked service/package/
+   * product's populated name) is NOT sortable - not a scalar column a
+   * repository can sort on directly. */
+  private sort: string | null = null;
+  private order: 'asc' | 'desc' | null = null;
+
+  /** testimonialRepo.findTestimonials's default ({ isFeatured: -1, createdAt: -1,
+   * _id: -1 }) is a compound sort no single displayed column maps to on its own,
+   * so no defaultSort indicator is shown, same reasoning as admin-user-list. */
+
+  columns: DataTableColumn<TestimonialAdminListItem>[] = [
+    { key: 'slika', label: '', type: 'custom' },
+    { key: 'ime', label: 'Ime', sortable: true },
+    { key: 'ocena', label: 'Ocena', sortable: true },
+    { key: 'komentar', label: 'Komentar', sortable: true },
+    { key: 'usluga', label: 'Usluga', value: (row) => row.usluga || '-' },
+    { key: 'status', label: 'Status', type: 'custom', sortable: true },
+    { key: 'istaknut', label: 'Istaknut', sortable: true },
+    { key: 'kreiran', label: 'Kreiran', sortable: true },
+  ];
+
+  actions: DataTableAction<TestimonialAdminListItem>[] = [
+    { icon: 'visibility', label: 'Pregled', onClick: (row) => this.router.navigate(['/admin/utisci', row.id, 'pregled']) },
+  ];
 
   statusOptions: { value: '' | TestimonialStatus; label: string }[] = [
     { value: 'pending', label: 'Na čekanju' },
@@ -74,12 +94,15 @@ export class AdminTestimonialList implements OnInit {
     const { status, isFeatured } = this.filterForm.value;
 
     this.loading.set(true);
+    this.error.set(null);
     this.testimonial
       .listAdmin({
         page,
-        limit: 10,
+        limit: this.limit,
         status: status || undefined,
         isFeatured: isFeatured || undefined,
+        sort: this.sort ?? undefined,
+        order: this.order ?? undefined,
       })
       .subscribe({
         next: ({ data, meta }) => {
@@ -87,12 +110,22 @@ export class AdminTestimonialList implements OnInit {
           this.meta.set(meta ?? null);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false),
+        error: (error) => {
+          this.error.set(error?.message || 'Greška pri učitavanju utisaka.');
+          this.loading.set(false);
+        },
       });
   }
 
   onPage(event: PageEvent): void {
+    this.limit = event.pageSize;
     this.load(event.pageIndex + 1);
+  }
+
+  onSort(sort: Sort): void {
+    this.sort = sort.direction ? sort.active : null;
+    this.order = sort.direction ? (sort.direction as 'asc' | 'desc') : null;
+    this.load(1);
   }
 
   statusClass(statusRaw: TestimonialStatus): string {

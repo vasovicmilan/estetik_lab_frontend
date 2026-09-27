@@ -11,6 +11,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, Observable } from 'rxjs';
 import { Resource } from '../../services/resource';
 import { ResourceEditPayload } from '../../models/resource';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /**
  * Create + edit, same pattern as admin-service-form: loads the RAW edit shape
@@ -28,6 +31,9 @@ import { ResourceEditPayload } from '../../models/resource';
     MatInputModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
+    FormLayout,
+    FormSection,
+    FormActions,
   ],
   templateUrl: './admin-resource-form.html',
   styleUrl: './admin-resource-form.scss',

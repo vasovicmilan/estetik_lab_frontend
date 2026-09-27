@@ -12,6 +12,9 @@ import { finalize, Observable } from 'rxjs';
 import { RepeaterField, RepeaterSubfield } from '../../../../shared/ui/repeater-field/repeater-field';
 import { Package } from '../../services/package';
 import { PackageCreatePayload, PackageEditPayload } from '../../models/package';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /**
  * Create + edit, same pattern as admin-service-form: loads the RAW edit shape
@@ -30,6 +33,9 @@ import { PackageCreatePayload, PackageEditPayload } from '../../models/package';
     MatCheckboxModule,
     MatProgressSpinnerModule,
     RepeaterField,
+    FormLayout,
+    FormSection,
+    FormActions,
   ],
   templateUrl: './admin-package-form.html',
   styleUrl: './admin-package-form.scss',

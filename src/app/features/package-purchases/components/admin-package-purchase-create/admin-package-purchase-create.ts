@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,6 +16,10 @@ import { Package } from '../../../packages-catalog/services/package';
 import { PackageListItem } from '../../../packages-catalog/models/package';
 import { User } from '../../../users/services/user';
 import { UserAdminListItem } from '../../../users/models/user';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
+import { DatePicker } from '../../../../shared/ui/date-picker/date-picker';
 
 /**
  * "Novi kupljeni paket" - manually creates/assigns a package purchase for a
@@ -45,7 +49,6 @@ import { UserAdminListItem } from '../../../users/models/user';
   selector: 'app-admin-package-purchase-create',
   imports: [
     CommonModule,
-    RouterLink,
     ReactiveFormsModule,
     MatAutocompleteModule,
     MatButtonModule,
@@ -53,6 +56,10 @@ import { UserAdminListItem } from '../../../users/models/user';
     MatInputModule,
     MatSelectModule,
     MatProgressSpinnerModule,
+    FormLayout,
+    FormSection,
+    FormActions,
+    DatePicker,
   ],
   templateUrl: './admin-package-purchase-create.html',
   styleUrl: './admin-package-purchase-create.scss',
@@ -81,7 +88,7 @@ export class AdminPackagePurchaseCreate implements OnInit {
   form = this.fb.group({
     userSearch: ['', Validators.required],
     packageId: ['', Validators.required],
-    expiresAt: [''],
+    expiresAt: [null as Date | null],
     pricePaid: [null as number | null],
     couponCode: [''],
     notes: [''],
@@ -159,7 +166,10 @@ export class AdminPackagePurchaseCreate implements OnInit {
     const payload: PackagePurchaseCreatePayload = {
       userId: this.selectedUserId()!,
       packageId: raw.packageId!,
-      expiresAt: raw.expiresAt || undefined,
+      // DatePicker hands back a Date | null - convert to the yyyy-MM-dd ISO
+      // date string the API expects, same conversion convention as
+      // admin-coupon-form's validFrom/validUntil.
+      expiresAt: (raw.expiresAt as Date | null)?.toISOString().slice(0, 10) ?? undefined,
       pricePaid: raw.pricePaid ?? undefined,
       couponCode: raw.couponCode?.trim() || undefined,
       notes: raw.notes?.trim() || undefined,

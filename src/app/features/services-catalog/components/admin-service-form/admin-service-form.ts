@@ -13,6 +13,9 @@ import { RepeaterField, RepeaterSubfield } from '../../../../shared/ui/repeater-
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { Service } from '../../services/service';
 import { ServiceEditPayload } from '../../models/service';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /**
  * One vertical slice, end to end: loads the RAW edit shape (not the display shape -
@@ -34,6 +37,9 @@ import { ServiceEditPayload } from '../../models/service';
     MatProgressSpinnerModule,
     RepeaterField,
     ImageUrlPipe,
+    FormLayout,
+    FormSection,
+    FormActions,
   ],
   templateUrl: './admin-service-form.html',
   styleUrl: './admin-service-form.scss',

@@ -10,6 +10,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { AdminPayoutRequest } from '../../services/payout-request';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /** Standalone form for POST /admin/payout-requests/direct - records an
  * already-happened payout directly, skipping the request/approve/pay flow.
@@ -18,7 +21,19 @@ import { AdminPayoutRequest } from '../../services/payout-request';
  * /admin/isplate/direktna-isplata. */
 @Component({
   selector: 'app-admin-payout-direct-form',
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatProgressSpinnerModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    FormLayout,
+    FormSection,
+    FormActions,
+  ],
   templateUrl: './admin-payout-direct-form.html',
   styleUrl: './admin-payout-direct-form.scss',
 })

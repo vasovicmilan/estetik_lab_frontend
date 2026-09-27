@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,6 +13,9 @@ import { Appointment } from '../../services/appointment';
 import { EmployeePickerItem, ManualAppointmentPayload } from '../../models/appointment';
 import { Service } from '../../../services-catalog/services/service';
 import { ServiceListItem, ServiceVariantDisplay } from '../../../services-catalog/models/service';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /**
  * "Novi termin" - manually creates an appointment for a walk-in or phone booking
@@ -35,13 +38,15 @@ import { ServiceListItem, ServiceVariantDisplay } from '../../../services-catalo
   selector: 'app-admin-appointment-manual-form',
   imports: [
     CommonModule,
-    RouterLink,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatProgressSpinnerModule,
+    FormLayout,
+    FormSection,
+    FormActions,
   ],
   templateUrl: './admin-appointment-manual-form.html',
   styleUrl: './admin-appointment-manual-form.scss',

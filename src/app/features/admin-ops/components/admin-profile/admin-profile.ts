@@ -9,6 +9,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { AdminProfile as AdminProfileService } from '../../services/admin-profile';
 import { AdminOwnProfile } from '../../models/admin-profile';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /** The logged-in admin's own profile - view + edit (name/phone only, mirrors
  * validateProfileUpdate's field set exactly, see models/admin-profile.ts's
@@ -19,7 +22,17 @@ import { AdminOwnProfile } from '../../models/admin-profile';
  * /admin/profil. */
 @Component({
   selector: 'app-admin-profile',
-  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    FormLayout,
+    FormSection,
+    FormActions,
+  ],
   templateUrl: './admin-profile.html',
   styleUrl: './admin-profile.scss',
 })

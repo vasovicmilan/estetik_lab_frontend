@@ -1,0 +1,8 @@
+<div class="form-actions">
+  @if (cancelRoute()) {
+    <a mat-button type="button" [routerLink]="cancelRoute()!">{{ cancelLabel() }}</a>
+  }
+  <button mat-flat-button color="primary" type="submit" [disabled]="saveDisabled()">
+    {{ saving() ? savingLabel() : saveLabel() }}
+  </button>
+</div>

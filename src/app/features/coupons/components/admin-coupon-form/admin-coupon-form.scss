@@ -1,8 +1,8 @@
 .coupon-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  max-width: 640px;
+  gap: 1.5rem;
+  max-width: 760px;
   padding: 1.5rem;
 
   &__header {
@@ -11,20 +11,35 @@
     justify-content: space-between;
   }
 
-  &__product-discount {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 8px;
+  &__stepper {
+    background: transparent;
+    margin-top: 0.5rem;
 
-    h3 {
-      margin: 0;
+    // Material's own stepper CSS gives the content area *no* top padding
+    // (`.mat-horizontal-content-container`'s default is `padding: 0 24px
+    // 24px 24px`, and the vertical layout's step content sits flush under
+    // its header for the same reason) - normally fine, because the default
+    // themed stepper's own divider/background reads as a boundary, but with
+    // `background: transparent` above that boundary all but disappears, so
+    // the step content reads as overlapping the step-header row right above
+    // it. Add the missing top spacing on both orientations.
+    ::ng-deep .mat-horizontal-content-container {
+      padding-top: 1.25rem;
+    }
+
+    ::ng-deep .mat-vertical-content {
+      padding-top: 0.5rem;
+    }
+
+    ::ng-deep .mat-step-header {
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
     }
   }
 
-  &__actions {
+  &__step-actions {
+    display: flex;
+    gap: 0.75rem;
     margin-top: 1rem;
   }
 }

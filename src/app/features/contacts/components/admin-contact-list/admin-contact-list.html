@@ -14,61 +14,24 @@
     </mat-form-field>
   </form>
 
-  <table mat-table [dataSource]="rows()" class="admin-contact-list__table">
-    <ng-container matColumnDef="imePrezime">
-      <th mat-header-cell *matHeaderCellDef>Ime i prezime</th>
-      <td mat-cell *matCellDef="let row">{{ row.imePrezime }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="email">
-      <th mat-header-cell *matHeaderCellDef>Email</th>
-      <td mat-cell *matCellDef="let row">{{ row.email }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="tema">
-      <th mat-header-cell *matHeaderCellDef>Tema</th>
-      <td mat-cell *matCellDef="let row">{{ row.tema ?? '-' }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Status</th>
-      <td mat-cell *matCellDef="let row">
-        <span [class]="'admin-contact-list__status admin-contact-list__status--' + row.statusRaw">{{ row.status }}</span>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="datum">
-      <th mat-header-cell *matHeaderCellDef>Datum</th>
-      <td mat-cell *matCellDef="let row">{{ row.datum }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="akcije">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let row">
-        <a mat-button [routerLink]="['/admin/poruke', row.id, 'pregled']">Pregled</a>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns" [class.admin-contact-list__row--new]="row.statusRaw === 'new'"></tr>
-  </table>
-
-  @if (!loading() && rows().length === 0) {
-    <p class="admin-contact-list__empty">Nema poruka koje odgovaraju filterima.</p>
-  }
-
-  @if (loading()) {
-    <div class="admin-contact-list__spinner">
-      <mat-spinner diameter="32" />
-    </div>
-  }
-
-  @if (meta(); as m) {
-    <mat-paginator
-      [length]="m.total"
-      [pageSize]="m.limit"
-      [pageIndex]="m.page - 1"
-      (page)="onPage($event)"
-    />
-  }
+  <app-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [loading]="loading()"
+    [error]="error()"
+    emptyLabel="Nema poruka koje odgovaraju filterima."
+    [totalCount]="meta()?.total ?? 0"
+    [pageSize]="meta()?.limit ?? 10"
+    [pageIndex]="(meta()?.page ?? 1) - 1"
+    [pageSizeOptions]="[10, 25, 50, 100]"
+    [defaultSort]="defaultSort"
+    [actions]="actions"
+    (pageChange)="onPage($event)"
+    (sortChange)="onSort($event)"
+    (retry)="load(meta()?.page ?? 1)"
+  >
+    <ng-template appDataTableCellDef="status" let-row>
+      <span [class]="statusClass($any(row).statusRaw)">{{ $any(row).status }}</span>
+    </ng-template>
+  </app-data-table>
 </div>

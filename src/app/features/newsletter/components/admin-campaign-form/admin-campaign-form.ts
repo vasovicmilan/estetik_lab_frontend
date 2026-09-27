@@ -12,6 +12,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, Observable } from 'rxjs';
 import { Campaign } from '../../services/campaign';
 import { CampaignEditPayload, CampaignInterest, CampaignStatus, CampaignWritePayload } from '../../models/campaign';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /**
  * Create + edit, same pattern as admin-business-partner-form/admin-coupon-form:
@@ -53,6 +56,9 @@ import { CampaignEditPayload, CampaignInterest, CampaignStatus, CampaignWritePay
     MatSelectModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
+    FormLayout,
+    FormSection,
+    FormActions,
   ],
   templateUrl: './admin-campaign-form.html',
   styleUrl: './admin-campaign-form.scss',

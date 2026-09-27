@@ -7,145 +7,176 @@
       <a mat-button routerLink="/admin/kuponi">Nazad na listu</a>
     </div>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Kod kupona</mat-label>
-      <input matInput formControlName="code" required />
-      @if (form.get('code')?.hasError('required') && form.get('code')?.touched) {
-        <mat-error>Kod je obavezan.</mat-error>
-      }
-      @if (form.get('code')?.hasError('pattern') && form.get('code')?.touched) {
-        <mat-error>Dozvoljena su samo slova, brojevi, crtica i donja crta.</mat-error>
-      }
-    </mat-form-field>
+    <mat-stepper [linear]="true" [orientation]="stepperOrientation()" class="coupon-form__stepper">
+      <mat-step [stepControl]="basicInfoGroup" label="Osnovni podaci">
+        <app-form-layout>
+          <app-form-section formGroupName="basicInfo">
+            <mat-form-field appearance="outline">
+              <mat-label>Kod kupona</mat-label>
+              <input matInput formControlName="code" required />
+              @if (basicInfoGroup.get('code')?.hasError('required') && basicInfoGroup.get('code')?.touched) {
+                <mat-error>Kod je obavezan.</mat-error>
+              }
+              @if (basicInfoGroup.get('code')?.hasError('pattern') && basicInfoGroup.get('code')?.touched) {
+                <mat-error>Dozvoljena su samo slova, brojevi, crtica i donja crta.</mat-error>
+              }
+            </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Tip popusta</mat-label>
-      <mat-select formControlName="discountType" required>
-        @for (option of discountTypeOptions; track option.value) {
-          <mat-option [value]="option.value">{{ option.label }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Partner (opciono)</mat-label>
+              <mat-select formControlName="partner">
+                <mat-option [value]="null">Bez partnera</mat-option>
+                @for (option of partnerOptions(); track option.id) {
+                  <mat-option [value]="option.id">{{ option.imePrezime }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Vrednost popusta</mat-label>
-      <input matInput type="number" formControlName="discountValue" required />
-    </mat-form-field>
+            <mat-checkbox formControlName="isActive">Aktivan</mat-checkbox>
+          </app-form-section>
+        </app-form-layout>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Maksimalan popust (opciono)</mat-label>
-      <input matInput type="number" formControlName="maxDiscountAmount" />
-    </mat-form-field>
+        <div class="coupon-form__step-actions">
+          <button mat-flat-button color="primary" type="button" matStepperNext (click)="revealErrors(basicInfoGroup)">Dalje</button>
+        </div>
+      </mat-step>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Minimalna vrednost porudžbine</mat-label>
-      <input matInput type="number" formControlName="minValue" />
-    </mat-form-field>
+      <mat-step [stepControl]="discountRulesGroup" label="Pravila popusta">
+        <app-form-layout>
+          <app-form-section formGroupName="discountRules">
+            <mat-form-field appearance="outline">
+              <mat-label>Tip popusta</mat-label>
+              <mat-select formControlName="discountType" required>
+                @for (option of discountTypeOptions; track option.value) {
+                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Max upotreba (prazno = neograničeno)</mat-label>
-      <input matInput type="number" formControlName="maxUses" />
-    </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Vrednost popusta</mat-label>
+              <input matInput type="number" formControlName="discountValue" required />
+            </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Max upotreba po korisniku (prazno = neograničeno)</mat-label>
-      <input matInput type="number" formControlName="maxUsesPerUser" />
-    </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Maksimalan popust (opciono)</mat-label>
+              <input matInput type="number" formControlName="maxDiscountAmount" />
+            </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Primenljivo na usluge (opciono)</mat-label>
-      <mat-select formControlName="applicableServices" multiple>
-        @for (option of serviceOptions(); track option.id) {
-          <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Minimalna vrednost porudžbine</mat-label>
+              <input matInput type="number" formControlName="minValue" />
+            </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Primenljivo na pakete (opciono)</mat-label>
-      <mat-select formControlName="applicablePackages" multiple>
-        @for (option of packageOptions(); track option.id) {
-          <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Primenljivo na usluge (opciono)</mat-label>
+              <mat-select formControlName="applicableServices" multiple>
+                @for (option of serviceOptions(); track option.id) {
+                  <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Partner (opciono)</mat-label>
-      <mat-select formControlName="partner">
-        <mat-option [value]="null">Bez partnera</mat-option>
-        @for (option of partnerOptions(); track option.id) {
-          <mat-option [value]="option.id">{{ option.imePrezime }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Primenljivo na pakete (opciono)</mat-label>
+              <mat-select formControlName="applicablePackages" multiple>
+                @for (option of packageOptions(); track option.id) {
+                  <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Važi od (opciono)</mat-label>
-      <input matInput type="date" formControlName="validFrom" />
-    </mat-form-field>
+            <mat-checkbox formControlName="productDiscountEnabled">Poseban popust na proizvode</mat-checkbox>
+          </app-form-section>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Važi do (opciono)</mat-label>
-      <input matInput type="date" formControlName="validUntil" />
-    </mat-form-field>
+          @if (discountRulesGroup.get('productDiscountEnabled')?.value) {
+            <app-form-section title="Popust na proizvode" formGroupName="discountRules">
+              <mat-form-field appearance="outline">
+                <mat-label>Tip popusta</mat-label>
+                <mat-select formControlName="productDiscountType">
+                  @for (option of discountTypeOptions; track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
 
-    <mat-checkbox formControlName="isActive">Aktivan</mat-checkbox>
+              <mat-form-field appearance="outline">
+                <mat-label>Vrednost popusta</mat-label>
+                <input matInput type="number" formControlName="productDiscountValue" />
+              </mat-form-field>
 
-    <mat-checkbox formControlName="productDiscountEnabled">Poseban popust na proizvode</mat-checkbox>
+              <mat-form-field appearance="outline">
+                <mat-label>Maksimalan popust (opciono)</mat-label>
+                <input matInput type="number" formControlName="productDiscountMaxAmount" />
+              </mat-form-field>
 
-    @if (form.get('productDiscountEnabled')?.value) {
-      <section class="coupon-form__product-discount">
-        <h3>Popust na proizvode</h3>
+              <mat-form-field appearance="outline">
+                <mat-label>Minimalna vrednost porudžbine (proizvodi)</mat-label>
+                <input matInput type="number" formControlName="productMinOrderValue" />
+              </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Tip popusta</mat-label>
-          <mat-select formControlName="productDiscountType">
-            @for (option of discountTypeOptions; track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Primenljivo na proizvode (opciono)</mat-label>
+                <mat-select formControlName="applicableProducts" multiple>
+                  @for (option of productOptions(); track option.id) {
+                    <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Vrednost popusta</mat-label>
-          <input matInput type="number" formControlName="productDiscountValue" />
-        </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Isključene kategorije (opciono)</mat-label>
+                <mat-select formControlName="excludedCategories" multiple>
+                  @for (option of categoryOptions(); track option.id) {
+                    <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </app-form-section>
+          }
+        </app-form-layout>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Maksimalan popust (opciono)</mat-label>
-          <input matInput type="number" formControlName="productDiscountMaxAmount" />
-        </mat-form-field>
+        <div class="coupon-form__step-actions">
+          <button mat-button type="button" matStepperPrevious>Nazad</button>
+          <button mat-flat-button color="primary" type="button" matStepperNext (click)="revealErrors(discountRulesGroup)">Dalje</button>
+        </div>
+      </mat-step>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Minimalna vrednost porudžbine (proizvodi)</mat-label>
-          <input matInput type="number" formControlName="productMinOrderValue" />
-        </mat-form-field>
+      <mat-step [stepControl]="validityGroup" label="Važnost">
+        <app-form-layout>
+          <app-form-section formGroupName="validity">
+            <app-date-picker formControlName="validFrom" label="Važi od (opciono)" />
+            <app-date-picker formControlName="validUntil" label="Važi do (opciono)" [min]="validityGroup.value.validFrom" />
+          </app-form-section>
+        </app-form-layout>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Primenljivo na proizvode (opciono)</mat-label>
-          <mat-select formControlName="applicableProducts" multiple>
-            @for (option of productOptions(); track option.id) {
-              <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+        <div class="coupon-form__step-actions">
+          <button mat-button type="button" matStepperPrevious>Nazad</button>
+          <button mat-flat-button color="primary" type="button" matStepperNext (click)="revealErrors(validityGroup)">Dalje</button>
+        </div>
+      </mat-step>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Isključene kategorije (opciono)</mat-label>
-          <mat-select formControlName="excludedCategories" multiple>
-            @for (option of categoryOptions(); track option.id) {
-              <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </section>
-    }
+      <mat-step [stepControl]="usageLimitsGroup" label="Ograničenja upotrebe">
+        <app-form-layout>
+          <app-form-section formGroupName="usageLimits">
+            <mat-form-field appearance="outline">
+              <mat-label>Max upotreba (prazno = neograničeno)</mat-label>
+              <input matInput type="number" formControlName="maxUses" />
+            </mat-form-field>
 
-    <div class="coupon-form__actions">
-      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
-        {{ saving() ? 'Čuvanje...' : 'Sačuvaj' }}
-      </button>
-    </div>
+            <mat-form-field appearance="outline">
+              <mat-label>Max upotreba po korisniku (prazno = neograničeno)</mat-label>
+              <input matInput type="number" formControlName="maxUsesPerUser" />
+            </mat-form-field>
+          </app-form-section>
+        </app-form-layout>
+
+        <div class="coupon-form__step-actions">
+          <button mat-button type="button" matStepperPrevious>Nazad</button>
+        </div>
+
+        <app-form-actions [saving]="saving()" [saveDisabled]="saving() || form.invalid" cancelRoute="/admin/kuponi" />
+      </mat-step>
+    </mat-stepper>
   </form>
 }

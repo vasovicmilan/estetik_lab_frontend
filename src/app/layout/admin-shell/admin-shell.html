@@ -1,8 +1,13 @@
 <mat-sidenav-container class="admin-shell">
-  <mat-sidenav mode="side" opened class="admin-shell__sidenav">
+  <mat-sidenav
+    #sidenav
+    [mode]="isHandset() ? 'over' : 'side'"
+    [opened]="!isHandset()"
+    class="admin-shell__sidenav"
+  >
     <div class="admin-shell__title">Admin panel</div>
 
-    <mat-nav-list class="admin-shell__nav">
+    <mat-nav-list class="admin-shell__nav" (click)="onNavClick()">
       <a mat-list-item routerLink="/admin" routerLinkActive="admin-shell__link--active" [routerLinkActiveOptions]="{ exact: true }">Početna</a>
 
       @if (auth.hasPermission('manage_appointments_all')) {
@@ -107,13 +112,21 @@
       <a mat-list-item routerLink="/admin/profil" routerLinkActive="admin-shell__link--active">Moj profil</a>
     </mat-nav-list>
 
-    <a routerLink="/" class="admin-shell__back">
+    <a routerLink="/" class="admin-shell__back" (click)="onNavClick()">
       <mat-icon>arrow_back</mat-icon>
       Nazad na sajt
     </a>
   </mat-sidenav>
 
   <mat-sidenav-content class="admin-shell__content">
+    @if (isHandset()) {
+      <mat-toolbar class="admin-shell__toolbar">
+        <button mat-icon-button aria-label="Otvori meni" (click)="sidenav.toggle()">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <span class="admin-shell__toolbar-title">Admin panel</span>
+      </mat-toolbar>
+    }
     <router-outlet />
   </mat-sidenav-content>
 </mat-sidenav-container>

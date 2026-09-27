@@ -32,61 +32,24 @@
     <mat-checkbox formControlName="unassignedOnly">Samo nedodeljeni</mat-checkbox>
   </form>
 
-  <table mat-table [dataSource]="rows()" class="admin-appointment-list__table">
-    <ng-container matColumnDef="korisnik">
-      <th mat-header-cell *matHeaderCellDef>Klijent</th>
-      <td mat-cell *matCellDef="let row">{{ row.korisnik }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="usluga">
-      <th mat-header-cell *matHeaderCellDef>Usluga</th>
-      <td mat-cell *matCellDef="let row">{{ row.usluga }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="datum">
-      <th mat-header-cell *matHeaderCellDef>Termin</th>
-      <td mat-cell *matCellDef="let row">{{ row.datum }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Status</th>
-      <td mat-cell *matCellDef="let row">
-        <span [class]="statusClass(row.statusRaw)">{{ row.status }}</span>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="konacnaCena">
-      <th mat-header-cell *matHeaderCellDef>Cena</th>
-      <td mat-cell *matCellDef="let row">{{ row.konacnaCena }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="akcije">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let row">
-        <a mat-button [routerLink]="['/admin/zakazivanja', row.id]">Pregled</a>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
-
-  @if (!loading() && rows().length === 0) {
-    <p class="admin-appointment-list__empty">Nema zakazivanja koja odgovaraju filterima.</p>
-  }
-
-  @if (loading()) {
-    <div class="admin-appointment-list__spinner">
-      <mat-spinner diameter="32" />
-    </div>
-  }
-
-  @if (meta(); as m) {
-    <mat-paginator
-      [length]="m.total"
-      [pageSize]="m.limit"
-      [pageIndex]="m.page - 1"
-      (page)="onPage($event)"
-    />
-  }
+  <app-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [loading]="loading()"
+    [error]="error()"
+    emptyLabel="Nema zakazivanja koja odgovaraju filterima."
+    [totalCount]="meta()?.total ?? 0"
+    [pageSize]="meta()?.limit ?? 10"
+    [pageIndex]="(meta()?.page ?? 1) - 1"
+    [pageSizeOptions]="[10, 25, 50, 100]"
+    [defaultSort]="defaultSort"
+    [actions]="actions"
+    (pageChange)="onPage($event)"
+    (sortChange)="onSort($event)"
+    (retry)="load(meta()?.page ?? 1)"
+  >
+    <ng-template appDataTableCellDef="status" let-row>
+      <span [class]="statusClass($any(row).statusRaw)">{{ $any(row).status }}</span>
+    </ng-template>
+  </app-data-table>
 </div>

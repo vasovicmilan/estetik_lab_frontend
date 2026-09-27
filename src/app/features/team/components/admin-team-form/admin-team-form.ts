@@ -16,6 +16,9 @@ import { Team } from '../../services/team';
 import { ExpertEditPayload } from '../../models/expert';
 import { Service } from '../../../services-catalog/services/service';
 import { ServiceListItem } from '../../../services-catalog/models/service';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /**
  * Create + edit, same pattern as admin-service-form/admin-product-form: loads the
@@ -49,6 +52,9 @@ import { ServiceListItem } from '../../../services-catalog/models/service';
     MatCheckboxModule,
     MatProgressSpinnerModule,
     ImageUrlPipe,
+    FormLayout,
+    FormSection,
+    FormActions,
   ],
   templateUrl: './admin-team-form.html',
   styleUrl: './admin-team-form.scss',

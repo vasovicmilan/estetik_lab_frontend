@@ -11,6 +11,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, Observable } from 'rxjs';
 import { Role } from '../../services/role';
 import { PERMISSIONS, RESERVED_ROLE_NAMES, RoleEditPayload } from '../../models/role';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /**
  * Create + edit, same pattern as admin-tag-form: loads the edit shape (here,
@@ -35,6 +38,9 @@ import { PERMISSIONS, RESERVED_ROLE_NAMES, RoleEditPayload } from '../../models/
     MatInputModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
+    FormLayout,
+    FormSection,
+    FormActions,
   ],
   templateUrl: './admin-role-form.html',
   styleUrl: './admin-role-form.scss',

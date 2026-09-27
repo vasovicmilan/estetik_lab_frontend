@@ -20,59 +20,20 @@
     </mat-form-field>
   </form>
 
-  <table mat-table [dataSource]="rows()" class="admin-package-purchase-list__table">
-    <ng-container matColumnDef="paket">
-      <th mat-header-cell *matHeaderCellDef>Paket</th>
-      <td mat-cell *matCellDef="let row">{{ row.paket }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="cena">
-      <th mat-header-cell *matHeaderCellDef>Cena</th>
-      <td mat-cell *matCellDef="let row">{{ row.cena }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Status</th>
-      <td mat-cell *matCellDef="let row">{{ row.status }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="kupljeno">
-      <th mat-header-cell *matHeaderCellDef>Kupljeno</th>
-      <td mat-cell *matCellDef="let row">{{ row.kupljeno }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="istice">
-      <th mat-header-cell *matHeaderCellDef>Ističe</th>
-      <td mat-cell *matCellDef="let row">{{ row.istice }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="akcije">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let row">
-        <a mat-button [routerLink]="['/admin/kupljeni-paketi', row.id, 'pregled']">Pregled</a>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
-
-  @if (!loading() && rows().length === 0) {
-    <p class="admin-package-purchase-list__empty">Nema kupljenih paketa koji odgovaraju filterima.</p>
-  }
-
-  @if (loading()) {
-    <div class="admin-package-purchase-list__spinner">
-      <mat-spinner diameter="32" />
-    </div>
-  }
-
-  @if (meta(); as m) {
-    <mat-paginator
-      [length]="m.total"
-      [pageSize]="m.limit"
-      [pageIndex]="m.page - 1"
-      (page)="onPage($event)"
-    />
-  }
+  <app-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [loading]="loading()"
+    [error]="error()"
+    emptyLabel="Nema kupljenih paketa koji odgovaraju filterima."
+    [totalCount]="meta()?.total ?? 0"
+    [pageSize]="meta()?.limit ?? 10"
+    [pageIndex]="(meta()?.page ?? 1) - 1"
+    [pageSizeOptions]="[10, 25, 50, 100]"
+    [defaultSort]="defaultSort"
+    [actions]="actions"
+    (pageChange)="onPage($event)"
+    (sortChange)="onSort($event)"
+    (retry)="load(meta()?.page ?? 1)"
+  />
 </div>

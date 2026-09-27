@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,6 +19,9 @@ import { Team } from '../../../team/services/team';
 import { ExpertAdminListItem } from '../../../team/models/expert';
 import { Service } from '../../../services-catalog/services/service';
 import { ServiceListItem } from '../../../services-catalog/models/service';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /**
  * Create + edit, same pattern as admin-resource-form/admin-product-form: loads
@@ -46,7 +49,6 @@ import { ServiceListItem } from '../../../services-catalog/models/service';
   selector: 'app-admin-employee-form',
   imports: [
     CommonModule,
-    RouterLink,
     ReactiveFormsModule,
     MatButtonModule,
     MatIconModule,
@@ -55,6 +57,9 @@ import { ServiceListItem } from '../../../services-catalog/models/service';
     MatSelectModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
+    FormLayout,
+    FormSection,
+    FormActions,
   ],
   templateUrl: './admin-employee-form.html',
   styleUrl: './admin-employee-form.scss',

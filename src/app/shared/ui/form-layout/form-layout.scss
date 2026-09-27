@@ -1,0 +1,23 @@
+.form-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--form-layout-min, 260px), 1fr));
+  gap: 1rem 1.25rem;
+  align-items: start;
+
+  // Fields (and anything projected via app-form-section, which is
+  // `display: contents` so its children land here directly) should fill
+  // their grid cell rather than keep their intrinsic width.
+  ::ng-deep {
+    > mat-form-field,
+    mat-form-field {
+      width: 100%;
+    }
+  }
+
+  // Explicit breakpoint fallback in addition to auto-fit/minmax, for form
+  // field sets whose min width would otherwise still allow a cramped 2-up
+  // layout on small tablets.
+  @media (max-width: 599px) {
+    grid-template-columns: 1fr;
+  }
+}

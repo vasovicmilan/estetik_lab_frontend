@@ -6,181 +6,163 @@
       <mat-spinner diameter="32" />
     </div>
   } @else {
-    <form [formGroup]="form" (ngSubmit)="submit()" class="site-settings-form__form">
-      <section class="site-settings-form__section">
-        <h2>Hero slika</h2>
-        <div class="site-settings-form__image">
-          @if (heroImage()) {
-            <img [src]="heroImage() | imageUrl" alt="" class="site-settings-form__image-preview" />
-          }
-          <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
-          @if (uploadingImage()) {
-            <mat-spinner diameter="20" />
-          }
-        </div>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Alt tekst slike</mat-label>
-          <input matInput formControlName="heroImageAlt" />
-        </mat-form-field>
-      </section>
-
-      <section class="site-settings-form__section">
-        <h2>Pravila zakazivanja</h2>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Bafer između termina (min)</mat-label>
-          <input matInput type="number" min="0" formControlName="bufferMinutes" />
-          <mat-hint>Vreme rezervisano između dva uzastopna termina istog terapeuta.</mat-hint>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Korak mreže termina (min)</mat-label>
-          <input matInput type="number" min="1" formControlName="slotGridMinutes" />
-          <mat-hint>Na koliko minuta su poravnati ponuđeni termini za zakazivanje.</mat-hint>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Rok za otkazivanje korisnika (h)</mat-label>
-          <input matInput type="number" min="0" formControlName="userCancellationCutoffHours" />
-          <mat-hint>Koliko sati unapred korisnik može sam da otkaže termin.</mat-hint>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Rok za pomeranje termina (h)</mat-label>
-          <input matInput type="number" min="0" formControlName="rescheduleCutoffHours" />
-          <mat-hint>Koliko sati unapred korisnik može sam da pomeri termin.</mat-hint>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Prag "isti dan" za pomeranje (h)</mat-label>
-          <input matInput type="number" min="0" formControlName="rescheduleSameDayFloorHours" />
-          <mat-hint>Ispod ovog broja sati pomeranje na isti dan se dodatno ograničava.</mat-hint>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Min. vreme do novog termina pri pomeranju (min)</mat-label>
-          <input matInput type="number" min="0" formControlName="rescheduleMinLeadMinutes" />
-          <mat-hint>Najmanje vreme unapred za novi termin prilikom pomeranja.</mat-hint>
-        </mat-form-field>
-      </section>
-
-      <section class="site-settings-form__section">
-        <h2>Valuta</h2>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Kod valute</mat-label>
-          <input matInput formControlName="currencyCode" placeholder="RSD" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Simbol valute</mat-label>
-          <input matInput formControlName="currencySymbol" placeholder="RSD" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Pozicija simbola</mat-label>
-          <mat-select formControlName="currencySymbolPosition">
-            @for (option of currencyPositionOptions; track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <app-form-layout>
+        <app-form-section title="Hero slika">
+          <div class="site-settings-form__image">
+            @if (heroImage()) {
+              <img [src]="heroImage() | imageUrl" alt="" class="site-settings-form__image-preview" />
             }
-          </mat-select>
-        </mat-form-field>
-      </section>
+            <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
+            @if (uploadingImage()) {
+              <mat-spinner diameter="20" />
+            }
+          </div>
 
-      <section class="site-settings-form__section">
-        <h2>Provizije</h2>
+          <mat-form-field appearance="outline">
+            <mat-label>Alt tekst slike</mat-label>
+            <input matInput formControlName="heroImageAlt" />
+          </mat-form-field>
+        </app-form-section>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Minimalna provizija po terminu (RSD)</mat-label>
-          <input matInput type="number" min="0" formControlName="minimumSessionCommission" />
-        </mat-form-field>
-      </section>
+        <app-form-section title="Pravila zakazivanja">
+          <mat-form-field appearance="outline">
+            <mat-label>Bafer između termina (min)</mat-label>
+            <input matInput type="number" min="0" formControlName="bufferMinutes" />
+            <mat-hint>Vreme rezervisano između dva uzastopna termina istog terapeuta.</mat-hint>
+          </mat-form-field>
 
-      <button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
-        @if (saving()) {
-          <mat-spinner diameter="20" />
-        } @else {
-          Sačuvaj
-        }
-      </button>
+          <mat-form-field appearance="outline">
+            <mat-label>Korak mreže termina (min)</mat-label>
+            <input matInput type="number" min="1" formControlName="slotGridMinutes" />
+            <mat-hint>Na koliko minuta su poravnati ponuđeni termini za zakazivanje.</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Rok za otkazivanje korisnika (h)</mat-label>
+            <input matInput type="number" min="0" formControlName="userCancellationCutoffHours" />
+            <mat-hint>Koliko sati unapred korisnik može sam da otkaže termin.</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Rok za pomeranje termina (h)</mat-label>
+            <input matInput type="number" min="0" formControlName="rescheduleCutoffHours" />
+            <mat-hint>Koliko sati unapred korisnik može sam da pomeri termin.</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Prag "isti dan" za pomeranje (h)</mat-label>
+            <input matInput type="number" min="0" formControlName="rescheduleSameDayFloorHours" />
+            <mat-hint>Ispod ovog broja sati pomeranje na isti dan se dodatno ograničava.</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Min. vreme do novog termina pri pomeranju (min)</mat-label>
+            <input matInput type="number" min="0" formControlName="rescheduleMinLeadMinutes" />
+            <mat-hint>Najmanje vreme unapred za novi termin prilikom pomeranja.</mat-hint>
+          </mat-form-field>
+        </app-form-section>
+
+        <app-form-section title="Valuta">
+          <mat-form-field appearance="outline">
+            <mat-label>Kod valute</mat-label>
+            <input matInput formControlName="currencyCode" placeholder="RSD" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Simbol valute</mat-label>
+            <input matInput formControlName="currencySymbol" placeholder="RSD" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Pozicija simbola</mat-label>
+            <mat-select formControlName="currencySymbolPosition">
+              @for (option of currencyPositionOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </app-form-section>
+
+        <app-form-section title="Provizije">
+          <mat-form-field appearance="outline">
+            <mat-label>Minimalna provizija po terminu (RSD)</mat-label>
+            <input matInput type="number" min="0" formControlName="minimumSessionCommission" />
+          </mat-form-field>
+        </app-form-section>
+      </app-form-layout>
+
+      <app-form-actions [saving]="saving()" [saveDisabled]="saving() || form.invalid" />
     </form>
 
-    <form [formGroup]="workingHoursForm" (ngSubmit)="saveWorkingHours()" class="site-settings-form__form">
-      <section class="site-settings-form__section">
-        <h2>Radno vreme (prikaz na sajtu)</h2>
-        <p class="site-settings-form__hint">
-          Ovo je samo informativni prikaz za posetioce (kontakt strana, footer, SEO) - ne utiče na to koji termini su
-          zaista dostupni za zakazivanje (to i dalje zavisi od radnog vremena svakog zaposlenog).
-        </p>
+    <form [formGroup]="workingHoursForm" (ngSubmit)="saveWorkingHours()" class="site-settings-form__working-hours-form">
+      <app-form-layout>
+        <app-form-section title="Radno vreme (prikaz na sajtu)">
+          <p class="site-settings-form__hint">
+            Ovo je samo informativni prikaz za posetioce (kontakt strana, footer, SEO) - ne utiče na to koji termini su
+            zaista dostupni za zakazivanje (to i dalje zavisi od radnog vremena svakog zaposlenog).
+          </p>
 
-        <div class="site-settings-form__working-hours">
-          @for (day of weekDays; track day.value) {
-            <div [formGroupName]="day.value" class="site-settings-form__working-hours-row">
-              <span class="site-settings-form__day-label">{{ day.label }}</span>
-              <mat-checkbox formControlName="isOpen">Radimo</mat-checkbox>
+          <div class="site-settings-form__working-hours">
+            @for (day of weekDays; track day.value) {
+              <div [formGroupName]="day.value" class="site-settings-form__working-hours-row">
+                <span class="site-settings-form__day-label">{{ day.label }}</span>
+                <mat-checkbox formControlName="isOpen">Radimo</mat-checkbox>
+                <mat-form-field appearance="outline">
+                  <mat-label>Od</mat-label>
+                  <input matInput type="time" formControlName="from" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Do</mat-label>
+                  <input matInput type="time" formControlName="to" />
+                </mat-form-field>
+              </div>
+            }
+          </div>
+        </app-form-section>
+      </app-form-layout>
+
+      <app-form-actions
+        [saving]="savingWorkingHours()"
+        [saveDisabled]="savingWorkingHours() || workingHoursForm.invalid"
+        saveLabel="Sačuvaj radno vreme"
+      />
+    </form>
+
+    <form (ngSubmit)="saveClosedDates()" class="site-settings-form__closed-dates-form">
+      <app-form-layout>
+        <app-form-section title="Neradni dani / praznici">
+          <p class="site-settings-form__hint">
+            Dodati datum se salon-wide zatvara za zakazivanje tog dana - bez obzira na radno vreme pojedinačnih
+            zaposlenih. "Ponavlja se svake godine" zatvara isti dan i mesec svake naredne godine (npr. 1. januar).
+          </p>
+
+          @for (group of closedDateGroups; track $index) {
+            <div [formGroup]="group" class="site-settings-form__closed-date-row">
+              <app-date-picker formControlName="date" label="Datum" />
               <mat-form-field appearance="outline">
-                <mat-label>Od</mat-label>
-                <input matInput type="time" formControlName="from" />
+                <mat-label>Razlog (opciono)</mat-label>
+                <input matInput formControlName="reason" maxlength="200" />
               </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Do</mat-label>
-                <input matInput type="time" formControlName="to" />
-              </mat-form-field>
+              <mat-checkbox formControlName="recurringYearly">Ponavlja se svake godine</mat-checkbox>
+              <button mat-icon-button type="button" color="warn" (click)="removeClosedDate($index)" aria-label="Ukloni">
+                <mat-icon>delete</mat-icon>
+              </button>
             </div>
           }
-        </div>
 
-        <button mat-flat-button color="primary" type="submit" [disabled]="savingWorkingHours() || workingHoursForm.invalid">
-          @if (savingWorkingHours()) {
-            <mat-spinner diameter="20" />
-          } @else {
-            Sačuvaj radno vreme
-          }
-        </button>
-      </section>
-    </form>
-
-    <form (ngSubmit)="saveClosedDates()" class="site-settings-form__form">
-      <section class="site-settings-form__section">
-        <h2>Neradni dani / praznici</h2>
-        <p class="site-settings-form__hint">
-          Dodati datum se salon-wide zatvara za zakazivanje tog dana - bez obzira na radno vreme pojedinačnih
-          zaposlenih. "Ponavlja se svake godine" zatvara isti dan i mesec svake naredne godine (npr. 1. januar).
-        </p>
-
-        @for (group of closedDateGroups; track $index) {
-          <div [formGroup]="group" class="site-settings-form__closed-date-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Datum</mat-label>
-              <input matInput type="date" formControlName="date" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Razlog (opciono)</mat-label>
-              <input matInput formControlName="reason" maxlength="200" />
-            </mat-form-field>
-            <mat-checkbox formControlName="recurringYearly">Ponavlja se svake godine</mat-checkbox>
-            <button mat-icon-button type="button" color="warn" (click)="removeClosedDate($index)" aria-label="Ukloni">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        }
-
-        <button mat-stroked-button type="button" (click)="addClosedDate()">
-          <mat-icon>add</mat-icon>
-          Dodaj neradni dan
-        </button>
-
-        <div>
-          <button mat-flat-button color="primary" type="submit" [disabled]="savingClosedDates() || closedDatesForm.invalid">
-            @if (savingClosedDates()) {
-              <mat-spinner diameter="20" />
-            } @else {
-              Sačuvaj neradne dane
-            }
+          <button mat-stroked-button type="button" (click)="addClosedDate()">
+            <mat-icon>add</mat-icon>
+            Dodaj neradni dan
           </button>
-        </div>
-      </section>
+        </app-form-section>
+      </app-form-layout>
+
+      <app-form-actions
+        [saving]="savingClosedDates()"
+        [saveDisabled]="savingClosedDates() || closedDatesForm.invalid"
+        saveLabel="Sačuvaj neradne dane"
+      />
     </form>
   }
 </div>

@@ -1,19 +1,21 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { PageEvent } from '@angular/material/paginator';
+import { Sort } from '@angular/material/sort';
 import { debounceTime } from 'rxjs';
 import { Appointment } from '../../services/appointment';
 import { AppointmentAdminListItem, AppointmentStatus } from '../../models/appointment';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { DataTable } from '../../../../shared/ui/data-table/data-table';
+import { DataTableAction, DataTableColumn } from '../../../../shared/ui/data-table/data-table.models';
+import { DataTableCellDef } from '../../../../shared/ui/data-table/data-table-cell-def';
 
 /** List + filter bar for admin/zakazivanja. Paginated (unlike most other admin
  * lists so far, which stayed non-paginated because they only ever had ~20 rows) -
@@ -25,14 +27,13 @@ import { ApiMeta } from '../../../../core/models/api-response';
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
-    MatTableModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatCheckboxModule,
-    MatPaginatorModule,
-    MatProgressSpinnerModule,
+    DataTable,
+    DataTableCellDef,
   ],
   templateUrl: './admin-appointment-list.html',
   styleUrl: './admin-appointment-list.scss',
@@ -40,11 +41,40 @@ import { ApiMeta } from '../../../../core/models/api-response';
 export class AdminAppointmentList implements OnInit {
   private appointment = inject(Appointment);
   private fb = inject(FormBuilder);
+  private router = inject(Router);
 
-  displayedColumns = ['korisnik', 'usluga', 'datum', 'status', 'konacnaCena', 'akcije'];
   rows = signal<AppointmentAdminListItem[]>([]);
   meta = signal<ApiMeta | null>(null);
   loading = signal(false);
+  error = signal<string | null>(null);
+
+  private limit = 10;
+  /** `datum`/`status`/`konacnaCena` are plain scalar columns (startTime, status,
+   * finalPrice) on the Appointment schema - see APPOINTMENT_SORT_FIELDS in
+   * admin-appointment.controller.js. `korisnik`/`usluga` are NOT sortable: they're
+   * populated ref display names, not columns on Appointment itself. */
+  private sort: string | null = null;
+  private order: 'asc' | 'desc' | null = null;
+
+  /** Matches the backend's own default (`{ startTime: -1, _id: -1 }` in
+   * appointment.repository.js/findAppointments). */
+  defaultSort = { active: 'datum', direction: 'desc' as const };
+
+  columns: DataTableColumn<AppointmentAdminListItem>[] = [
+    { key: 'korisnik', label: 'Klijent' },
+    { key: 'usluga', label: 'Usluga' },
+    { key: 'datum', label: 'Termin', sortable: true },
+    {
+      key: 'status',
+      label: 'Status',
+      type: 'custom',
+    },
+    { key: 'konacnaCena', label: 'Cena', sortable: true },
+  ];
+
+  actions: DataTableAction<AppointmentAdminListItem>[] = [
+    { icon: 'visibility', label: 'Pregled', onClick: (row) => this.router.navigate(['/admin/zakazivanja', row.id]) },
+  ];
 
   statusOptions: { value: '' | AppointmentStatus; label: string }[] = [
     { value: '', label: 'Svi' },
@@ -74,15 +104,18 @@ export class AdminAppointmentList implements OnInit {
     const { search, status, dateFrom, dateTo, unassignedOnly } = this.filterForm.value;
 
     this.loading.set(true);
+    this.error.set(null);
     this.appointment
       .listAdmin({
         page,
-        limit: 10,
+        limit: this.limit,
         search: search || undefined,
         status: status || undefined,
         dateFrom: dateFrom || undefined,
         dateTo: dateTo || undefined,
         unassignedOnly: unassignedOnly || undefined,
+        sort: this.sort ?? undefined,
+        order: this.order ?? undefined,
       })
       .subscribe({
         next: ({ data, meta }) => {
@@ -90,12 +123,22 @@ export class AdminAppointmentList implements OnInit {
           this.meta.set(meta ?? null);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false),
+        error: (error) => {
+          this.error.set(error?.message || 'Greška pri učitavanju zakazivanja.');
+          this.loading.set(false);
+        },
       });
   }
 
   onPage(event: PageEvent): void {
+    this.limit = event.pageSize;
     this.load(event.pageIndex + 1);
+  }
+
+  onSort(sort: Sort): void {
+    this.sort = sort.direction ? sort.active : null;
+    this.order = sort.direction ? (sort.direction as 'asc' | 'desc') : null;
+    this.load(1);
   }
 
   statusClass(statusRaw: AppointmentStatus): string {

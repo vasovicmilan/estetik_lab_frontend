@@ -20,6 +20,9 @@ import { Category } from '../../../taxonomy/services/category';
 import { Tag } from '../../../taxonomy/services/tag';
 import { CategoryAdminListItem } from '../../../taxonomy/models/category';
 import { TagAdminListItem } from '../../../taxonomy/models/tag';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /**
  * Create + edit, same pattern as admin-service-form: loads the RAW edit shape
@@ -55,6 +58,9 @@ import { TagAdminListItem } from '../../../taxonomy/models/tag';
     MatProgressSpinnerModule,
     RepeaterField,
     ImageUrlPipe,
+    FormLayout,
+    FormSection,
+    FormActions,
   ],
   templateUrl: './admin-product-form.html',
   styleUrl: './admin-product-form.scss',

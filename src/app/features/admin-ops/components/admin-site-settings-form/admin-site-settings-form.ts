@@ -13,6 +13,10 @@ import { finalize } from 'rxjs';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { AdminSiteSettings } from '../../services/site-settings';
 import { SiteSettings, SiteSettingsWeekDay } from '../../models/site-settings';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
+import { DatePicker } from '../../../../shared/ui/date-picker/date-picker';
 
 /** Single settings form - hero image + alt, booking policy (minutes/hours),
  * currency, minimum session commission. One "Sačuvaj" button, no wizard.
@@ -47,6 +51,10 @@ import { SiteSettings, SiteSettingsWeekDay } from '../../models/site-settings';
     MatCheckboxModule,
     MatProgressSpinnerModule,
     ImageUrlPipe,
+    FormLayout,
+    FormSection,
+    FormActions,
+    DatePicker,
   ],
   templateUrl: './admin-site-settings-form.html',
   styleUrl: './admin-site-settings-form.scss',
@@ -102,9 +110,9 @@ export class AdminSiteSettingsForm implements OnInit {
     return this.closedDatesForm.controls as FormGroup[];
   }
 
-  private buildClosedDateGroup(date = '', reason = '', recurringYearly = false): FormGroup {
+  private buildClosedDateGroup(date: Date | null = null, reason = '', recurringYearly = false): FormGroup {
     return this.fb.group({
-      date: [date, Validators.required],
+      date: [date as Date | null, Validators.required],
       reason: [reason, Validators.maxLength(200)],
       recurringYearly: [recurringYearly],
     });
@@ -179,8 +187,9 @@ export class AdminSiteSettingsForm implements OnInit {
     this.closedDatesForm.clear();
     for (const entry of settings.closedDates ?? []) {
       // stored/returned as a full ISO datetime - only the date part is
-      // editable here (matches the plain <input type="date"> in the template)
-      const dateOnly = (entry.date || '').slice(0, 10);
+      // editable here (app-date-picker's value is a plain Date | null, same
+      // conversion convention as admin-coupon-form's validFrom/validUntil).
+      const dateOnly = entry.date ? new Date(entry.date.slice(0, 10)) : null;
       this.closedDatesForm.push(this.buildClosedDateGroup(dateOnly, entry.reason ?? '', !!entry.recurringYearly));
     }
   }
@@ -276,7 +285,10 @@ export class AdminSiteSettingsForm implements OnInit {
       return;
     }
 
-    const closedDates = this.closedDatesForm.getRawValue();
+    const closedDates = this.closedDatesForm.getRawValue().map((entry: { date: Date | null; reason: string; recurringYearly: boolean }) => ({
+      ...entry,
+      date: entry.date?.toISOString().slice(0, 10) ?? '',
+    }));
 
     this.savingClosedDates.set(true);
     this.siteSettings

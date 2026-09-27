@@ -4,65 +4,20 @@
     <a mat-flat-button color="primary" routerLink="/admin/role/nova">Nova rola</a>
   </div>
 
-  <table mat-table [dataSource]="rows()" class="admin-role-list__table">
-    <ng-container matColumnDef="naziv">
-      <th mat-header-cell *matHeaderCellDef>Naziv</th>
-      <td mat-cell *matCellDef="let row">{{ row.naziv }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="opis">
-      <th mat-header-cell *matHeaderCellDef>Opis</th>
-      <td mat-cell *matCellDef="let row">{{ row.opis || '-' }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="brojPermisija">
-      <th mat-header-cell *matHeaderCellDef>Broj permisija</th>
-      <td mat-cell *matCellDef="let row">{{ row.brojPermisija }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="podrazumevana">
-      <th mat-header-cell *matHeaderCellDef>Podrazumevana</th>
-      <td mat-cell *matCellDef="let row">{{ row.podrazumevana }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="prioritet">
-      <th mat-header-cell *matHeaderCellDef>Prioritet</th>
-      <td mat-cell *matCellDef="let row">{{ row.prioritet }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="akcije">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let row">
-        <a mat-button [routerLink]="['/admin/role', row.id, 'izmena']">Izmeni</a>
-        @if (!isReserved(row)) {
-          <button mat-button color="warn" (click)="remove(row)">Obriši</button>
-        }
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
-
-  @if (loading()) {
-    <div class="admin-role-list__spinner">
-      <mat-spinner diameter="32" />
-    </div>
-  } @else if (error(); as err) {
-    <div class="admin-role-list__error">
-      <p>{{ err }}</p>
-      <button mat-button color="primary" (click)="load(meta()?.page ?? 1)">Pokušaj ponovo</button>
-    </div>
-  } @else if (rows().length === 0) {
-    <p class="admin-role-list__empty">Nema rola.</p>
-  }
-
-  @if (meta(); as m) {
-    <mat-paginator
-      [length]="m.total"
-      [pageSize]="m.limit"
-      [pageIndex]="m.page - 1"
-      (page)="onPage($event)"
-    />
-  }
+  <app-data-table
+    [columns]="columns"
+    [rows]="rows()"
+    [loading]="loading()"
+    [error]="error()"
+    emptyLabel="Nema rola."
+    [totalCount]="meta()?.total ?? 0"
+    [pageSize]="meta()?.limit ?? 10"
+    [pageIndex]="(meta()?.page ?? 1) - 1"
+    [pageSizeOptions]="[10, 25, 50, 100]"
+    [defaultSort]="defaultSort"
+    [actions]="actions"
+    (pageChange)="onPage($event)"
+    (sortChange)="onSort($event)"
+    (retry)="load(meta()?.page ?? 1)"
+  />
 </div>

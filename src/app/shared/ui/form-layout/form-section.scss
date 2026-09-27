@@ -1,0 +1,20 @@
+:host {
+  // Let the parent app-form-layout grid lay these fields out directly,
+  // instead of this host becoming a nested grid item itself.
+  display: contents;
+}
+
+.form-section__title {
+  grid-column: 1 / -1;
+  margin: 0.5rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--mat-sys-outline-variant, #ddd);
+  font-size: 0.95rem;
+  font-weight: 600;
+
+  &:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+}

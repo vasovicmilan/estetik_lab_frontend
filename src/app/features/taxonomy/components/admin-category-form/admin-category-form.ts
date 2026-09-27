@@ -15,6 +15,9 @@ import { ImageReference } from '../../../../core/models/upload';
 import { Category } from '../../services/category';
 import { CategoryAdminListItem } from '../../models/category';
 import { CategoryDomain, CategoryEditPayload } from '../../models/category';
+import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
+import { FormSection } from '../../../../shared/ui/form-layout/form-section';
+import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 
 /**
  * Create + edit, same pattern as admin-service-form: loads the RAW edit shape
@@ -43,6 +46,9 @@ import { CategoryDomain, CategoryEditPayload } from '../../models/category';
     MatCheckboxModule,
     MatProgressSpinnerModule,
     ImageUrlPipe,
+    FormLayout,
+    FormSection,
+    FormActions,
   ],
   templateUrl: './admin-category-form.html',
   styleUrl: './admin-category-form.scss',
