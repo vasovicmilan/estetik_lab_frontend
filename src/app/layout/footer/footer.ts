@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subscriber } from '../../features/newsletter/services/subscriber';
+import { Api } from '../../core/services/api';
+import { BusinessInfo, BusinessInfoResponse, toBusinessInfo } from '../../core/models/business-info';
 
 @Component({
   selector: 'app-footer',
@@ -24,11 +26,27 @@ import { Subscriber } from '../../features/newsletter/services/subscriber';
   templateUrl: './footer.html',
   styleUrl: './footer.scss',
 })
-export class Footer {
+export class Footer implements OnInit {
   protected readonly year = new Date().getFullYear();
+
+  // Populated from GET /api/v1/business-info in ngOnInit below. Stays null
+  // on any error - a missing footer contact block shouldn't surface a
+  // user-facing error, so failures are logged and swallowed. The template
+  // renders each field independently once this signal is populated.
+  protected readonly businessInfo = signal<BusinessInfo | null>(null);
 
   private fb = inject(FormBuilder);
   private subscriber = inject(Subscriber);
+  private api = inject(Api);
+
+  ngOnInit(): void {
+    this.api.get<BusinessInfoResponse>('business-info').subscribe({
+      next: (response) => this.businessInfo.set(toBusinessInfo(response)),
+      error: (error) => {
+        console.warn('Failed to load business info for footer:', error);
+      },
+    });
+  }
 
   loading = signal(false);
   errorMessage = signal<string | null>(null);

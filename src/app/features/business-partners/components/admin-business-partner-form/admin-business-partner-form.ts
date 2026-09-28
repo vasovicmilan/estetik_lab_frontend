@@ -9,12 +9,12 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, Observable } from 'rxjs';
-import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { BusinessPartner } from '../../services/business-partner';
 import { BusinessPartnerCoverImage, BusinessPartnerEditPayload, BusinessPartnerWritePayload } from '../../models/business-partner';
 import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
 import { FormSection } from '../../../../shared/ui/form-layout/form-section';
 import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
+import { FileUpload } from '../../../../shared/ui/file-upload/file-upload';
 
 /**
  * Create + edit, same pattern as admin-category-form: loads the RAW edit shape
@@ -46,10 +46,10 @@ import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
     MatInputModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
-    ImageUrlPipe,
     FormLayout,
     FormSection,
     FormActions,
+    FileUpload,
   ],
   templateUrl: './admin-business-partner-form.html',
   styleUrl: './admin-business-partner-form.scss',
@@ -125,11 +125,7 @@ export class AdminBusinessPartnerForm implements OnInit {
     return !!this.form.get('coverImage')?.value;
   }
 
-  onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
+  onImageSelected(file: File): void {
     this.uploadingImage.set(true);
     this.businessPartner
       .uploadImage(file)
@@ -141,6 +137,11 @@ export class AdminBusinessPartnerForm implements OnInit {
         },
         error: () => this.snackBar.open('Upload slike nije uspeo.', 'U redu', { duration: 4000 }),
       });
+  }
+
+  onImageRemoved(): void {
+    this.form.patchValue({ coverImage: null });
+    this.imagePreviewUrl.set(null);
   }
 
   submit(): void {

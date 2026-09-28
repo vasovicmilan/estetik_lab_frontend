@@ -35,7 +35,7 @@
         <dd [innerHTML]="d.opis"></dd>
 
         <dt>Cena</dt>
-        <dd>{{ d.cena }} RSD @if (d.staraCena) { <span class="admin-detail__old-price">{{ d.staraCena }} RSD</span> }</dd>
+        <dd>{{ d.cena | number: '1.0-0' }} RSD @if (d.staraCena) { <span class="admin-detail__old-price">{{ d.staraCena | number: '1.0-0' }} RSD</span> }</dd>
 
         <dt>Ukupno trajanje</dt>
         <dd>{{ d.ukupnoTrajanje ?? '-' }}</dd>

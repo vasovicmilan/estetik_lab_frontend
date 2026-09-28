@@ -19,28 +19,38 @@
   &__card-link {
     text-decoration: none;
     color: inherit;
-    position: relative;
   }
 
   &__card {
     height: 100%;
   }
 
+  &__media {
+    position: relative;
+  }
+
   &__image {
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
+    display: block;
   }
 
   &__badge {
     position: absolute;
-    top: 0.75rem;
-    left: 0.75rem;
-    background: var(--mat-sys-primary, #b3568c);
-    color: #fff;
-    padding: 0.15rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
+    top: 0.6rem;
+    left: 0.6rem;
+    --mat-chip-elevated-container-color: var(--mat-sys-primary, #b3568c);
+    --mat-chip-label-text-color: var(--mat-sys-on-primary, #fff);
+
+    &--sale {
+      --mat-chip-elevated-container-color: var(--mat-sys-error, #b3261e);
+      --mat-chip-label-text-color: var(--mat-sys-on-error, #fff);
+    }
+  }
+
+  &__categories {
+    margin-bottom: 0.5rem;
   }
 
   &__price {
@@ -48,7 +58,9 @@
   }
 
   &__stock {
-    color: #a33;
-    font-size: 0.85rem;
+    margin-top: 0.35rem;
+    --mat-chip-elevated-container-color: var(--mat-sys-error-container, #f9dedc);
+    --mat-chip-label-text-color: var(--mat-sys-on-error-container, #410e0b);
+    --mat-chip-with-avatar-avatar-color: var(--mat-sys-on-error-container, #410e0b);
   }
 }

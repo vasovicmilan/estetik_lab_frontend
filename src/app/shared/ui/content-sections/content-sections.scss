@@ -1,0 +1,44 @@
+.content-sections {
+  &__section {
+    margin-bottom: 2rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    margin: 0 0 0.75rem;
+  }
+
+  &__subtitle {
+    font-size: 1.05rem;
+    margin: 1.25rem 0 0.5rem;
+  }
+
+  &__paragraph {
+    line-height: 1.6;
+    margin: 0 0 0.75rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__list {
+    margin: 0 0 0.75rem;
+    padding-left: 1.25rem;
+
+    li {
+      line-height: 1.6;
+      margin-bottom: 0.4rem;
+    }
+  }
+
+  &__subsection {
+    margin: 1rem 0 0 0.5rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+  }
+}

@@ -22,4 +22,12 @@ export class AdminBusinessReport {
   getByPeriodKey(periodType: BusinessReportPeriodType, periodKey: string): Observable<BusinessReportSummary> {
     return this.api.get<BusinessReportSummary>(`admin/business-reports/history/${periodType}/${periodKey}`);
   }
+
+  /** GET .../pdf - binary response, only available for a STORED period summary
+   * (one with a periodKey, i.e. from history/detail) - there's no PDF for the
+   * live/in-progress current period (see downloadBusinessReportPdf on the
+   * backend, which 404s without a saved BusinessReportSummary doc). */
+  downloadPdf(periodType: BusinessReportPeriodType, periodKey: string): Observable<Blob> {
+    return this.api.downloadBlob(`admin/business-reports/history/${periodType}/${periodKey}/pdf`);
+  }
 }

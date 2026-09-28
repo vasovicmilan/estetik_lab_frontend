@@ -1,0 +1,12 @@
+<div class="about-page">
+  <h1>O nama</h1>
+
+  @if (loading()) {
+    <div class="about-page__spinner">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (content(); as c) {
+    <p class="about-page__intro">{{ c.intro }}</p>
+    <app-content-sections [sections]="c.sections" />
+  }
+</div>

@@ -11,15 +11,26 @@
     <div class="product-list__grid">
       @for (product of products(); track product.id) {
         <a [routerLink]="['/prodavnica', product.slug]" class="product-list__card-link">
-          <mat-card class="product-list__card">
-            @if (product.slika?.url) {
-              <img [src]="product.slika!.url | imageUrl" [alt]="product.slika!.alt || product.naziv" class="product-list__image" />
-            }
-            @if (product.oznaka) {
-              <span class="product-list__badge">{{ product.oznaka }}</span>
-            }
+          <mat-card class="product-list__card" appearance="outlined">
+            <div class="product-list__media">
+              @if (product.slika?.url) {
+                <img [src]="product.slika!.url | imageUrl" [alt]="product.slika!.alt || product.naziv" class="product-list__image" />
+              }
+              @if (product.oznaka) {
+                <mat-chip class="product-list__badge" [class.product-list__badge--sale]="product.oznakaRaw === 'sale'" disableRipple>
+                  {{ product.oznaka }}
+                </mat-chip>
+              }
+            </div>
             <mat-card-title>{{ product.naziv }}</mat-card-title>
             <mat-card-content>
+              @if (product.kategorije.length) {
+                <mat-chip-set class="product-list__categories">
+                  @for (kategorija of product.kategorije.slice(0, 2); track kategorija) {
+                    <mat-chip disableRipple>{{ kategorija }}</mat-chip>
+                  }
+                </mat-chip-set>
+              }
               <p>{{ product.kratakOpis }}</p>
               <p class="product-list__price">
                 @if (product.naUpit) {
@@ -29,7 +40,10 @@
                 }
               </p>
               @if (!product.naStanju) {
-                <p class="product-list__stock">Nema na stanju</p>
+                <mat-chip class="product-list__stock" disableRipple>
+                  <mat-icon matChipAvatar>inventory_2</mat-icon>
+                  Nema na stanju
+                </mat-chip>
               }
             </mat-card-content>
           </mat-card>

@@ -1,24 +1,77 @@
 <div class="blog-list">
-  <h1>Blog</h1>
+  <section class="blog-list__intro">
+    <h1>Blog</h1>
+    <p class="blog-list__intro-lead">
+      Saveti, vodiči i novosti o nezi kože i estetskim tretmanima - pišu ih terapeuti i stručnjaci Estetik Lab tima,
+      da biste pre svake odluke imali proverene i razumljive informacije.
+    </p>
+
+    <div class="blog-list__intro-grid">
+      @for (topic of introTopics; track topic.title) {
+        <div class="blog-list__intro-item">
+          <mat-icon>{{ topic.icon }}</mat-icon>
+          <div>
+            <p class="blog-list__intro-item-title">{{ topic.title }}</p>
+            <p class="blog-list__intro-item-text">{{ topic.text }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <app-blog-filters-bar [filters]="filters()" [search]="search()" (searchChange)="onSearchChange($event)" />
 
   @if (loading()) {
     <div class="blog-list__spinner">
       <mat-spinner diameter="40" />
     </div>
   } @else if (posts().length === 0) {
-    <p>Trenutno nema objavljenih tekstova.</p>
+    <p>
+      @if (search()) {
+        Nema rezultata za "{{ search() }}".
+      } @else {
+        Trenutno nema objavljenih tekstova.
+      }
+    </p>
   } @else {
+    <div class="blog-list__toolbar">
+      <span class="blog-list__count">{{ meta()?.total || posts().length }} tekstova</span>
+      <mat-form-field appearance="outline" class="blog-list__page-size">
+        <mat-label>Po strani</mat-label>
+        <mat-select [value]="pageSize()" (selectionChange)="onPageSizeChange($event.value)">
+          @for (size of pageSizeOptions; track size) {
+            <mat-option [value]="size">{{ size }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
     <div class="blog-list__grid">
       @for (post of posts(); track post.id) {
         <a [routerLink]="['/blog', post.slug]" class="blog-list__card-link">
-          <mat-card class="blog-list__card">
-            @if (post.slika?.url) {
-              <img [src]="post.slika!.url | imageUrl" [alt]="post.slika!.alt || post.naslov" class="blog-list__image" />
-            }
-            <mat-card-title>{{ post.naslov }}</mat-card-title>
-            <mat-card-subtitle>{{ post.autor }} &middot; {{ post.datumObjave }} &middot; {{ post.vremeCitanja }}</mat-card-subtitle>
-            <mat-card-content>
-              <p>{{ post.kratakOpis }}</p>
+          <mat-card class="blog-list__card" appearance="outlined">
+            <div class="blog-list__media">
+              @if (post.slika?.url) {
+                <img [src]="post.slika!.url | imageUrl" [alt]="post.slika!.alt || post.naslov" class="blog-list__image" />
+              }
+              @if (post.istaknut) {
+                <mat-chip class="blog-list__badge blog-list__badge--featured" disableRipple>
+                  <mat-icon matChipAvatar>star</mat-icon>
+                  Izdvojeno
+                </mat-chip>
+              }
+            </div>
+            <mat-card-content class="blog-list__body">
+              @if (post.kategorije.length) {
+                <mat-chip-set class="blog-list__categories">
+                  @for (kategorija of post.kategorije.slice(0, 2); track kategorija) {
+                    <mat-chip disableRipple>{{ kategorija }}</mat-chip>
+                  }
+                </mat-chip-set>
+              }
+              <h3 class="blog-list__title">{{ post.naslov }}</h3>
+              <p class="blog-list__meta">{{ post.autor }} &middot; {{ post.datumObjave }} &middot; {{ post.vremeCitanja }}</p>
+              <p class="blog-list__excerpt">{{ post.kratakOpis }}</p>
             </mat-card-content>
           </mat-card>
         </a>

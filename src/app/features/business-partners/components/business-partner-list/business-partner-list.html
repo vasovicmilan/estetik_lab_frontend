@@ -11,7 +11,7 @@
     <div class="business-partner-list__grid">
       @for (partner of partners(); track partner.slug) {
         <a [routerLink]="['/saradnici', partner.slug]" class="business-partner-list__card-link">
-          <mat-card class="business-partner-list__card">
+          <mat-card class="business-partner-list__card" appearance="outlined">
             @if (partner.slika?.url) {
               <img [src]="partner.slika!.url | imageUrl" [alt]="partner.slika!.alt || partner.naziv" class="business-partner-list__image" />
             }

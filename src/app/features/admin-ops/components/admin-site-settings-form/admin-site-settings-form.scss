@@ -1,27 +1,14 @@
 .site-settings-form {
   padding: 1.5rem;
 
-  form {
-    margin-bottom: 2rem;
+  &__tab {
+    padding: 1.5rem 0.5rem;
   }
 
   &__spinner {
     display: flex;
     justify-content: center;
     padding: 2rem 0;
-  }
-
-  &__image {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  &__image-preview {
-    width: 160px;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 4px;
   }
 
   &__hint {
@@ -53,5 +40,20 @@
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
+  }
+
+  @media (max-width: 640px) {
+    &__working-hours-row,
+    &__closed-date-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    &__day-label {
+      min-width: 0;
+    }
   }
 }

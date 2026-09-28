@@ -44,6 +44,13 @@ export class Service {
     return this.api.delete<{ message: string }>(`admin/services/${id}`);
   }
 
+  /** PUT /admin/services/:id/seo - separate from create/update (see
+   * admin-catalog.controller.js's updateServiceSeo), keywords-only: takes
+   * a comma-separated string or a string[], same convention as Post.updateSeo(). */
+  updateSeo(id: string, seo: { seoKeywords?: string }): Observable<ServiceEditPayload> {
+    return this.api.put<ServiceEditPayload>(`admin/services/${id}/seo`, seo);
+  }
+
   /** POST /api/v1/admin/uploads/services - see admin-uploads.routes.js. */
   uploadImage(file: File): Observable<ImageReference> {
     return this.api.upload<ImageReference>('admin/uploads/services', file, 'file');

@@ -1,12 +1,11 @@
 <div class="admin-product-list">
   <div class="admin-product-list__header">
     <h1>Proizvodi</h1>
-    <a mat-flat-button color="primary" routerLink="/admin/prodavnica/novi">Novi proizvod</a>
-  </div>
-
-  <div class="admin-product-list__taxonomy-links">
-    <a routerLink="/admin/kategorije">Upravljaj kategorijama</a>
-    <a routerLink="/admin/tagovi">Upravljaj tagovima</a>
+    <div class="admin-product-list__header-actions">
+      <a mat-stroked-button routerLink="/admin/kategorije">Upravljaj kategorijama</a>
+      <a mat-stroked-button routerLink="/admin/tagovi">Upravljaj tagovima</a>
+      <a mat-flat-button color="primary" routerLink="/admin/prodavnica/novi">Novi proizvod</a>
+    </div>
   </div>
 
   <app-data-table

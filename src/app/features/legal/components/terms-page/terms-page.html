@@ -1,0 +1,13 @@
+<div class="legal-page">
+  <h1>Uslovi korišćenja</h1>
+
+  @if (loading()) {
+    <div class="legal-page__spinner">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (content(); as c) {
+    <p class="legal-page__updated">Poslednje ažuriranje: {{ c.lastUpdated }}</p>
+    <p class="legal-page__intro">{{ c.intro }}</p>
+    <app-content-sections [sections]="c.sections" />
+  }
+</div>

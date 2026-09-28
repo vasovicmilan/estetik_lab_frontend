@@ -23,45 +23,17 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1rem;
-  }
-
-  &__card {
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 8px;
-    padding: 1rem;
-  }
-
-  &__card-label {
-    font-size: 0.8rem;
-    color: rgba(0, 0, 0, 0.6);
-  }
-
-  &__card-value {
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  &__card-sub {
-    font-size: 0.75rem;
-    color: rgba(0, 0, 0, 0.5);
-    word-break: break-all;
+    // Grid items default to min-width: auto, which stops a card from shrinking
+    // below its content - on narrow columns that let cards overlap/overflow
+    // their cell instead of wrapping.
+    > * {
+      min-width: 0;
+    }
   }
 
   &__status-classes {
-    dl {
-      display: grid;
-      grid-template-columns: repeat(4, max-content);
-      gap: 0.25rem 1.5rem;
-      margin: 0.5rem 0 0;
-    }
-
-    dt {
-      font-weight: 600;
-      color: rgba(0, 0, 0, 0.6);
-    }
-
-    dd {
-      margin: 0;
+    h3 {
+      margin: 0 0 0.75rem;
     }
   }
 
@@ -71,17 +43,23 @@
     gap: 1.5rem;
   }
 
+  &__table-section {
+    // Same min-width: 0 fix as &__cards above - without it a wide mat-table
+    // couldn't shrink to its 280px grid cell and overflowed into/over the
+    // next section instead of getting its own scrollbar.
+    min-width: 0;
+
+    h3 {
+      margin: 0 0 0.5rem;
+    }
+  }
+
+  &__table-wrapper {
+    overflow-x: auto;
+  }
+
   &__table {
     width: 100%;
-    border-collapse: collapse;
-
-    th,
-    td {
-      text-align: left;
-      padding: 0.35rem 0.5rem;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-      font-size: 0.9rem;
-    }
   }
 
   &__empty {

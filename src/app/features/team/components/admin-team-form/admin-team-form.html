@@ -79,30 +79,27 @@
       </app-form-section>
 
       <app-form-section title="Slika *">
-        @if (imagePreviewUrl()) {
-          <img [src]="imagePreviewUrl() | imageUrl" alt="" class="team-form__image-preview" />
-        }
-        <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
-        @if (uploadingImage()) {
-          <mat-spinner diameter="20" />
-        }
-        @if (!imageSatisfied()) {
+        <app-file-upload
+          [previewUrl]="imagePreviewUrl()"
+          [uploading]="uploadingImage()"
+          label="Otpremi sliku"
+          (filesSelected)="onImageSelected($event[0])"
+          (removed)="onImageRemoved()"
+        />
+        @if (submitted() && !imageSatisfied()) {
           <mat-error>Slika je obavezna.</mat-error>
         }
       </app-form-section>
 
       <app-form-section title="Galerija">
-        @if (galleryPreview().length) {
-          <div class="team-form__gallery-grid">
-            @for (img of galleryPreview(); track $index) {
-              <img [src]="img.img | imageUrl" alt="" class="team-form__gallery-image" />
-            }
-          </div>
-        }
-        <input type="file" accept="image/*" multiple (change)="onGallerySelected($event)" [disabled]="uploadingGallery()" />
-        @if (uploadingGallery()) {
-          <mat-spinner diameter="20" />
-        }
+        <app-file-upload
+          multiple
+          [previewImages]="galleryPreview()"
+          [uploading]="uploadingGallery()"
+          label="Dodaj slike"
+          (filesSelected)="onGallerySelected($event)"
+          (removedAt)="onGalleryImageRemoved($event)"
+        />
       </app-form-section>
     </app-form-layout>
 

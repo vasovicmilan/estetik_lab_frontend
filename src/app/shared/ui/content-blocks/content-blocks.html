@@ -7,13 +7,13 @@
       @case ('heading') {
         @switch (block.nivo) {
           @case (2) {
-            <h2>{{ block.tekst }}</h2>
+            <h2 [id]="headingId($index)">{{ block.tekst }}</h2>
           }
           @case (4) {
-            <h4>{{ block.tekst }}</h4>
+            <h4 [id]="headingId($index)">{{ block.tekst }}</h4>
           }
           @default {
-            <h3>{{ block.tekst }}</h3>
+            <h3 [id]="headingId($index)">{{ block.tekst }}</h3>
           }
         }
       }
@@ -104,10 +104,13 @@
       }
       @case ('callout') {
         <div class="content-block__callout" [class]="'content-block__callout--' + block.varijanta">
-          @if (block.naslovBloka) {
-            <h4>{{ block.naslovBloka }}</h4>
-          }
-          <p>{{ block.tekst }}</p>
+          <mat-icon class="content-block__callout-icon">{{ calloutIcon(block.varijanta) }}</mat-icon>
+          <div class="content-block__callout-body">
+            @if (block.naslovBloka) {
+              <h4>{{ block.naslovBloka }}</h4>
+            }
+            <p>{{ block.tekst }}</p>
+          </div>
         </div>
       }
       @case ('faq') {
@@ -116,12 +119,16 @@
             @if (block.naslovBloka) {
               <h3>{{ block.naslovBloka }}</h3>
             }
-            @for (item of block.faqStavke; track $index) {
-              <details>
-                <summary>{{ item.question }}</summary>
-                <p>{{ item.answer }}</p>
-              </details>
-            }
+            <mat-accordion>
+              @for (item of block.faqStavke; track $index) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>{{ item.question }}</mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <p>{{ item.answer }}</p>
+                </mat-expansion-panel>
+              }
+            </mat-accordion>
           </section>
         }
       }
@@ -137,6 +144,26 @@
       }
       @case ('divider') {
         <hr class="content-block__divider" />
+      }
+      @case ('serviceReference') {
+        <div class="content-block__cta content-block__cta--reference">
+          @if (block.naslovBloka) {
+            <h3>{{ block.naslovBloka }}</h3>
+          }
+          @if (block.dugme?.url) {
+            <a [href]="block.dugme!.url" class="content-block__cta-button">{{ block.dugme!.tekst || 'Pogledaj uslugu' }}</a>
+          }
+        </div>
+      }
+      @case ('productReference') {
+        <div class="content-block__cta content-block__cta--reference">
+          @if (block.naslovBloka) {
+            <h3>{{ block.naslovBloka }}</h3>
+          }
+          @if (block.dugme?.url) {
+            <a [href]="block.dugme!.url" class="content-block__cta-button">{{ block.dugme!.tekst || 'Pogledaj proizvod' }}</a>
+          }
+        </div>
       }
     }
   </div>

@@ -19,13 +19,13 @@
         <h2>Stanje</h2>
         <dl class="partner-dashboard__stats">
           <dt>Zarađeno</dt>
-          <dd>{{ d.balance.earned }} RSD</dd>
+          <dd>{{ d.balance.earned | number: '1.0-0' }} RSD</dd>
           <dt>Isplaćeno</dt>
-          <dd>{{ d.balance.paid }} RSD</dd>
+          <dd>{{ d.balance.paid | number: '1.0-0' }} RSD</dd>
           <dt>Rezervisano</dt>
-          <dd>{{ d.balance.reserved }} RSD</dd>
+          <dd>{{ d.balance.reserved | number: '1.0-0' }} RSD</dd>
           <dt>Raspoloživo</dt>
-          <dd>{{ d.balance.available }} RSD</dd>
+          <dd>{{ d.balance.available | number: '1.0-0' }} RSD</dd>
         </dl>
         <a routerLink="/partner-panel/zarade" class="partner-dashboard__link">Provizije i isplate</a>
       </section>
@@ -68,8 +68,8 @@
             @for (c of d.recentCommissions; track c._id) {
               <li>
                 <span class="partner-dashboard__item">
-                  <span class="partner-dashboard__item-main">{{ c.amount }} RSD</span>
-                  <span class="partner-dashboard__item-sub">{{ c.rate }}% · {{ formatDate(c.createdAt) }}</span>
+                  <span class="partner-dashboard__item-main">{{ c.amount | number: '1.0-0' }} RSD</span>
+                  <span class="partner-dashboard__item-sub">{{ c.rate | number: '1.0-0' }}% · {{ formatDate(c.createdAt) }}</span>
                 </span>
               </li>
             }
@@ -86,7 +86,7 @@
             @for (p of d.payoutRequests; track p.id) {
               <li>
                 <span class="partner-dashboard__item">
-                  <span class="partner-dashboard__item-main">{{ p.amount }} RSD</span>
+                  <span class="partner-dashboard__item-main">{{ p.amount | number: '1.0-0' }} RSD</span>
                   <span class="partner-dashboard__item-sub">{{ payoutStatusLabel(p.status) }} · {{ formatDate(p.requestedAt) }}</span>
                 </span>
               </li>

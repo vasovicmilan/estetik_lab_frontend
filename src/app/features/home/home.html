@@ -9,6 +9,38 @@
   </div>
 </section>
 
+@if (!loadingIntro() && intro(); as intro) {
+  <section class="home-intro">
+    <h2>{{ intro.title }}</h2>
+    <p class="home-intro__lead">{{ intro.lead }}</p>
+    <p class="home-intro__who">{{ intro.who }}</p>
+
+    <div class="home-intro__massages">
+      @for (massage of intro.massages; track massage.title) {
+        <a [routerLink]="massage.href" class="home-intro__massage">
+          <h4>{{ massage.title }}</h4>
+          <p>{{ massage.text }}</p>
+        </a>
+      }
+    </div>
+
+    <p class="home-intro__packages">{{ intro.packages }}</p>
+    <p class="home-intro__closing">{{ intro.closing }}</p>
+
+    <div class="home-intro__why-us">
+      @for (item of intro.whyUs; track item.title) {
+        <div class="home-intro__why-item">
+          <mat-icon>{{ biIcon(item.icon) }}</mat-icon>
+          <div>
+            <h4>{{ item.title }}</h4>
+            <p>{{ item.text }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+}
+
 @if (loadingServices()) {
   <div class="home-spinner">
     <mat-spinner diameter="36" />
@@ -22,10 +54,18 @@
     <div class="home-section__grid">
       @for (service of featuredServices(); track service.id) {
         <a [routerLink]="['/usluge', service.slug]" class="home-card-link">
-          <mat-card class="home-card">
-            @if (service.slika?.url) {
-              <img [src]="service.slika!.url | imageUrl" [alt]="service.slika!.alt || service.naziv" class="home-card__image" />
-            }
+          <mat-card class="home-card" appearance="outlined">
+            <div class="home-card__media">
+              @if (service.slika?.url) {
+                <img [src]="service.slika!.url | imageUrl" [alt]="service.slika!.alt || service.naziv" class="home-card__image" />
+              }
+              @if (service.istaknuto) {
+                <mat-chip class="home-card__badge" disableRipple>
+                  <mat-icon matChipAvatar>star</mat-icon>
+                  Istaknuto
+                </mat-chip>
+              }
+            </div>
             <mat-card-title>{{ service.naziv }}</mat-card-title>
             <mat-card-content>
               <p>{{ service.kratakOpis }}</p>
@@ -51,10 +91,21 @@
     <div class="home-section__grid">
       @for (pkg of featuredPackages(); track pkg.id) {
         <a [routerLink]="['/paketi', pkg.slug]" class="home-card-link">
-          <mat-card class="home-card">
-            @if (pkg.slika?.url) {
-              <img [src]="pkg.slika!.url | imageUrl" [alt]="pkg.slika!.alt || pkg.naziv" class="home-card__image" />
-            }
+          <mat-card class="home-card" appearance="outlined">
+            <div class="home-card__media">
+              @if (pkg.slika?.url) {
+                <img [src]="pkg.slika!.url | imageUrl" [alt]="pkg.slika!.alt || pkg.naziv" class="home-card__image" />
+              }
+              @if (pkg.najbolji) {
+                <mat-chip class="home-card__badge home-card__badge--best" disableRipple>
+                  <mat-icon matChipAvatar>workspace_premium</mat-icon>
+                  Najbolja vrednost
+                </mat-chip>
+              }
+              @if (pkg.ustedaProcenat) {
+                <mat-chip class="home-card__savings" disableRipple>-{{ pkg.ustedaProcenat }}%</mat-chip>
+              }
+            </div>
             <mat-card-title>{{ pkg.naziv }}</mat-card-title>
             <mat-card-content>
               <p>{{ pkg.kratakOpis }}</p>
@@ -85,10 +136,17 @@
     <div class="home-section__grid">
       @for (product of featuredProducts(); track product.id) {
         <a [routerLink]="['/prodavnica', product.slug]" class="home-card-link">
-          <mat-card class="home-card">
-            @if (product.slika?.url) {
-              <img [src]="product.slika!.url | imageUrl" [alt]="product.slika!.alt || product.naziv" class="home-card__image" />
-            }
+          <mat-card class="home-card" appearance="outlined">
+            <div class="home-card__media">
+              @if (product.slika?.url) {
+                <img [src]="product.slika!.url | imageUrl" [alt]="product.slika!.alt || product.naziv" class="home-card__image" />
+              }
+              @if (product.oznaka) {
+                <mat-chip class="home-card__badge" [class.home-card__badge--sale]="product.oznakaRaw === 'sale'" disableRipple>
+                  {{ product.oznaka }}
+                </mat-chip>
+              }
+            </div>
             <mat-card-title>{{ product.naziv }}</mat-card-title>
             <mat-card-content>
               <p>{{ product.kratakOpis }}</p>
@@ -120,13 +178,15 @@
     <div class="home-section__grid home-section__grid--team">
       @for (member of teamPreview(); track member.id) {
         <a [routerLink]="['/tim', member.slug]" class="home-card-link">
-          <mat-card class="home-card">
+          <mat-card class="home-card" appearance="outlined">
             @if (member.slika?.url) {
               <img [src]="member.slika!.url | imageUrl" [alt]="member.slika!.alt || member.imePrezime" class="home-card__image home-card__image--round" />
             }
             <mat-card-title>{{ member.imePrezime }}</mat-card-title>
             @if (member.titula) {
-              <mat-card-subtitle>{{ member.titula }}</mat-card-subtitle>
+              <mat-chip-set class="home-card__title-chip">
+                <mat-chip disableRipple>{{ member.titula }}</mat-chip>
+              </mat-chip-set>
             }
           </mat-card>
         </a>
@@ -148,10 +208,18 @@
     <div class="home-section__grid">
       @for (post of recentPosts(); track post.id) {
         <a [routerLink]="['/blog', post.slug]" class="home-card-link">
-          <mat-card class="home-card">
-            @if (post.slika?.url) {
-              <img [src]="post.slika!.url | imageUrl" [alt]="post.slika!.alt || post.naslov" class="home-card__image" />
-            }
+          <mat-card class="home-card" appearance="outlined">
+            <div class="home-card__media">
+              @if (post.slika?.url) {
+                <img [src]="post.slika!.url | imageUrl" [alt]="post.slika!.alt || post.naslov" class="home-card__image" />
+              }
+              @if (post.istaknut) {
+                <mat-chip class="home-card__badge home-card__badge--featured" disableRipple>
+                  <mat-icon matChipAvatar>star</mat-icon>
+                  Izdvojeno
+                </mat-chip>
+              }
+            </div>
             <mat-card-title>{{ post.naslov }}</mat-card-title>
             <mat-card-content>
               <p>{{ post.kratakOpis }}</p>

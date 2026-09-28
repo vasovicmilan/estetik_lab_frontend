@@ -1,5 +1,29 @@
 <div class="team-list">
-  <h1>Naš tim</h1>
+  @if (intro(); as intro) {
+    <div class="team-list__intro">
+      @if (intro.eyebrow) {
+        <p class="team-list__eyebrow">{{ intro.eyebrow }}</p>
+      }
+      <h1>{{ intro.title }}</h1>
+      <p class="team-list__lead">{{ intro.lead }}</p>
+
+      @if (intro.highlights.length) {
+        <div class="team-list__highlights">
+          @for (item of intro.highlights; track item.title) {
+            <div class="team-list__highlight">
+              <mat-icon>{{ biIcon(item.icon) }}</mat-icon>
+              <div>
+                <h4>{{ item.title }}</h4>
+                <p>{{ item.text }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <h1>Naš tim</h1>
+  }
 
   @if (loading()) {
     <div class="team-list__spinner">
@@ -11,13 +35,15 @@
     <div class="team-list__grid">
       @for (member of members(); track member.id) {
         <a [routerLink]="['/tim', member.slug]" class="team-list__card-link">
-          <mat-card class="team-list__card">
+          <mat-card class="team-list__card" appearance="outlined">
             @if (member.slika?.url) {
               <img [src]="member.slika!.url | imageUrl" [alt]="member.slika!.alt || member.imePrezime" class="team-list__photo" />
             }
             <mat-card-title>{{ member.imePrezime }}</mat-card-title>
             @if (member.titula) {
-              <mat-card-subtitle>{{ member.titula }}</mat-card-subtitle>
+              <mat-chip-set class="team-list__title-chip">
+                <mat-chip disableRipple>{{ member.titula }}</mat-chip>
+              </mat-chip-set>
             }
             @if (member.kratkaBiografija) {
               <mat-card-content>

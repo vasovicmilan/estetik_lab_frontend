@@ -71,6 +71,14 @@
         <dt>Indeksiranje</dt>
         <dd>{{ d.indeksiranje }}</dd>
 
+        <dt>Istaknut</dt>
+        <dd>{{ d.istaknut }}</dd>
+
+        @if (d.istaknut === 'Da') {
+          <dt>Redosled među istaknutim</dt>
+          <dd>{{ d.redosledIstaknutog }}</dd>
+        }
+
         <dt>Vreme čitanja</dt>
         <dd>{{ d.vremeCitanja }}</dd>
 

@@ -16,6 +16,7 @@
 }
 
 .header {
+  position: relative; // anchors the mobile dropdown nav below (position: absolute)
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -37,6 +38,51 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem 1rem;
+  }
+
+  &__menu-toggle {
+    display: none;
+  }
+
+  // Below 768px (same breakpoint as AdminShell/DataTable): collapse the link
+  // row behind a hamburger button instead of letting it wrap into several
+  // messy rows. The nav becomes a full-width dropdown panel under the header,
+  // shown only while menuOpen() is true (header__nav--open).
+  @media (max-width: 768px) {
+    padding: 0.75rem 1rem;
+
+    &__menu-toggle {
+      display: inline-flex;
+    }
+
+    &__nav {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 0.5rem 1rem 1rem;
+      background-color: var(--mat-sys-surface);
+      border-bottom: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+
+      &--open {
+        display: flex;
+      }
+    }
+
+    &__link,
+    &__user {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    &__link--cart {
+      order: -1;
+    }
   }
 
   &__link {

@@ -15,7 +15,75 @@
       </mat-chip-set>
     }
 
+    @if (s.galerija.length) {
+      <div class="service-detail__gallery">
+        @for (img of s.galerija; track $index) {
+          <img [src]="img.url | imageUrl" [alt]="img.alt || s.naziv" class="service-detail__gallery-image" />
+        }
+      </div>
+    }
+
     <div class="service-detail__body" [innerHTML]="s.dugiOpis"></div>
+
+    @if (s.videi?.length) {
+      <section class="service-detail__videos">
+        <h2>Video</h2>
+        <div class="service-detail__video-list">
+          @for (video of s.videi; track $index) {
+            <div class="service-detail__video">
+              @if (video.isExternal) {
+                <a [href]="video.url" target="_blank" rel="noopener" class="service-detail__video-link">
+                  @if (video.thumbnail) {
+                    <img [src]="video.thumbnail" [alt]="video.title || s.naziv" />
+                  }
+                  <span>{{ video.title || 'Pogledaj video' }}</span>
+                </a>
+              } @else {
+                <video [src]="video.url" controls [poster]="video.thumbnail || null"></video>
+                @if (video.title) {
+                  <p class="service-detail__video-title">{{ video.title }}</p>
+                }
+              }
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (s.tabelaPoredjenja?.kolone?.length) {
+      <section class="service-detail__comparison">
+        <h2>Poređenje</h2>
+        <table class="service-detail__comparison-table">
+          <thead>
+            <tr>
+              <th></th>
+              @for (col of s.tabelaPoredjenja!.kolone; track $index) {
+                <th>{{ col }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of s.tabelaPoredjenja!.redovi; track $index) {
+              <tr>
+                <td>{{ row.label }}</td>
+                @for (value of row.values; track $index) {
+                  <td>{{ value }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+
+    @if (s.opremaNapomena; as napomena) {
+      <div class="service-detail__equipment-note">
+        <p>{{ napomena.tekst }}</p>
+        @if (napomena.dugmeUrl) {
+          <a [href]="napomena.dugmeUrl" class="service-detail__equipment-note-button">{{ napomena.dugmeTekst }}</a>
+        }
+      </div>
+    }
 
     @if (s.varijante.length) {
       <section class="service-detail__variants">

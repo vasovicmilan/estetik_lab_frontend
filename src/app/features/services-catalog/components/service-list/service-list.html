@@ -11,12 +11,27 @@
     <div class="service-list__grid">
       @for (service of services(); track service.id) {
         <a [routerLink]="['/usluge', service.slug]" class="service-list__card-link">
-          <mat-card class="service-list__card">
-            @if (service.slika?.url) {
-              <img [src]="service.slika!.url | imageUrl" [alt]="service.slika!.alt || service.naziv" class="service-list__image" />
-            }
+          <mat-card class="service-list__card" appearance="outlined">
+            <div class="service-list__media">
+              @if (service.slika?.url) {
+                <img [src]="service.slika!.url | imageUrl" [alt]="service.slika!.alt || service.naziv" class="service-list__image" />
+              }
+              @if (service.istaknuto) {
+                <mat-chip class="service-list__badge" disableRipple>
+                  <mat-icon matChipAvatar>star</mat-icon>
+                  Istaknuto
+                </mat-chip>
+              }
+            </div>
             <mat-card-title>{{ service.naziv }}</mat-card-title>
             <mat-card-content>
+              @if (service.kategorije.length) {
+                <mat-chip-set class="service-list__categories">
+                  @for (kategorija of service.kategorije.slice(0, 2); track kategorija) {
+                    <mat-chip disableRipple>{{ kategorija }}</mat-chip>
+                  }
+                </mat-chip-set>
+              }
               <p>{{ service.kratakOpis }}</p>
               <p class="service-list__price">{{ service.cena }}</p>
             </mat-card-content>

@@ -5,6 +5,14 @@
     margin-bottom: 1rem;
   }
 
+  &__table-wrapper {
+    // Wide tables (many columns + row actions) can exceed the available width
+    // next to the admin sidenav - without this, columns past the edge were
+    // clipped/inaccessible instead of reachable via horizontal scroll, which
+    // also made their sort headers effectively unclickable.
+    overflow-x: auto;
+  }
+
   &__table {
     width: 100%;
   }

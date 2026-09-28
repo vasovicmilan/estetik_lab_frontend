@@ -32,6 +32,7 @@ export class AdminTagList implements OnInit {
   error = signal<string | null>(null);
 
   private limit = 10;
+  private search = '';
   /** `naziv`/`domen`/`aktivan` are plain scalar columns (name, domain, isActive)
    * on the Tag schema - see TAG_SORT_FIELDS in admin-taxonomy.controller.js. */
   private sort: string | null = null;
@@ -61,7 +62,7 @@ export class AdminTagList implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.tag
-      .listAdmin({ page, limit: this.limit, sort: this.sort ?? undefined, order: this.order ?? undefined })
+      .listAdmin({ page, limit: this.limit, search: this.search || undefined, sort: this.sort ?? undefined, order: this.order ?? undefined })
       .subscribe({
         next: ({ data, meta }) => {
           this.rows.set(data);
@@ -78,6 +79,11 @@ export class AdminTagList implements OnInit {
   onPage(event: PageEvent): void {
     this.limit = event.pageSize;
     this.load(event.pageIndex + 1);
+  }
+
+  onSearch(term: string): void {
+    this.search = term;
+    this.load(1);
   }
 
   onSort(sort: Sort): void {

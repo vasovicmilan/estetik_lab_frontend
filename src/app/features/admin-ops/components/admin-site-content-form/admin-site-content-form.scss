@@ -1,0 +1,50 @@
+.site-content-form {
+  padding: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+
+  &__hint {
+    font-size: 0.875rem;
+    color: var(--mat-sys-on-surface-variant, #666);
+    max-width: 760px;
+  }
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  &__tab {
+    padding: 1.5rem 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  &__full {
+    grid-column: 1 / -1;
+  }
+
+  &__number {
+    max-width: 100px;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.75rem;
+    align-items: start;
+    grid-column: 1 / -1;
+
+    &--faq {
+      grid-template-columns: 1fr auto;
+    }
+
+    &--step,
+    &--massage,
+    &--icon-item {
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) auto;
+    }
+  }
+}

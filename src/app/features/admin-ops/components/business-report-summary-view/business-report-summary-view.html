@@ -6,72 +6,80 @@
   </div>
 
   <div class="business-report-summary__cards">
-    <div class="business-report-summary__card">
-      <div class="business-report-summary__card-label">Termini</div>
-      <div class="business-report-summary__card-value">{{ summary().appointments.total }}</div>
-      <div class="business-report-summary__card-sub">{{ money(summary().appointments.revenue) }}</div>
-    </div>
-    <div class="business-report-summary__card">
-      <div class="business-report-summary__card-label">Stopa nedolazaka</div>
-      <div class="business-report-summary__card-value">{{ summary().appointments.noShowRate | percent: '1.0-1' }}</div>
-    </div>
-    <div class="business-report-summary__card">
-      <div class="business-report-summary__card-label">Porudžbine</div>
-      <div class="business-report-summary__card-value">{{ summary().orders.total }}</div>
-      <div class="business-report-summary__card-sub">{{ money(summary().orders.revenue) }}</div>
-    </div>
-    <div class="business-report-summary__card">
-      <div class="business-report-summary__card-label">Prosečna vrednost porudžbine</div>
-      <div class="business-report-summary__card-value">{{ money(summary().orders.avgOrderValue) }}</div>
-    </div>
-    <div class="business-report-summary__card">
-      <div class="business-report-summary__card-label">Kupljeni paketi</div>
-      <div class="business-report-summary__card-value">{{ summary().packages.totalPurchased }}</div>
-      <div class="business-report-summary__card-sub">{{ money(summary().packages.revenue) }}</div>
-    </div>
-    <div class="business-report-summary__card">
-      <div class="business-report-summary__card-label">Iskorišćeni kuponi</div>
-      <div class="business-report-summary__card-value">{{ summary().coupons.totalRedemptions }}</div>
-      <div class="business-report-summary__card-sub">{{ money(summary().coupons.totalDiscountGiven) }} popusta</div>
-    </div>
+    <app-card variant="stat">
+      <span cardTitle>{{ summary().appointments.total }}</span>
+      <span cardSubtitle>Termini</span>
+      <span cardTrend>{{ money(summary().appointments.revenue) }}</span>
+    </app-card>
+    <app-card variant="stat">
+      <span cardTitle>{{ summary().appointments.noShowRate | percent: '1.0-0' }}</span>
+      <span cardSubtitle>Stopa nedolazaka</span>
+    </app-card>
+    <app-card variant="stat">
+      <span cardTitle>{{ summary().orders.total }}</span>
+      <span cardSubtitle>Porudžbine</span>
+      <span cardTrend>{{ money(summary().orders.revenue) }}</span>
+    </app-card>
+    <app-card variant="stat">
+      <span cardTitle>{{ money(summary().orders.avgOrderValue) }}</span>
+      <span cardSubtitle>Prosečna vrednost porudžbine</span>
+    </app-card>
+    <app-card variant="stat">
+      <span cardTitle>{{ summary().packages.totalPurchased }}</span>
+      <span cardSubtitle>Kupljeni paketi</span>
+      <span cardTrend>{{ money(summary().packages.revenue) }}</span>
+    </app-card>
+    <app-card variant="stat">
+      <span cardTitle>{{ summary().coupons.totalRedemptions }}</span>
+      <span cardSubtitle>Iskorišćeni kuponi</span>
+      <span cardTrend>{{ money(summary().coupons.totalDiscountGiven) }} popusta</span>
+    </app-card>
   </div>
 
   <div class="business-report-summary__commissions">
     <h3>Provizije</h3>
-    <dl>
-      <dt>Zaposleni - zarađeno</dt>
-      <dd>{{ money(summary().commissions.employeeEarned) }}</dd>
-      <dt>Zaposleni - isplaćeno</dt>
-      <dd>{{ money(summary().commissions.employeePaid) }}</dd>
-      <dt>Partneri - zarađeno</dt>
-      <dd>{{ money(summary().commissions.partnerEarned) }}</dd>
-      <dt>Partneri - isplaćeno</dt>
-      <dd>{{ money(summary().commissions.partnerPaid) }}</dd>
-    </dl>
+    <div class="business-report-summary__cards">
+      <app-card variant="stat">
+        <span cardTitle>{{ money(summary().commissions.employeeEarned) }}</span>
+        <span cardSubtitle>Zaposleni - zarađeno</span>
+      </app-card>
+      <app-card variant="stat">
+        <span cardTitle>{{ money(summary().commissions.employeePaid) }}</span>
+        <span cardSubtitle>Zaposleni - isplaćeno</span>
+      </app-card>
+      <app-card variant="stat">
+        <span cardTitle>{{ money(summary().commissions.partnerEarned) }}</span>
+        <span cardSubtitle>Partneri - zarađeno</span>
+      </app-card>
+      <app-card variant="stat">
+        <span cardTitle>{{ money(summary().commissions.partnerPaid) }}</span>
+        <span cardSubtitle>Partneri - isplaćeno</span>
+      </app-card>
+    </div>
   </div>
 
   <div class="business-report-summary__tables">
     <section class="business-report-summary__table-section">
       <h3>Najprodavanije usluge</h3>
       @if (summary().appointments.byService.length) {
-        <table class="business-report-summary__table">
-          <thead>
-            <tr>
-              <th>Usluga</th>
-              <th>Broj</th>
-              <th>Vrednost</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of topByValue(summary().appointments.byService); track row.label) {
-              <tr>
-                <td>{{ row.label }}</td>
-                <td>{{ row.count }}</td>
-                <td>{{ money(row.value) }}</td>
-              </tr>
-            }
-          </tbody>
+        <div class="business-report-summary__table-wrapper">
+          <table mat-table [dataSource]="topByValue(summary().appointments.byService)" class="business-report-summary__table">
+          <ng-container matColumnDef="label">
+            <th mat-header-cell *matHeaderCellDef>Usluga</th>
+            <td mat-cell *matCellDef="let row">{{ row.label }}</td>
+          </ng-container>
+          <ng-container matColumnDef="count">
+            <th mat-header-cell *matHeaderCellDef>Broj</th>
+            <td mat-cell *matCellDef="let row">{{ row.count }}</td>
+          </ng-container>
+          <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef>Vrednost</th>
+            <td mat-cell *matCellDef="let row">{{ money(row.value) }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: tableColumns"></tr>
         </table>
+          </div>
       } @else {
         <p class="business-report-summary__empty">Nema podataka.</p>
       }
@@ -80,24 +88,24 @@
     <section class="business-report-summary__table-section">
       <h3>Zaposleni po prihodu</h3>
       @if (summary().appointments.byEmployee.length) {
-        <table class="business-report-summary__table">
-          <thead>
-            <tr>
-              <th>Zaposleni</th>
-              <th>Broj</th>
-              <th>Vrednost</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of topByValue(summary().appointments.byEmployee); track row.label) {
-              <tr>
-                <td>{{ row.label }}</td>
-                <td>{{ row.count }}</td>
-                <td>{{ money(row.value) }}</td>
-              </tr>
-            }
-          </tbody>
+        <div class="business-report-summary__table-wrapper">
+          <table mat-table [dataSource]="topByValue(summary().appointments.byEmployee)" class="business-report-summary__table">
+          <ng-container matColumnDef="label">
+            <th mat-header-cell *matHeaderCellDef>Zaposleni</th>
+            <td mat-cell *matCellDef="let row">{{ row.label }}</td>
+          </ng-container>
+          <ng-container matColumnDef="count">
+            <th mat-header-cell *matHeaderCellDef>Broj</th>
+            <td mat-cell *matCellDef="let row">{{ row.count }}</td>
+          </ng-container>
+          <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef>Vrednost</th>
+            <td mat-cell *matCellDef="let row">{{ money(row.value) }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: tableColumns"></tr>
         </table>
+          </div>
       } @else {
         <p class="business-report-summary__empty">Nema podataka.</p>
       }
@@ -106,24 +114,24 @@
     <section class="business-report-summary__table-section">
       <h3>Najprodavaniji artikli</h3>
       @if (summary().orders.byProduct.length) {
-        <table class="business-report-summary__table">
-          <thead>
-            <tr>
-              <th>Artikal</th>
-              <th>Broj</th>
-              <th>Vrednost</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of topByValue(summary().orders.byProduct); track row.label) {
-              <tr>
-                <td>{{ row.label }}</td>
-                <td>{{ row.count }}</td>
-                <td>{{ money(row.value) }}</td>
-              </tr>
-            }
-          </tbody>
+        <div class="business-report-summary__table-wrapper">
+          <table mat-table [dataSource]="topByValue(summary().orders.byProduct)" class="business-report-summary__table">
+          <ng-container matColumnDef="label">
+            <th mat-header-cell *matHeaderCellDef>Artikal</th>
+            <td mat-cell *matCellDef="let row">{{ row.label }}</td>
+          </ng-container>
+          <ng-container matColumnDef="count">
+            <th mat-header-cell *matHeaderCellDef>Broj</th>
+            <td mat-cell *matCellDef="let row">{{ row.count }}</td>
+          </ng-container>
+          <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef>Vrednost</th>
+            <td mat-cell *matCellDef="let row">{{ money(row.value) }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: tableColumns"></tr>
         </table>
+          </div>
       } @else {
         <p class="business-report-summary__empty">Nema podataka.</p>
       }
@@ -132,24 +140,24 @@
     <section class="business-report-summary__table-section">
       <h3>Kuponi</h3>
       @if (summary().coupons.byCoupon.length) {
-        <table class="business-report-summary__table">
-          <thead>
-            <tr>
-              <th>Kupon</th>
-              <th>Broj</th>
-              <th>Popust</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of topByValue(summary().coupons.byCoupon); track row.label) {
-              <tr>
-                <td>{{ row.label }}</td>
-                <td>{{ row.count }}</td>
-                <td>{{ money(row.value) }}</td>
-              </tr>
-            }
-          </tbody>
+        <div class="business-report-summary__table-wrapper">
+          <table mat-table [dataSource]="topByValue(summary().coupons.byCoupon)" class="business-report-summary__table">
+          <ng-container matColumnDef="label">
+            <th mat-header-cell *matHeaderCellDef>Kupon</th>
+            <td mat-cell *matCellDef="let row">{{ row.label }}</td>
+          </ng-container>
+          <ng-container matColumnDef="count">
+            <th mat-header-cell *matHeaderCellDef>Broj</th>
+            <td mat-cell *matCellDef="let row">{{ row.count }}</td>
+          </ng-container>
+          <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef>Popust</th>
+            <td mat-cell *matCellDef="let row">{{ money(row.value) }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: tableColumns"></tr>
         </table>
+          </div>
       } @else {
         <p class="business-report-summary__empty">Nema podataka.</p>
       }

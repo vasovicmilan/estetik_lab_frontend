@@ -27,22 +27,38 @@
     position: relative;
   }
 
+  &__media {
+    position: relative;
+  }
+
   &__image {
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
+    display: block;
   }
 
   &__badge {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: var(--mat-sys-tertiary-container, #ffd8e4);
-    color: var(--mat-sys-on-tertiary-container, #31111d);
-    padding: 0.2rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    top: 0.6rem;
+    left: 0.6rem;
+    --mat-chip-elevated-container-color: var(--mat-sys-secondary-container, #e8dde3);
+    --mat-chip-label-text-color: var(--mat-sys-on-secondary-container, #302329);
+    --mat-chip-with-avatar-avatar-color: var(--mat-sys-on-secondary-container, #302329);
+
+    &--best {
+      --mat-chip-elevated-container-color: var(--mat-sys-secondary, #7c6470);
+      --mat-chip-label-text-color: var(--mat-sys-on-secondary, #fff);
+      --mat-chip-with-avatar-avatar-color: var(--mat-sys-on-secondary, #fff);
+    }
+  }
+
+  &__savings {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    --mat-chip-elevated-container-color: var(--mat-sys-error, #b3261e);
+    --mat-chip-label-text-color: var(--mat-sys-on-error, #fff);
   }
 
   &__price {

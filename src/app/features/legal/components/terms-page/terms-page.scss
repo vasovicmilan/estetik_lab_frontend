@@ -1,0 +1,24 @@
+.legal-page {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  &__updated {
+    font-size: 0.85rem;
+    color: var(--mat-sys-on-surface-variant, #777);
+    margin: 0 0 1rem;
+  }
+
+  &__intro {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--mat-sys-on-surface-variant, #555);
+    margin-bottom: 2rem;
+  }
+}

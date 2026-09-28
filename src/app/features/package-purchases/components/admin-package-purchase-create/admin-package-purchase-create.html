@@ -63,9 +63,9 @@
 
       @if (couponPreview(); as preview) {
         <div class="package-purchase-create__coupon-preview">
-          <p>Originalna cena: {{ preview.originalPrice }} RSD</p>
-          <p>Popust: {{ preview.discountAmount }} RSD</p>
-          <p><strong>Cena sa popustom: {{ preview.finalPrice }} RSD</strong></p>
+          <p>Originalna cena: {{ preview.originalPrice | number: '1.0-0' }} RSD</p>
+          <p>Popust: {{ preview.discountAmount | number: '1.0-0' }} RSD</p>
+          <p><strong>Cena sa popustom: {{ preview.finalPrice | number: '1.0-0' }} RSD</strong></p>
         </div>
       }
       @if (couponError(); as err) {

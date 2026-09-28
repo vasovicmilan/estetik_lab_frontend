@@ -43,6 +43,13 @@ export class Product {
     return this.api.delete<{ message: string }>(`admin/products/${id}`);
   }
 
+  /** PUT /admin/products/:id/seo - separate from create/update (see
+   * admin-catalog.controller.js's updateProductSeo), keywords-only: takes
+   * a comma-separated string or a string[], same convention as Post.updateSeo(). */
+  updateSeo(id: string, seo: { seoKeywords?: string }): Observable<ProductEditPayload> {
+    return this.api.put<ProductEditPayload>(`admin/products/${id}/seo`, seo);
+  }
+
   /** POST /api/v1/admin/uploads/products - see admin-uploads.routes.js. */
   uploadImage(file: File): Observable<ImageReference> {
     return this.api.upload<ImageReference>('admin/uploads/products', file, 'file');

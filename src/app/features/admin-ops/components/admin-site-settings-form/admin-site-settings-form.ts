@@ -8,15 +8,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
-import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { AdminSiteSettings } from '../../services/site-settings';
 import { SiteSettings, SiteSettingsWeekDay } from '../../models/site-settings';
 import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
 import { FormSection } from '../../../../shared/ui/form-layout/form-section';
 import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
 import { DatePicker } from '../../../../shared/ui/date-picker/date-picker';
+import { FileUpload } from '../../../../shared/ui/file-upload/file-upload';
 
 /** Single settings form - hero image + alt, booking policy (minutes/hours),
  * currency, minimum session commission. One "Sačuvaj" button, no wizard.
@@ -50,11 +51,12 @@ import { DatePicker } from '../../../../shared/ui/date-picker/date-picker';
     MatSelectModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
-    ImageUrlPipe,
+    MatTabsModule,
     FormLayout,
     FormSection,
     FormActions,
     DatePicker,
+    FileUpload,
   ],
   templateUrl: './admin-site-settings-form.html',
   styleUrl: './admin-site-settings-form.scss',
@@ -198,11 +200,7 @@ export class AdminSiteSettingsForm implements OnInit {
    * was already stored. */
   private newHeroImg: string | null = null;
 
-  onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
+  onImageSelected(file: File): void {
     this.uploadingImage.set(true);
     this.siteSettings
       .uploadHeroImage(file)

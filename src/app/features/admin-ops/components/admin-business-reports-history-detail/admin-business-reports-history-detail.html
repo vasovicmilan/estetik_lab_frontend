@@ -1,7 +1,15 @@
 <div class="admin-business-reports-history-detail">
   <div class="admin-business-reports-history-detail__header">
     <h1>Izveštaj - {{ periodKey() }}</h1>
-    <a mat-button [routerLink]="['/admin/izvestaji', periodType()]">Nazad na istoriju</a>
+    <div class="admin-business-reports-history-detail__header-actions">
+      @if (summary()) {
+        <button mat-stroked-button type="button" [disabled]="downloadingPdf()" (click)="downloadPdf()">
+          <mat-icon>picture_as_pdf</mat-icon>
+          {{ downloadingPdf() ? 'Priprema PDF-a...' : 'Izvezi PDF' }}
+        </button>
+      }
+      <a mat-button [routerLink]="['/admin/izvestaji', periodType()]">Nazad na istoriju</a>
+    </div>
   </div>
 
   @if (loading()) {

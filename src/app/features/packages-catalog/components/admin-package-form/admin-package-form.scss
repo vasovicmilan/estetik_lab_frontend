@@ -14,4 +14,25 @@
   &__actions {
     margin-top: 1rem;
   }
+
+  &__gallery-count {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+
+    &--full {
+      color: var(--mat-sys-error, #b3261e);
+    }
+  }
+
+  &__gallery-alt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  &__gallery-alt-field {
+    width: 100%;
+  }
 }

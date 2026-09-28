@@ -1,41 +1,165 @@
 .blog-form {
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
+  max-width: 860px;
+  padding: 1.5rem;
+}
+
+// Extra breathing room around the categories/tags chip-grids specifically -
+// the shared app-form-layout grid gap (form-layout.scss) already spaces
+// fields from each other, but the chips themselves sat flush against the
+// field's own edges with no room between chip rows.
+.blog-form {
+  ::ng-deep mat-chip-grid {
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+  }
+}
+
+.blog-form__stepper {
+  background: transparent;
+
+  // Same reasoning as admin-coupon-form.scss's own override: a transparent
+  // stepper background loses the visual boundary Material's default gives
+  // the content area, so the step content otherwise reads as butted right up
+  // against the step header above it.
+  ::ng-deep .mat-horizontal-content-container {
+    padding-top: 1.25rem;
+  }
+
+  ::ng-deep .mat-vertical-content {
+    padding-top: 0.75rem;
+  }
+}
+
+.blog-form__step-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.blog-form__readonly-note {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+.blog-form__gallery-count {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+
+  &--full {
+    color: var(--mat-sys-error, #b3261e);
+  }
+}
+
+.blog-form__gallery-alt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.blog-form__gallery-alt-field {
+  width: 100%;
+}
+
+.blog-form__add-block {
+  display: flex;
+  align-items: flex-start;
   gap: 1rem;
-  max-width: 640px;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
 
-  &__image {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+.blog-form__block {
+  border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem 1.5rem;
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.blog-form__block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.08));
+}
+
+.blog-form__block-type {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+.blog-form__block-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.blog-form__block-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 0.25rem;
+}
+
+.blog-form__sub-label {
+  margin: 0.75rem 0 0;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.blog-form__sub-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  mat-form-field {
+    flex: 1;
   }
+}
 
-  &__image-preview {
-    max-width: 200px;
-    border-radius: 4px;
+.blog-form__table-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 140px;
   }
+}
 
-  &__gallery {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+.blog-form__card-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 140px;
   }
+}
 
-  &__gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 0.5rem;
-    max-width: 400px;
-  }
+.blog-form__faq-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
 
-  &__gallery-image {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border-radius: 4px;
-  }
-
-  &__actions {
-    margin-top: 1rem;
+  mat-form-field {
+    flex: 1;
   }
 }

@@ -34,6 +34,7 @@ export class AdminCategoryList implements OnInit {
   error = signal<string | null>(null);
 
   private limit = 10;
+  private search = '';
   /** `naziv`/`domen`/`prioritet`/`aktivna` are plain scalar columns (name, domain,
    * meta.priority, meta.isActive) on the Category schema - see
    * CATEGORY_SORT_FIELDS in admin-taxonomy.controller.js. `roditelj` (populated
@@ -68,7 +69,7 @@ export class AdminCategoryList implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.category
-      .listAdmin({ page, limit: this.limit, sort: this.sort ?? undefined, order: this.order ?? undefined })
+      .listAdmin({ page, limit: this.limit, search: this.search || undefined, sort: this.sort ?? undefined, order: this.order ?? undefined })
       .subscribe({
         next: ({ data, meta }) => {
           this.rows.set(data);
@@ -85,6 +86,11 @@ export class AdminCategoryList implements OnInit {
   onPage(event: PageEvent): void {
     this.limit = event.pageSize;
     this.load(event.pageIndex + 1);
+  }
+
+  onSearch(term: string): void {
+    this.search = term;
+    this.load(1);
   }
 
   onSort(sort: Sort): void {

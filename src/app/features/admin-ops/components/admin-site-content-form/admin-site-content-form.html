@@ -1,0 +1,342 @@
+<div class="site-content-form">
+  <h1>Sadržaj sajta</h1>
+  <p class="site-content-form__hint">
+    Marketinški i pravni tekst koji se prikazuje na javnim stranicama (O nama, FAQ, Politika privatnosti, Uslovi
+    korišćenja, Partnerski program, početna strana i tim strana). Svaka kartica ima svoje dugme za čuvanje - izmena
+    jedne ne utiče na ostale.
+  </p>
+
+  @if (loading()) {
+    <div class="site-content-form__spinner">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else {
+    <mat-tab-group>
+      <!-- O nama -->
+      <mat-tab label="O nama">
+        <form [formGroup]="aboutForm" (ngSubmit)="submitAbout()" class="site-content-form__tab">
+          <app-form-layout>
+            <app-form-section title="Uvod">
+              <mat-form-field appearance="outline" class="site-content-form__full">
+                <mat-label>Uvodni tekst</mat-label>
+                <textarea matInput formControlName="intro" rows="3"></textarea>
+              </mat-form-field>
+            </app-form-section>
+
+            <app-form-section title="Sekcije">
+              <div class="site-content-form__full">
+                <app-sections-builder [(sections)]="aboutSections" />
+              </div>
+            </app-form-section>
+          </app-form-layout>
+
+          <app-form-actions [saving]="savingAbout()" [saveDisabled]="savingAbout() || aboutForm.invalid" />
+        </form>
+      </mat-tab>
+
+      <!-- FAQ -->
+      <mat-tab label="FAQ">
+        <form (ngSubmit)="submitFaq()" class="site-content-form__tab">
+          <app-form-layout>
+            <app-form-section title="Pitanja i odgovori">
+              @for (group of faqGroups; track $index) {
+                <div [formGroup]="group" class="site-content-form__row site-content-form__row--faq">
+                  <mat-form-field appearance="outline" class="site-content-form__full">
+                    <mat-label>Pitanje</mat-label>
+                    <input matInput formControlName="pitanje" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="site-content-form__full">
+                    <mat-label>Odgovor</mat-label>
+                    <textarea matInput formControlName="odgovor" rows="2"></textarea>
+                  </mat-form-field>
+                  <button mat-icon-button type="button" color="warn" (click)="removeFaqItem($index)" aria-label="Ukloni pitanje">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+              <button mat-stroked-button type="button" (click)="addFaqItem()">
+                <mat-icon>add</mat-icon>
+                Dodaj pitanje
+              </button>
+            </app-form-section>
+          </app-form-layout>
+
+          <app-form-actions [saving]="savingFaq()" [saveDisabled]="savingFaq() || faqForm.invalid" />
+        </form>
+      </mat-tab>
+
+      <!-- Politika privatnosti -->
+      <mat-tab label="Politika privatnosti">
+        <form [formGroup]="privacyPolicyForm" (ngSubmit)="submitPrivacyPolicy()" class="site-content-form__tab">
+          <app-form-layout>
+            <app-form-section title="Osnovno">
+              <mat-form-field appearance="outline">
+                <mat-label>Poslednje ažurirano</mat-label>
+                <input matInput formControlName="lastUpdated" placeholder="npr. 1. januar 2026." />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="site-content-form__full">
+                <mat-label>Uvodni tekst</mat-label>
+                <textarea matInput formControlName="intro" rows="3"></textarea>
+              </mat-form-field>
+            </app-form-section>
+
+            <app-form-section title="Sekcije">
+              <div class="site-content-form__full">
+                <app-sections-builder [(sections)]="privacyPolicySections" />
+              </div>
+            </app-form-section>
+          </app-form-layout>
+
+          <app-form-actions [saving]="savingPrivacyPolicy()" [saveDisabled]="savingPrivacyPolicy() || privacyPolicyForm.invalid" />
+        </form>
+      </mat-tab>
+
+      <!-- Uslovi korišćenja -->
+      <mat-tab label="Uslovi korišćenja">
+        <form [formGroup]="termsForm" (ngSubmit)="submitTerms()" class="site-content-form__tab">
+          <app-form-layout>
+            <app-form-section title="Osnovno">
+              <mat-form-field appearance="outline">
+                <mat-label>Poslednje ažurirano</mat-label>
+                <input matInput formControlName="lastUpdated" placeholder="npr. 1. januar 2026." />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="site-content-form__full">
+                <mat-label>Uvodni tekst</mat-label>
+                <textarea matInput formControlName="intro" rows="3"></textarea>
+              </mat-form-field>
+            </app-form-section>
+
+            <app-form-section title="Sekcije">
+              <div class="site-content-form__full">
+                <app-sections-builder [(sections)]="termsSections" />
+              </div>
+            </app-form-section>
+          </app-form-layout>
+
+          <app-form-actions [saving]="savingTerms()" [saveDisabled]="savingTerms() || termsForm.invalid" />
+        </form>
+      </mat-tab>
+
+      <!-- Partnerski program -->
+      <mat-tab label="Partnerski program">
+        <form (ngSubmit)="submitPartnership()" class="site-content-form__tab">
+          <app-form-layout>
+            <app-form-section title="Uvod">
+              <div [formGroup]="partnershipIntroForm" class="site-content-form__full">
+                <mat-form-field appearance="outline" class="site-content-form__full">
+                  <mat-label>Uvodni tekst</mat-label>
+                  <textarea matInput formControlName="intro" rows="3"></textarea>
+                </mat-form-field>
+              </div>
+            </app-form-section>
+
+            <app-form-section title="Koraci">
+              @for (group of partnershipStepGroups; track $index) {
+                <div [formGroup]="group" class="site-content-form__row site-content-form__row--step">
+                  <mat-form-field appearance="outline" class="site-content-form__number">
+                    <mat-label>Br.</mat-label>
+                    <input matInput type="number" min="1" formControlName="number" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Naslov koraka</mat-label>
+                    <input matInput formControlName="title" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="site-content-form__full">
+                    <mat-label>Opis</mat-label>
+                    <textarea matInput formControlName="description" rows="2"></textarea>
+                  </mat-form-field>
+                  <button mat-icon-button type="button" color="warn" (click)="removePartnershipStep($index)" aria-label="Ukloni korak">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+              <button mat-stroked-button type="button" (click)="addPartnershipStep()">
+                <mat-icon>add</mat-icon>
+                Dodaj korak
+              </button>
+            </app-form-section>
+
+            <app-form-section title="Isticanja (highlights)">
+              @for (control of partnershipHighlightControls; track $index) {
+                <div class="site-content-form__row">
+                  <mat-form-field appearance="outline" class="site-content-form__full">
+                    <mat-label>Isticanje {{ $index + 1 }}</mat-label>
+                    <input matInput [formControl]="$any(control)" />
+                  </mat-form-field>
+                  <button mat-icon-button type="button" color="warn" (click)="removePartnershipHighlight($index)" aria-label="Ukloni isticanje">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+              <button mat-stroked-button type="button" (click)="addPartnershipHighlight()">
+                <mat-icon>add</mat-icon>
+                Dodaj isticanje
+              </button>
+            </app-form-section>
+          </app-form-layout>
+
+          <app-form-actions [saving]="savingPartnership()" [saveDisabled]="savingPartnership()" />
+        </form>
+      </mat-tab>
+
+      <!-- Početna strana - uvod -->
+      <mat-tab label="Početna - uvod">
+        <form (ngSubmit)="submitHomeIntro()" class="site-content-form__tab">
+          <app-form-layout>
+            <app-form-section title="Uvod">
+              <div [formGroup]="homeIntroForm" class="site-content-form__full">
+                <mat-form-field appearance="outline">
+                  <mat-label>Naslov</mat-label>
+                  <input matInput formControlName="title" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="site-content-form__full">
+                  <mat-label>Uvodni tekst (lead)</mat-label>
+                  <textarea matInput formControlName="lead" rows="2"></textarea>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="site-content-form__full">
+                  <mat-label>"Ko smo mi" tekst</mat-label>
+                  <textarea matInput formControlName="who" rows="3"></textarea>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="site-content-form__full">
+                  <mat-label>Tekst o paketima</mat-label>
+                  <textarea matInput formControlName="packages" rows="2"></textarea>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="site-content-form__full">
+                  <mat-label>Završni tekst</mat-label>
+                  <textarea matInput formControlName="closing" rows="2"></textarea>
+                </mat-form-field>
+              </div>
+            </app-form-section>
+
+            <app-form-section title="Masaže/tretmani (kartice)">
+              @for (group of homeMassageGroups; track $index) {
+                <div [formGroup]="group" class="site-content-form__row site-content-form__row--massage">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Naslov</mat-label>
+                    <input matInput formControlName="title" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="site-content-form__full">
+                    <mat-label>Tekst</mat-label>
+                    <textarea matInput formControlName="text" rows="2"></textarea>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Link (href)</mat-label>
+                    <input matInput formControlName="href" placeholder="/usluge/..." />
+                  </mat-form-field>
+                  <button mat-icon-button type="button" color="warn" (click)="removeHomeMassage($index)" aria-label="Ukloni">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+              <button mat-stroked-button type="button" (click)="addHomeMassage()">
+                <mat-icon>add</mat-icon>
+                Dodaj karticu
+              </button>
+            </app-form-section>
+          </app-form-layout>
+
+          <app-form-actions [saving]="savingHomeIntro()" [saveDisabled]="savingHomeIntro()" />
+        </form>
+      </mat-tab>
+
+      <!-- Zašto mi -->
+      <mat-tab label="Zašto mi">
+        <form (ngSubmit)="submitWhyUs()" class="site-content-form__tab">
+          <app-form-layout>
+            <app-form-section title="Stavke">
+              <p class="site-content-form__hint">
+                Ikona se prikazuje kao Material ikona na sajtu (mapiranje poznatih vrednosti u
+                <code>bi-icon-map.ts</code> - nepoznata vrednost pada na zvezdicu).
+              </p>
+              @for (group of whyUsGroups; track $index) {
+                <div [formGroup]="group" class="site-content-form__row site-content-form__row--icon-item">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Ikona</mat-label>
+                    <mat-select formControlName="icon">
+                      @for (option of iconOptions; track option.value) {
+                        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Naslov</mat-label>
+                    <input matInput formControlName="title" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="site-content-form__full">
+                    <mat-label>Tekst</mat-label>
+                    <textarea matInput formControlName="text" rows="2"></textarea>
+                  </mat-form-field>
+                  <button mat-icon-button type="button" color="warn" (click)="removeWhyUsItem($index)" aria-label="Ukloni">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+              <button mat-stroked-button type="button" (click)="addWhyUsItem()">
+                <mat-icon>add</mat-icon>
+                Dodaj stavku
+              </button>
+            </app-form-section>
+          </app-form-layout>
+
+          <app-form-actions [saving]="savingWhyUs()" [saveDisabled]="savingWhyUs()" />
+        </form>
+      </mat-tab>
+
+      <!-- Tim - uvod -->
+      <mat-tab label="Tim - uvod">
+        <form (ngSubmit)="submitTeamIntro()" class="site-content-form__tab">
+          <app-form-layout>
+            <app-form-section title="Uvod">
+              <div [formGroup]="teamIntroForm" class="site-content-form__full">
+                <mat-form-field appearance="outline">
+                  <mat-label>Eyebrow (mali tekst iznad naslova)</mat-label>
+                  <input matInput formControlName="eyebrow" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Naslov</mat-label>
+                  <input matInput formControlName="title" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="site-content-form__full">
+                  <mat-label>Uvodni tekst (lead)</mat-label>
+                  <textarea matInput formControlName="lead" rows="3"></textarea>
+                </mat-form-field>
+              </div>
+            </app-form-section>
+
+            <app-form-section title="Isticanja (sa ikonama)">
+              @for (group of teamHighlightGroups; track $index) {
+                <div [formGroup]="group" class="site-content-form__row site-content-form__row--icon-item">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Ikona</mat-label>
+                    <mat-select formControlName="icon">
+                      @for (option of iconOptions; track option.value) {
+                        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Naslov</mat-label>
+                    <input matInput formControlName="title" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="site-content-form__full">
+                    <mat-label>Tekst</mat-label>
+                    <textarea matInput formControlName="text" rows="2"></textarea>
+                  </mat-form-field>
+                  <button mat-icon-button type="button" color="warn" (click)="removeTeamHighlight($index)" aria-label="Ukloni">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+              <button mat-stroked-button type="button" (click)="addTeamHighlight()">
+                <mat-icon>add</mat-icon>
+                Dodaj isticanje
+              </button>
+            </app-form-section>
+          </app-form-layout>
+
+          <app-form-actions [saving]="savingTeamIntro()" [saveDisabled]="savingTeamIntro()" />
+        </form>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

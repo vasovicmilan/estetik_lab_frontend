@@ -8,67 +8,75 @@
   </div>
 
   <div class="log-summary__cards">
-    <div class="log-summary__card">
-      <div class="log-summary__card-label">Ukupno zahteva</div>
-      <div class="log-summary__card-value">{{ summary().requests.total }}</div>
-    </div>
-    <div class="log-summary__card">
-      <div class="log-summary__card-label">Jedinstvenih IP</div>
-      <div class="log-summary__card-value">{{ summary().requests.uniqueIPs }}</div>
-    </div>
-    <div class="log-summary__card">
-      <div class="log-summary__card-label">Info / Warn / Error</div>
-      <div class="log-summary__card-value">{{ summary().logs.infoCount }} / {{ summary().logs.warnCount }} / {{ summary().logs.errorCount }}</div>
-    </div>
-    <div class="log-summary__card">
-      <div class="log-summary__card-label">Prosečno vreme odgovora</div>
-      <div class="log-summary__card-value">{{ summary().perf.avgResponseTimeMs | number: '1.0-1' }} ms</div>
-    </div>
-    <div class="log-summary__card">
-      <div class="log-summary__card-label">Najduže vreme odgovora</div>
-      <div class="log-summary__card-value">{{ summary().perf.maxResponseTimeMs | number: '1.0-1' }} ms</div>
+    <app-card variant="stat">
+      <span cardTitle>{{ summary().requests.total }}</span>
+      <span cardSubtitle>Ukupno zahteva</span>
+    </app-card>
+    <app-card variant="stat">
+      <span cardTitle>{{ summary().requests.uniqueIPs }}</span>
+      <span cardSubtitle>Jedinstvenih IP</span>
+    </app-card>
+    <app-card variant="stat">
+      <span cardTitle>{{ summary().logs.infoCount }} / {{ summary().logs.warnCount }} / {{ summary().logs.errorCount }}</span>
+      <span cardSubtitle>Info / Warn / Error</span>
+    </app-card>
+    <app-card variant="stat">
+      <span cardTitle>{{ summary().perf.avgResponseTimeMs | number: '1.0-0' }} ms</span>
+      <span cardSubtitle>Prosečno vreme odgovora</span>
+    </app-card>
+    <app-card variant="stat">
+      <span cardTitle>{{ summary().perf.maxResponseTimeMs | number: '1.0-0' }} ms</span>
+      <span cardSubtitle>Najduže vreme odgovora</span>
       @if (summary().perf.maxResponseTimeUrl) {
-        <div class="log-summary__card-sub">{{ summary().perf.maxResponseTimeUrl }}</div>
+        <span cardTrend>{{ summary().perf.maxResponseTimeUrl }}</span>
       }
-    </div>
+    </app-card>
   </div>
 
   <div class="log-summary__status-classes">
     <h3>Statusi odgovora</h3>
-    <dl>
-      <dt>2xx</dt>
-      <dd>{{ summary().requests.byStatusClass['2xx'] }}</dd>
-      <dt>3xx</dt>
-      <dd>{{ summary().requests.byStatusClass['3xx'] }}</dd>
-      <dt>4xx</dt>
-      <dd>{{ summary().requests.byStatusClass['4xx'] }}</dd>
-      <dt>5xx</dt>
-      <dd>{{ summary().requests.byStatusClass['5xx'] }}</dd>
-    </dl>
+    <div class="log-summary__cards">
+      <app-card variant="stat">
+        <span cardTitle>{{ summary().requests.byStatusClass['2xx'] }}</span>
+        <span cardSubtitle>2xx</span>
+      </app-card>
+      <app-card variant="stat">
+        <span cardTitle>{{ summary().requests.byStatusClass['3xx'] }}</span>
+        <span cardSubtitle>3xx</span>
+      </app-card>
+      <app-card variant="stat">
+        <span cardTitle>{{ summary().requests.byStatusClass['4xx'] }}</span>
+        <span cardSubtitle>4xx</span>
+      </app-card>
+      <app-card variant="stat">
+        <span cardTitle>{{ summary().requests.byStatusClass['5xx'] }}</span>
+        <span cardSubtitle>5xx</span>
+      </app-card>
+    </div>
   </div>
 
   <div class="log-summary__tables">
     <section class="log-summary__table-section">
       <h3>Najsporije rute</h3>
       @if (summary().perf.slowestRoutes.length) {
-        <table class="log-summary__table">
-          <thead>
-            <tr>
-              <th>Ruta</th>
-              <th>Prosek (ms)</th>
-              <th>Broj</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (r of summary().perf.slowestRoutes; track r.label) {
-              <tr>
-                <td>{{ r.label }}</td>
-                <td>{{ r.avgMs | number: '1.0-1' }}</td>
-                <td>{{ r.count }}</td>
-              </tr>
-            }
-          </tbody>
+        <div class="log-summary__table-wrapper">
+          <table mat-table [dataSource]="summary().perf.slowestRoutes" class="log-summary__table">
+          <ng-container matColumnDef="label">
+            <th mat-header-cell *matHeaderCellDef>Ruta</th>
+            <td mat-cell *matCellDef="let row">{{ row.label }}</td>
+          </ng-container>
+          <ng-container matColumnDef="avgMs">
+            <th mat-header-cell *matHeaderCellDef>Prosek (ms)</th>
+            <td mat-cell *matCellDef="let row">{{ row.avgMs | number: '1.0-0' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="count">
+            <th mat-header-cell *matHeaderCellDef>Broj</th>
+            <td mat-cell *matCellDef="let row">{{ row.count }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="perfColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: perfColumns"></tr>
         </table>
+          </div>
       } @else {
         <p class="log-summary__empty">Nema podataka.</p>
       }
@@ -77,22 +85,20 @@
     <section class="log-summary__table-section">
       <h3>Najčešće greške</h3>
       @if (summary().topErrors.length) {
-        <table class="log-summary__table">
-          <thead>
-            <tr>
-              <th>Greška</th>
-              <th>Broj</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (e of summary().topErrors; track e.label) {
-              <tr>
-                <td>{{ e.label }}</td>
-                <td>{{ e.count }}</td>
-              </tr>
-            }
-          </tbody>
+        <div class="log-summary__table-wrapper">
+          <table mat-table [dataSource]="summary().topErrors" class="log-summary__table">
+          <ng-container matColumnDef="label">
+            <th mat-header-cell *matHeaderCellDef>Greška</th>
+            <td mat-cell *matCellDef="let row">{{ row.label }}</td>
+          </ng-container>
+          <ng-container matColumnDef="count">
+            <th mat-header-cell *matHeaderCellDef>Broj</th>
+            <td mat-cell *matCellDef="let row">{{ row.count }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: tableColumns"></tr>
         </table>
+          </div>
       } @else {
         <p class="log-summary__empty">Nema grešaka.</p>
       }
@@ -101,22 +107,20 @@
     <section class="log-summary__table-section">
       <h3>Najposećenije rute</h3>
       @if (summary().topUrls.length) {
-        <table class="log-summary__table">
-          <thead>
-            <tr>
-              <th>Ruta</th>
-              <th>Broj</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (u of summary().topUrls; track u.label) {
-              <tr>
-                <td>{{ u.label }}</td>
-                <td>{{ u.count }}</td>
-              </tr>
-            }
-          </tbody>
+        <div class="log-summary__table-wrapper">
+          <table mat-table [dataSource]="summary().topUrls" class="log-summary__table">
+          <ng-container matColumnDef="label">
+            <th mat-header-cell *matHeaderCellDef>Ruta</th>
+            <td mat-cell *matCellDef="let row">{{ row.label }}</td>
+          </ng-container>
+          <ng-container matColumnDef="count">
+            <th mat-header-cell *matHeaderCellDef>Broj</th>
+            <td mat-cell *matCellDef="let row">{{ row.count }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: tableColumns"></tr>
         </table>
+          </div>
       } @else {
         <p class="log-summary__empty">Nema podataka.</p>
       }
@@ -125,22 +129,20 @@
     <section class="log-summary__table-section">
       <h3>Rute sa najviše grešaka</h3>
       @if (summary().topErrorUrls.length) {
-        <table class="log-summary__table">
-          <thead>
-            <tr>
-              <th>Ruta</th>
-              <th>Broj</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (u of summary().topErrorUrls; track u.label) {
-              <tr>
-                <td>{{ u.label }}</td>
-                <td>{{ u.count }}</td>
-              </tr>
-            }
-          </tbody>
+        <div class="log-summary__table-wrapper">
+          <table mat-table [dataSource]="summary().topErrorUrls" class="log-summary__table">
+          <ng-container matColumnDef="label">
+            <th mat-header-cell *matHeaderCellDef>Ruta</th>
+            <td mat-cell *matCellDef="let row">{{ row.label }}</td>
+          </ng-container>
+          <ng-container matColumnDef="count">
+            <th mat-header-cell *matHeaderCellDef>Broj</th>
+            <td mat-cell *matCellDef="let row">{{ row.count }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: tableColumns"></tr>
         </table>
+          </div>
       } @else {
         <p class="log-summary__empty">Nema podataka.</p>
       }

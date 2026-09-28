@@ -48,13 +48,13 @@
       </app-form-section>
 
       <app-form-section title="Slika">
-        @if (imagePreviewUrl()) {
-          <img [src]="imagePreviewUrl() | imageUrl" alt="" class="category-form__image-preview" />
-        }
-        <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
-        @if (uploadingImage()) {
-          <mat-spinner diameter="20" />
-        }
+        <app-file-upload
+          [previewUrl]="imagePreviewUrl()"
+          [uploading]="uploadingImage()"
+          label="Otpremi sliku"
+          (filesSelected)="onImageSelected($event[0])"
+          (removed)="onImageRemoved()"
+        />
       </app-form-section>
     </app-form-layout>
 

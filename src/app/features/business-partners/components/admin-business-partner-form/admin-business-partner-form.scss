@@ -11,19 +11,6 @@
     align-items: center;
   }
 
-  &__image {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  &__image-preview {
-    width: 160px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 4px;
-  }
-
   &__hint {
     color: rgba(0, 0, 0, 0.6);
     margin: 0;

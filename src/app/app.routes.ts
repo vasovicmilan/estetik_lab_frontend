@@ -69,6 +69,31 @@ export const routes: Routes = [
     loadComponent: () => import('./features/contacts/components/contact-page/contact-page').then((m) => m.ContactPage),
   },
   /**
+   * Static/legal marketing pages - DB-backed content (see
+   * core/services/site-content.ts), previously only rendered by the old EJS
+   * site (see the frontend backlog's "static/legal pages" item, now closed).
+   */
+  {
+    path: 'o-nama',
+    loadComponent: () => import('./features/legal/components/about-page/about-page').then((m) => m.AboutPage),
+  },
+  {
+    path: 'faq',
+    loadComponent: () => import('./features/legal/components/faq-page/faq-page').then((m) => m.FaqPage),
+  },
+  {
+    path: 'politika-privatnosti',
+    loadComponent: () => import('./features/legal/components/privacy-policy-page/privacy-policy-page').then((m) => m.PrivacyPolicyPage),
+  },
+  {
+    path: 'uslovi-koriscenja',
+    loadComponent: () => import('./features/legal/components/terms-page/terms-page').then((m) => m.TermsPage),
+  },
+  {
+    path: 'partnerski-program',
+    loadComponent: () => import('./features/legal/components/partnership-page/partnership-page').then((m) => m.PartnershipPage),
+  },
+  /**
    * Standalone public testimonial-submission form - no dedicated public
    * testimonials LIST page exists yet (see home.ts's own comment on why it was
    * left out), so this is reachable from the footer only, not from a
@@ -342,6 +367,12 @@ export const routes: Routes = [
         canActivate: [permissionGuard],
         data: { permission: 'manage_site_content' },
         loadChildren: () => import('./features/admin-ops/site-settings.routes').then((m) => m.SITE_SETTINGS_ADMIN_ROUTES),
+      },
+      {
+        path: 'sadrzaj-sajta',
+        canActivate: [permissionGuard],
+        data: { permission: 'manage_site_content' },
+        loadChildren: () => import('./features/admin-ops/site-content.routes').then((m) => m.SITE_CONTENT_ADMIN_ROUTES),
       },
       {
         path: 'profil',

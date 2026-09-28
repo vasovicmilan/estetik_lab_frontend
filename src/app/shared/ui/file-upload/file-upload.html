@@ -1,0 +1,73 @@
+<div class="file-upload">
+  @if (!multiple()) {
+    @if (previewUrl()) {
+      <div class="file-upload__preview">
+        <img [src]="previewUrl() | imageUrl" alt="" class="file-upload__preview-image" />
+        <button
+          mat-icon-button
+          type="button"
+          class="file-upload__remove"
+          color="warn"
+          [disabled]="disabled() || uploading()"
+          (click)="removed.emit()"
+          aria-label="Ukloni sliku"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    }
+
+    <button mat-stroked-button type="button" [disabled]="disabled() || uploading()" (click)="triggerPicker()">
+      @if (uploading()) {
+        <mat-spinner diameter="18" />
+      } @else {
+        <mat-icon>upload</mat-icon>
+      }
+      {{ previewUrl() ? 'Promeni sliku' : label() }}
+    </button>
+  } @else {
+    <div class="file-upload__gallery">
+      @for (img of previewImages(); track img.img; let i = $index) {
+        <div class="file-upload__gallery-item">
+          <img [src]="img.img | imageUrl" alt="" class="file-upload__gallery-image" />
+          <button
+            mat-icon-button
+            type="button"
+            class="file-upload__remove"
+            color="warn"
+            [disabled]="disabled()"
+            (click)="removedAt.emit(i)"
+            aria-label="Ukloni sliku"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+
+      <button
+        mat-stroked-button
+        type="button"
+        class="file-upload__add"
+        [disabled]="disabled() || uploading()"
+        (click)="triggerPicker()"
+      >
+        @if (uploading()) {
+          <mat-spinner diameter="18" />
+        } @else {
+          <mat-icon>add_photo_alternate</mat-icon>
+        }
+        {{ label() }}
+      </button>
+    </div>
+  }
+
+  <input
+    #fileInput
+    type="file"
+    [accept]="accept()"
+    [multiple]="multiple()"
+    (change)="onFileChange($event)"
+    class="file-upload__native-input"
+    hidden
+  />
+</div>

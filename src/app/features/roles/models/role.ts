@@ -35,7 +35,7 @@ export const PERMISSIONS: { value: string; label: string }[] = [
 
   { value: 'manage_partners', label: 'Upravljanje partnerima' },
   { value: 'manage_payouts', label: 'Upravljanje isplatama' },
-  { value: 'manage_site_content', label: 'Upravljanje sadržajem sajta (hero slika)' },
+  { value: 'manage_site_content', label: 'Upravljanje sadržajem sajta (podešavanja i tekstualni sadržaj)' },
   { value: 'view_own_commissions', label: 'Pregled sopstvene provizije' },
   { value: 'view_logs', label: 'Pregled logova' },
   { value: 'view_business_reports', label: 'Pregled poslovnih izveštaja' },

@@ -10,7 +10,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, Observable } from 'rxjs';
-import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { ImageReference } from '../../../../core/models/upload';
 import { Team } from '../../services/team';
 import { ExpertEditPayload } from '../../models/expert';
@@ -19,6 +18,7 @@ import { ServiceListItem } from '../../../services-catalog/models/service';
 import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
 import { FormSection } from '../../../../shared/ui/form-layout/form-section';
 import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
+import { FileUpload } from '../../../../shared/ui/file-upload/file-upload';
 
 /**
  * Create + edit, same pattern as admin-service-form/admin-product-form: loads the
@@ -51,10 +51,10 @@ import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
     MatSelectModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
-    ImageUrlPipe,
     FormLayout,
     FormSection,
     FormActions,
+    FileUpload,
   ],
   templateUrl: './admin-team-form.html',
   styleUrl: './admin-team-form.scss',
@@ -70,6 +70,10 @@ export class AdminTeamForm implements OnInit {
   expertId = signal<string | null>(null);
   loading = signal(false);
   saving = signal(false);
+  /** Set on the first failed submit attempt - gates the "Slika je obavezna"
+   * message so it doesn't show up front on a blank new-member form before the
+   * person has done anything (same reasoning as admin-blog-form's `submitted`). */
+  submitted = signal(false);
   uploadingImage = signal(false);
   uploadingGallery = signal(false);
   imagePreviewUrl = signal<string | null>(null);
@@ -144,11 +148,7 @@ export class AdminTeamForm implements OnInit {
     return !!this.form.get('image')?.value;
   }
 
-  onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
+  onImageSelected(file: File): void {
     this.uploadingImage.set(true);
     this.team
       .uploadImage(file)
@@ -162,9 +162,12 @@ export class AdminTeamForm implements OnInit {
       });
   }
 
-  onGallerySelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const files = input.files ? Array.from(input.files) : [];
+  onImageRemoved(): void {
+    this.form.patchValue({ image: null });
+    this.imagePreviewUrl.set(null);
+  }
+
+  onGallerySelected(files: File[]): void {
     if (!files.length) return;
 
     this.uploadingGallery.set(true);
@@ -181,9 +184,16 @@ export class AdminTeamForm implements OnInit {
       });
   }
 
+  onGalleryImageRemoved(index: number): void {
+    const remaining = this.galleryPreview().filter((_, i) => i !== index);
+    this.form.patchValue({ gallery: remaining });
+    this.galleryPreview.set(remaining);
+  }
+
   submit(): void {
     if (this.form.invalid || !this.imageSatisfied()) {
       this.form.markAllAsTouched();
+      this.submitted.set(true);
       return;
     }
 

@@ -57,6 +57,7 @@
       }
     </div>
   } @else {
+    <div class="data-table__table-wrapper">
     <table
       mat-table
       [dataSource]="rows()"
@@ -104,6 +105,7 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumnKeys()"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumnKeys()"></tr>
     </table>
+    </div>
   }
 
   @if (!loading() && !error() && rows().length > 0) {

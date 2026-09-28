@@ -53,9 +53,9 @@
                 <td>{{ stavka.naziv }}</td>
                 <td>{{ stavka.varijanta ?? '-' }}</td>
                 <td>{{ stavka.sku ?? '-' }}</td>
-                <td>{{ stavka.cena }} RSD</td>
+                <td>{{ stavka.cena | number: '1.0-0' }} RSD</td>
                 <td>{{ stavka.kolicina }}</td>
-                <td>{{ stavka.ukupno }} RSD</td>
+                <td>{{ stavka.ukupno | number: '1.0-0' }} RSD</td>
               </tr>
             }
           </tbody>
@@ -63,16 +63,16 @@
 
         <dl class="account-order-detail__list account-order-detail__list--totals">
           <dt>Međuzbir</dt>
-          <dd>{{ d.subtotal }} RSD</dd>
+          <dd>{{ d.subtotal | number: '1.0-0' }} RSD</dd>
           <dt>Dostava</dt>
-          <dd>{{ d.zahtevaProceenuDostave ? 'Cena dostave se procenjuje ručno' : d.dostava + ' RSD' }}</dd>
+          <dd>{{ d.zahtevaProceenuDostave ? 'Cena dostave se procenjuje ručno' : (d.dostava | number: '1.0-0') + ' RSD' }}</dd>
           @if (d.kupon) {
             <dt>Kupon</dt>
             <dd>{{ d.kupon }}</dd>
           }
           @if (d.popust) {
             <dt>Popust</dt>
-            <dd>{{ d.popust }} RSD</dd>
+            <dd>{{ d.popust | number: '1.0-0' }} RSD</dd>
           }
           <dt>Ukupno</dt>
           <dd>{{ d.ukupnaCena ?? '-' }}</dd>

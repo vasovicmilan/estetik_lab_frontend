@@ -28,12 +28,58 @@
       </app-form-section>
 
       <app-form-section title="Slika">
-        @if (imagePreviewUrl()) {
-          <img [src]="imagePreviewUrl() | imageUrl" alt="" class="service-form__image-preview" />
+        <app-file-upload
+          [previewUrl]="imagePreviewUrl()"
+          [uploading]="uploadingImage()"
+          label="Otpremi sliku"
+          (filesSelected)="onImageSelected($event[0])"
+          (removed)="onImageRemoved()"
+        />
+        @if (form.get('image')?.value) {
+          <mat-form-field appearance="outline">
+            <mat-label>Alt tekst (slika) *</mat-label>
+            <input
+              matInput
+              [value]="form.get('image')?.value?.imgDesc || ''"
+              (input)="onCoverAltChanged($any($event.target).value)"
+              required
+            />
+            @if (submitted() && !coverImageAltSatisfied()) {
+              <mat-error>Alt tekst je obavezan za sliku.</mat-error>
+            }
+          </mat-form-field>
         }
-        <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
-        @if (uploadingImage()) {
-          <mat-spinner diameter="20" />
+      </app-form-section>
+
+      <app-form-section title="Galerija">
+        <app-file-upload
+          multiple
+          [previewImages]="galleryPreview()"
+          [uploading]="uploadingGallery()"
+          [disabled]="galleryAtCap()"
+          label="Dodaj slike"
+          (filesSelected)="onGallerySelected($event)"
+          (removedAt)="onGalleryImageRemoved($event)"
+        />
+        <p class="service-form__gallery-count" [class.service-form__gallery-count--full]="galleryAtCap()">
+          {{ galleryCount() }}/10 slika
+          @if (galleryAtCap()) {
+            — dostignut je maksimalan broj slika u galeriji.
+          }
+        </p>
+
+        @if (galleryPreview().length) {
+          <div class="service-form__gallery-alt-list">
+            @for (img of galleryPreview(); track img.img; let i = $index) {
+              <mat-form-field appearance="outline" class="service-form__gallery-alt-field">
+                <mat-label>Alt tekst (slika {{ i + 1 }}) *</mat-label>
+                <input matInput [value]="img.imgDesc" (input)="onGalleryAltChanged(i, $any($event.target).value)" required />
+                @if (submitted() && !img.imgDesc.trim()) {
+                  <mat-error>Alt tekst je obavezan.</mat-error>
+                }
+              </mat-form-field>
+            }
+          </div>
         }
       </app-form-section>
 
@@ -44,6 +90,13 @@
           addLabel="Dodaj varijantu"
           emptyLabel="Nema varijanti - dodajte bar jednu pre objavljivanja."
         />
+      </app-form-section>
+
+      <app-form-section title="SEO">
+        <mat-form-field appearance="outline">
+          <mat-label>SEO ključne reči</mat-label>
+          <input matInput formControlName="seoKeywords" placeholder="odvojene zarezom" />
+        </mat-form-field>
       </app-form-section>
     </app-form-layout>
 

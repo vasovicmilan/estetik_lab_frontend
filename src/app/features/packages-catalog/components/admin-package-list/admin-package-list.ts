@@ -30,6 +30,7 @@ export class AdminPackageList implements OnInit {
   error = signal<string | null>(null);
 
   private limit = 10;
+  private search = '';
   /** `naziv`/`cena`/`najbolji`/`aktivan` are plain scalar columns (name,
    * totalPrice, isBest, isActive) on the Package schema - see
    * PACKAGE_SORT_FIELDS in admin-catalog.controller.js. `stavke` (populated
@@ -67,6 +68,7 @@ export class AdminPackageList implements OnInit {
       .listAdmin({
         page,
         limit: this.limit,
+        search: this.search || undefined,
         sort: this.sort ?? undefined,
         order: this.order ?? undefined,
       })
@@ -86,6 +88,11 @@ export class AdminPackageList implements OnInit {
   onPage(event: PageEvent): void {
     this.limit = event.pageSize;
     this.load(event.pageIndex + 1);
+  }
+
+  onSearch(term: string): void {
+    this.search = term;
+    this.load(1);
   }
 
   onSort(sort: Sort): void {

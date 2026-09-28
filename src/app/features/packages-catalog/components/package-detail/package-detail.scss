@@ -26,6 +26,55 @@
     color: var(--mat-sys-on-surface-variant, #555);
   }
 
+  &__gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  &__gallery-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  &__video-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  &__video {
+    video {
+      width: 100%;
+      border-radius: 8px;
+    }
+  }
+
+  &__video-title {
+    margin: 0.4rem 0 0;
+    font-size: 0.9rem;
+  }
+
+  &__video-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+
+    img {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    span {
+      display: block;
+      margin-top: 0.4rem;
+      font-size: 0.9rem;
+    }
+  }
+
   &__price {
     font-size: 1.5rem;
     font-weight: 700;

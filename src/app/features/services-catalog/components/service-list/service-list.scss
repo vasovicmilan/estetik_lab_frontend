@@ -25,10 +25,28 @@
     height: 100%;
   }
 
+  &__media {
+    position: relative;
+  }
+
   &__image {
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
+    display: block;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    --mat-chip-elevated-container-color: var(--mat-sys-secondary, #7c6470);
+    --mat-chip-label-text-color: var(--mat-sys-on-secondary, #fff);
+    --mat-chip-with-avatar-avatar-color: var(--mat-sys-on-secondary, #fff);
+  }
+
+  &__categories {
+    margin-bottom: 0.5rem;
   }
 
   &__price {

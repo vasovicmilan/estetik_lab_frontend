@@ -38,8 +38,13 @@ export class Package {
     return this.api.delete<{ message: string }>(`admin/packages/${id}`);
   }
 
+  /** POST /api/v1/admin/uploads/packages - see admin-uploads.routes.js. */
   uploadImage(file: File): Observable<ImageReference> {
     return this.api.upload<ImageReference>('admin/uploads/packages', file, 'file');
+  }
+
+  uploadGallery(files: File[]): Observable<ImageReference[]> {
+    return this.api.uploadMultiple<ImageReference[]>('admin/uploads/packages/gallery', files, 'gallery');
   }
 
   // ---- Public ----

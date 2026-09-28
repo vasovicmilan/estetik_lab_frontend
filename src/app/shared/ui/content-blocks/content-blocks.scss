@@ -1,6 +1,61 @@
 .content-block {
   margin-bottom: 1.25rem;
 
+  // Fallback for direct #hash navigation (no click handler involved, e.g. a
+  // bookmarked/shared TOC link) - the sticky site header (~4.5rem tall) would
+  // otherwise cover the top of the heading. blog-detail's TOC clicks compute
+  // this precisely at runtime instead (see scrollToHeading's own comment);
+  // this is just a reasonable constant for the case that bypasses it.
+  h2,
+  h3,
+  h4 {
+    scroll-margin-top: 5.5rem;
+  }
+
+  // Ordered lists get the reference site's large two-digit numbering
+  // ("01"/"02"/...) via a CSS counter instead of the browser's default
+  // marker, unordered lists keep a plain bullet.
+  ol {
+    list-style: none;
+    counter-reset: content-block-ol;
+    padding-left: 0;
+    margin: 0.75rem 0;
+
+    li {
+      counter-increment: content-block-ol;
+      position: relative;
+      padding-left: 3rem;
+      min-height: 2.25rem;
+      display: flex;
+      align-items: center;
+
+      &:not(:last-child) {
+        margin-bottom: 0.75rem;
+      }
+
+      &::before {
+        content: counter(content-block-ol, decimal-leading-zero);
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-weight: 700;
+        font-size: 1.125rem;
+        line-height: 2.25rem;
+        color: var(--mat-sys-primary, #b3568c);
+        min-width: 2.25rem;
+      }
+    }
+  }
+
+  ul {
+    margin: 0.75rem 0;
+    padding-left: 1.25rem;
+
+    li:not(:last-child) {
+      margin-bottom: 0.4rem;
+    }
+  }
+
   &__figure {
     margin: 0;
   }
@@ -46,12 +101,30 @@
   &__table {
     width: 100%;
     border-collapse: collapse;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
 
     th,
     td {
-      border: 1px solid rgba(0, 0, 0, 0.12);
-      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+      padding: 0.65rem 0.9rem;
       text-align: left;
+    }
+
+    thead th {
+      background: var(--mat-sys-secondary-container, #e8dde3);
+      color: var(--mat-sys-on-secondary-container, #302329);
+      font-weight: 600;
+      border-bottom: none;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:nth-child(even) {
+      background: var(--mat-sys-surface-container-lowest, #fafafa);
     }
   }
 
@@ -68,25 +141,61 @@
   }
 
   &__callout {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
     padding: 1rem;
     border-radius: 8px;
     border-left: 4px solid;
 
+    h4 {
+      margin: 0 0 0.25rem;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    &-icon {
+      flex: none;
+      margin-top: 0.1rem;
+    }
+
+    &-body {
+      flex: 1 1 auto;
+    }
+
     &--info {
       background: #eef6fb;
       border-color: #4a90c4;
+
+      .content-block__callout-icon {
+        color: #4a90c4;
+      }
     }
     &--success {
       background: #eaf7ee;
       border-color: #3fa860;
+
+      .content-block__callout-icon {
+        color: #3fa860;
+      }
     }
     &--warning {
       background: #fff8e6;
       border-color: #d9a72a;
+
+      .content-block__callout-icon {
+        color: #d9a72a;
+      }
     }
     &--danger {
       background: #fbecec;
       border-color: #c94b4b;
+
+      .content-block__callout-icon {
+        color: #c94b4b;
+      }
     }
   }
 
@@ -95,6 +204,15 @@
     padding: 1.5rem;
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.03);
+
+    h3 {
+      margin-top: 0;
+    }
+
+    &--reference {
+      background: var(--mat-sys-surface-container, #f3edf4);
+      border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+    }
   }
 
   &__cta-button {
@@ -105,6 +223,19 @@
     background: var(--mat-sys-primary, #b3568c);
     color: #fff;
     text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &__faq {
+    mat-accordion {
+      display: block;
+      margin-top: 0.5rem;
+    }
   }
 
   &__divider {

@@ -67,6 +67,32 @@ export interface ServiceFaqDisplay {
   odgovor: string;
 }
 
+/** Matches VideoSchema as returned raw (not through formatImage) on
+ * mapServiceForPublicDetail's `videi` field - see service.mapper.js. */
+export interface ServiceVideoDisplay {
+  url: string;
+  title?: string | null;
+  thumbnail?: string | null;
+  isExternal?: boolean;
+}
+
+/** Same {kolone, redovi} shape as a blog/product `table` content block
+ * (see ContentBlock's kolone/redovi) - mirrors Service's comparisonColumns/
+ * comparisonTable fields, returned as `tabelaPoredjenja` by both
+ * mapServiceForAdminDetail and mapServiceForPublicDetail. */
+export interface ServiceComparisonTable {
+  kolone: string[];
+  redovi: { label?: string; values?: string[] }[];
+}
+
+/** Only present on the public detail response (mapServiceForPublicDetail) -
+ * null when the service has no equipmentNote.text set. */
+export interface ServiceEquipmentNote {
+  tekst: string;
+  dugmeTekst: string;
+  dugmeUrl: string;
+}
+
 export interface ServiceDetail {
   id: string;
   naziv: string;
@@ -78,9 +104,14 @@ export interface ServiceDetail {
   resursi?: string[];
   slika: ImageDisplay | null;
   galerija: ImageDisplay[];
+  /** Only on the public detail response - mapServiceForAdminDetail doesn't return it. */
+  videi?: ServiceVideoDisplay[];
   cta: string;
   varijante: ServiceVariantDisplay[];
+  tabelaPoredjenja?: ServiceComparisonTable;
   faq: ServiceFaqDisplay[];
+  /** Only on the public detail response - mapServiceForAdminDetail doesn't return it. */
+  opremaNapomena?: ServiceEquipmentNote | null;
   seoKljucneReci?: string[];
   aktivna?: boolean;
 }

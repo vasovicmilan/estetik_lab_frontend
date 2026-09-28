@@ -11,13 +11,13 @@
         <h3>Stanje</h3>
         <dl class="partner-earnings__stats">
           <dt>Zarađeno</dt>
-          <dd>{{ b.earned }} RSD</dd>
+          <dd>{{ b.earned | number: '1.0-0' }} RSD</dd>
           <dt>Isplaćeno</dt>
-          <dd>{{ b.paid }} RSD</dd>
+          <dd>{{ b.paid | number: '1.0-0' }} RSD</dd>
           <dt>Rezervisano</dt>
-          <dd>{{ b.reserved }} RSD</dd>
+          <dd>{{ b.reserved | number: '1.0-0' }} RSD</dd>
           <dt>Raspoloživo</dt>
-          <dd>{{ b.available }} RSD</dd>
+          <dd>{{ b.available | number: '1.0-0' }} RSD</dd>
         </dl>
       </section>
     }
@@ -69,8 +69,8 @@
               <tr>
                 <td>{{ formatDate(c.createdAt) }}</td>
                 <td>{{ sourceTypeLabel(c.sourceType) }}</td>
-                <td>{{ c.rate }}%</td>
-                <td>{{ c.amount }} RSD</td>
+                <td>{{ c.rate | number: '1.0-0' }}%</td>
+                <td>{{ c.amount | number: '1.0-0' }} RSD</td>
                 <td>{{ commissionStatusLabel(c.status) }}</td>
               </tr>
             }
@@ -97,7 +97,7 @@
             @for (p of payouts(); track p.id) {
               <tr>
                 <td>{{ formatDate(p.requestedAt) }}</td>
-                <td>{{ p.amount }} RSD</td>
+                <td>{{ p.amount | number: '1.0-0' }} RSD</td>
                 <td>{{ payoutStatusLabel(p.status) }}</td>
                 <td>{{ p.adminNote ?? '-' }}</td>
               </tr>

@@ -64,11 +64,11 @@
         <h2>Cena</h2>
         <dl class="admin-detail__list">
           <dt>Originalna cena</dt>
-          <dd>{{ d.originalnaCena }} RSD</dd>
+          <dd>{{ d.originalnaCena | number: '1.0-0' }} RSD</dd>
           <dt>Popust</dt>
-          <dd>{{ d.popust }} RSD</dd>
+          <dd>{{ d.popust | number: '1.0-0' }} RSD</dd>
           <dt>Plaćeno</dt>
-          <dd>{{ d.placeno }} RSD</dd>
+          <dd>{{ d.placeno | number: '1.0-0' }} RSD</dd>
         </dl>
       </section>
 

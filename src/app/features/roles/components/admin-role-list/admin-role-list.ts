@@ -33,6 +33,7 @@ export class AdminRoleList implements OnInit {
   error = signal<string | null>(null);
 
   private limit = 10;
+  private search = '';
   /** `naziv`/`opis`/`podrazumevana`/`prioritet` are plain scalar columns (name,
    * description, isDefault, priority) on the Role schema - see
    * ROLE_SORT_FIELDS in admin-taxonomy.controller.js. `brojPermisija`
@@ -71,7 +72,7 @@ export class AdminRoleList implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.role
-      .listAdmin({ page, limit: this.limit, sort: this.sort ?? undefined, order: this.order ?? undefined })
+      .listAdmin({ page, limit: this.limit, search: this.search || undefined, sort: this.sort ?? undefined, order: this.order ?? undefined })
       .subscribe({
         next: ({ data, meta }) => {
           this.rows.set(data);
@@ -88,6 +89,11 @@ export class AdminRoleList implements OnInit {
   onPage(event: PageEvent): void {
     this.limit = event.pageSize;
     this.load(event.pageIndex + 1);
+  }
+
+  onSearch(term: string): void {
+    this.search = term;
+    this.load(1);
   }
 
   onSort(sort: Sort): void {

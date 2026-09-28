@@ -11,7 +11,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, Observable } from 'rxjs';
 import { RepeaterField, RepeaterSubfield } from '../../../../shared/ui/repeater-field/repeater-field';
-import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { ImageReference } from '../../../../core/models/upload';
 import { ContentBlock } from '../../../../core/models/content-block';
 import { Product } from '../../services/product';
@@ -23,6 +22,7 @@ import { TagAdminListItem } from '../../../taxonomy/models/tag';
 import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
 import { FormSection } from '../../../../shared/ui/form-layout/form-section';
 import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
+import { FileUpload } from '../../../../shared/ui/file-upload/file-upload';
 
 /**
  * Create + edit, same pattern as admin-service-form: loads the RAW edit shape
@@ -35,8 +35,9 @@ import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
  * complex for a v1 store. The loaded value is kept in a component field
  * (`longDescription`, not bound to any form control) and merged back into the
  * payload unchanged on submit. Same treatment for `relatedProducts`/
- * `relatedServices`/`relatedPosts`/`faq`/`seoKeywords` - no UI for editing them
- * in this pass, but nothing is lost on save.
+ * `relatedServices`/`relatedPosts`/`faq` - no UI for editing them in this pass,
+ * but nothing is lost on save. (`seoKeywords` DOES have a dedicated field now -
+ * see below.)
  *
  * `categories`/`tags` USED to be plain comma-separated ObjectId text inputs (an
  * explicit v1 limitation, per this file's earlier comment) - now that Category/Tag
@@ -44,6 +45,13 @@ import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
  * `mat-select multiple` pickers instead, filtered to domain: 'product'. The
  * FormControls still carry plain `string[]` of ObjectIds - only the input widget
  * changed, not the payload shape.
+ *
+ * `seoKeywords` DOES have a dedicated field (a comma-separated text input, split
+ * to an array only when building the request) - same convention as admin-blog-
+ * form's SEO step. There's no seoTitle/seoDescription for a product on the
+ * backend (see PUT admin/products/:id/seo's validator), so unlike the blog form
+ * this is keywords-only. Saved via Product.updateSeo() as a follow-up call after
+ * create/update succeeds, since it's a separate endpoint (see that method's comment).
  */
 @Component({
   selector: 'app-admin-product-form',
@@ -57,10 +65,10 @@ import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
     MatCheckboxModule,
     MatProgressSpinnerModule,
     RepeaterField,
-    ImageUrlPipe,
     FormLayout,
     FormSection,
     FormActions,
+    FileUpload,
   ],
   templateUrl: './admin-product-form.html',
   styleUrl: './admin-product-form.scss',
@@ -77,6 +85,10 @@ export class AdminProductForm implements OnInit {
   productId = signal<string | null>(null);
   loading = signal(false);
   saving = signal(false);
+  /** Set on the first failed submit attempt - gates the alt-text "obavezno"
+   * messages so nothing shows up front on a blank new-product form (same
+   * pattern as admin-blog-form's `submitted`). */
+  submitted = signal(false);
   uploadingImage = signal(false);
   uploadingGallery = signal(false);
   imagePreviewUrl = signal<string | null>(null);
@@ -91,7 +103,6 @@ export class AdminProductForm implements OnInit {
   private relatedServices: string[] = [];
   private relatedPosts: string[] = [];
   private faq: ProductFaqEntry[] = [];
-  private seoKeywords: string[] = [];
 
   // Matches RawVariation (see models/product.ts's ProductVariation) - the `_id`
   // hidden field preserves a row's identity across an edit, same as
@@ -134,6 +145,7 @@ export class AdminProductForm implements OnInit {
     variations: this.fb.array<FormGroup>([]),
     image: [null as ImageReference | null],
     gallery: [[] as ImageReference[]],
+    seoKeywords: [''],
   });
 
   get variations(): FormArray<FormGroup> {
@@ -178,6 +190,7 @@ export class AdminProductForm implements OnInit {
       tags: product.tags ?? [],
       image: product.image ?? null,
       gallery: product.gallery ?? [],
+      seoKeywords: (product.seoKeywords ?? []).join(', '),
     });
     this.imagePreviewUrl.set(product.image?.img ?? null);
     this.galleryPreview.set(product.gallery ?? []);
@@ -187,7 +200,6 @@ export class AdminProductForm implements OnInit {
     this.relatedServices = product.relatedServices ?? [];
     this.relatedPosts = product.relatedPosts ?? [];
     this.faq = product.faq ?? [];
-    this.seoKeywords = product.seoKeywords ?? [];
 
     this.variations.clear();
     for (const variant of product.variations ?? []) {
@@ -207,11 +219,7 @@ export class AdminProductForm implements OnInit {
     }
   }
 
-  onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
+  onImageSelected(file: File): void {
     this.uploadingImage.set(true);
     this.product
       .uploadImage(file)
@@ -225,9 +233,38 @@ export class AdminProductForm implements OnInit {
       });
   }
 
-  onGallerySelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const files = input.files ? Array.from(input.files) : [];
+  onImageRemoved(): void {
+    this.form.patchValue({ image: null });
+    this.imagePreviewUrl.set(null);
+  }
+
+  onCoverAltChanged(value: string): void {
+    const cover = this.form.get('image')?.value as ImageReference | null;
+    if (!cover) return;
+    this.form.patchValue({ image: { ...cover, imgDesc: value } });
+  }
+
+  /** ImageSchema.imgDesc is a required Mongoose field - an empty alt text
+   * would fail to save even though the image itself uploaded fine. Cover
+   * image itself isn't required for a product, so this only blocks submit
+   * when a cover image is actually present. */
+  coverImageAltSatisfied(): boolean {
+    const cover = this.form.get('image')?.value as ImageReference | null;
+    return !cover || !!cover.imgDesc?.trim();
+  }
+
+  /** Mirrors the backend's required-imgDesc rule for every gallery image. */
+  galleryAltSatisfied(): boolean {
+    return this.galleryPreview().every((img) => !!img.imgDesc?.trim());
+  }
+
+  onGalleryAltChanged(index: number, value: string): void {
+    const updated = this.galleryPreview().map((img, i) => (i === index ? { ...img, imgDesc: value } : img));
+    this.form.patchValue({ gallery: updated });
+    this.galleryPreview.set(updated);
+  }
+
+  onGallerySelected(files: File[]): void {
     if (!files.length) return;
 
     this.uploadingGallery.set(true);
@@ -244,30 +281,52 @@ export class AdminProductForm implements OnInit {
       });
   }
 
+  onGalleryImageRemoved(index: number): void {
+    const remaining = this.galleryPreview().filter((_, i) => i !== index);
+    this.form.patchValue({ gallery: remaining });
+    this.galleryPreview.set(remaining);
+  }
+
   submit(): void {
-    if (this.form.invalid) {
+    const altTextOk = this.coverImageAltSatisfied() && this.galleryAltSatisfied();
+
+    if (this.form.invalid || !altTextOk) {
       this.form.markAllAsTouched();
+      this.submitted.set(true);
       return;
     }
 
     // form.value has the form-editable fields; the rest of the payload comes from
-    // whatever the loaded edit payload carried (see the header comment).
+    // whatever the loaded edit payload carried (see the header comment). seoKeywords
+    // is pulled out separately - it's saved through its own endpoint below, not the
+    // create/update payload (same split as admin-blog-form's SEO step).
+    const { seoKeywords, ...formValue } = this.form.value;
     const payload: ProductEditPayload = {
-      ...this.form.value,
+      ...formValue,
       longDescription: this.longDescription,
       relatedProducts: this.relatedProducts,
       relatedServices: this.relatedServices,
       relatedPosts: this.relatedPosts,
       faq: this.faq,
-      seoKeywords: this.seoKeywords,
     };
     const id = this.productId();
 
     this.saving.set(true);
-    const request$: Observable<unknown> = id ? this.product.update(id, payload) : this.product.create(payload);
+    const request$: Observable<ProductEditPayload> = id ? this.product.update(id, payload) : this.product.create(payload);
 
     request$.pipe(finalize(() => this.saving.set(false))).subscribe({
-      next: () => {
+      next: (saved) => {
+        const savedId = id ?? saved.id;
+        // SEO is a separate endpoint (see Product.updateSeo()'s comment) - only
+        // callable once the product has an id, so it's a follow-up call rather
+        // than part of the create/update payload above. Best-effort: a failed
+        // SEO save shouldn't make the person think the whole product failed to
+        // save, since it plainly did.
+        if (savedId) {
+          this.product
+            .updateSeo(savedId, { seoKeywords: seoKeywords || undefined })
+            .subscribe({ error: () => this.snackBar.open('Proizvod je sačuvan, ali SEO podaci nisu uspeli.', 'U redu', { duration: 4000 }) });
+        }
         this.snackBar.open('Proizvod je sačuvan.', 'U redu', { duration: 3000 });
         this.router.navigate(['/admin/prodavnica']);
       },

@@ -1,36 +1,57 @@
 <header class="header">
-  <a class="header__brand" routerLink="/">Estetik Lab</a>
+  <a class="header__brand" routerLink="/" (click)="closeMenu()">Estetik Lab</a>
 
-  <nav class="header__nav">
-    <a routerLink="/usluge" routerLinkActive="header__link--active" class="header__link">Usluge</a>
-    <a routerLink="/paketi" routerLinkActive="header__link--active" class="header__link">Paketi</a>
-    <a routerLink="/tim" routerLinkActive="header__link--active" class="header__link">Naš tim</a>
-    <a routerLink="/blog" routerLinkActive="header__link--active" class="header__link">Blog</a>
-    <a routerLink="/prodavnica" routerLinkActive="header__link--active" class="header__link">Prodavnica</a>
-    <a routerLink="/saradnici" routerLinkActive="header__link--active" class="header__link">Saradnici</a>
-    <a routerLink="/kontakt" routerLinkActive="header__link--active" class="header__link">Kontakt</a>
+  @if (isHandset()) {
+    <button
+      mat-icon-button
+      type="button"
+      class="header__menu-toggle"
+      [attr.aria-label]="menuOpen() ? 'Zatvori meni' : 'Otvori meni'"
+      (click)="toggleMenu()"
+    >
+      <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
+    </button>
+  }
+
+  <nav class="header__nav" [class.header__nav--open]="!isHandset() || menuOpen()">
+    <a routerLink="/o-nama" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">O nama</a>
+    <a routerLink="/usluge" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Usluge</a>
+    <a routerLink="/paketi" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Paketi</a>
+    <a routerLink="/tim" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Naš tim</a>
+    <a routerLink="/blog" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Blog</a>
+    <a routerLink="/prodavnica" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Prodavnica</a>
+    <a routerLink="/saradnici" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Saradnici</a>
+    <a routerLink="/kontakt" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Kontakt</a>
 
     @if (auth.hasAnyAdminAccess()) {
-      <a routerLink="/admin" routerLinkActive="header__link--active" class="header__link"> Admin </a>
+      <a routerLink="/admin" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()"> Admin </a>
     }
 
     @if (auth.currentUser()?.isEmployee) {
-      <a routerLink="/zaposleni-panel" routerLinkActive="header__link--active" class="header__link">Panel zaposlenog</a>
+      <a routerLink="/zaposleni-panel" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Panel zaposlenog</a>
     }
 
     @if (auth.currentUser()?.isPartner) {
-      <a routerLink="/partner-panel" routerLinkActive="header__link--active" class="header__link">Panel partnera</a>
+      <a routerLink="/partner-panel" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Panel partnera</a>
     }
 
-    <a routerLink="/korpa" routerLinkActive="header__link--active" class="header__link header__link--cart" aria-label="Korpa">
+    <a
+      routerLink="/korpa"
+      routerLinkActive="header__link--active"
+      class="header__link header__link--cart"
+      aria-label="Korpa"
+      (click)="closeMenu()"
+    >
       <mat-icon>shopping_cart</mat-icon>
     </a>
 
     @if (auth.currentUser(); as user) {
-      <a routerLink="/moj-nalog" routerLinkActive="header__link--active" class="header__user" title="Moj nalog">{{ user.email }}</a>
+      <a routerLink="/moj-nalog" routerLinkActive="header__link--active" class="header__user" title="Moj nalog" (click)="closeMenu()">{{
+        user.email
+      }}</a>
       <button mat-button (click)="logout()">Odjava</button>
     } @else {
-      <a mat-button routerLink="/prijava">Prijava</a>
+      <a mat-button routerLink="/prijava" (click)="closeMenu()">Prijava</a>
     }
   </nav>
 </header>

@@ -12,13 +12,46 @@
     <p class="package-detail__intro">{{ p.kratakOpis }}</p>
 
     <p class="package-detail__price">
-      {{ p.cena }} RSD
+      {{ p.cena | number: '1.0-0' }} RSD
       @if (p.staraCena) {
-        <span class="package-detail__price--old">{{ p.staraCena }} RSD</span>
+        <span class="package-detail__price--old">{{ p.staraCena | number: '1.0-0' }} RSD</span>
       }
     </p>
 
+    @if (p.galerija.length) {
+      <div class="package-detail__gallery">
+        @for (img of p.galerija; track $index) {
+          <img [src]="img.url | imageUrl" [alt]="img.alt || p.naziv" class="package-detail__gallery-image" />
+        }
+      </div>
+    }
+
     <div class="package-detail__body" [innerHTML]="p.opis"></div>
+
+    @if (p.videi.length) {
+      <section class="package-detail__videos">
+        <h2>Video</h2>
+        <div class="package-detail__video-list">
+          @for (video of p.videi; track $index) {
+            <div class="package-detail__video">
+              @if (video.isExternal) {
+                <a [href]="video.url" target="_blank" rel="noopener" class="package-detail__video-link">
+                  @if (video.thumbnail) {
+                    <img [src]="video.thumbnail" [alt]="video.title || p.naziv" />
+                  }
+                  <span>{{ video.title || 'Pogledaj video' }}</span>
+                </a>
+              } @else {
+                <video [src]="video.url" controls [poster]="video.thumbnail || null"></video>
+                @if (video.title) {
+                  <p class="package-detail__video-title">{{ video.title }}</p>
+                }
+              }
+            </div>
+          }
+        </div>
+      </section>
+    }
 
     @if (p.stavke.length) {
       <section class="package-detail__items">

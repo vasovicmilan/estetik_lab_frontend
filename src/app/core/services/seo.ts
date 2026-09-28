@@ -15,6 +15,22 @@ export class Seo {
   private titleService = inject(Title);
   private meta = inject(Meta);
 
+  /**
+   * Static title/description for pages that don't carry a backend `seo` object -
+   * catalog LISTING pages deliberately have none (see catalog.controller.js's
+   * header comment: "Listing routes deliberately do NOT get a `seo` field"), so
+   * they'd otherwise ship with no <title>/description at all (they used to).
+   * Sets just Title + meta description + canonical, no OG/Twitter/JSON-LD -
+   * those need real per-page data that only a detail endpoint provides.
+   */
+  applyStatic(title: string, description: string): void {
+    this.titleService.setTitle(title);
+    this.setTag('name', 'description', description);
+    if (typeof document !== 'undefined') {
+      this.setCanonical(document.location.href);
+    }
+  }
+
   apply(seo: SeoData): void {
     this.titleService.setTitle(seo.title);
 

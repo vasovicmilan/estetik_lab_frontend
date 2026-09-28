@@ -5,9 +5,31 @@
     }
 
     <h1>{{ p.naslov }}</h1>
-    <p class="blog-detail__meta">{{ p.autor.ime }} &middot; {{ p.datumObjave }} &middot; {{ p.vremeCitanja }}</p>
 
-    @if (p.kategorije.length) {
+    <div class="blog-detail__author">
+      @if (authorAvatarUrl(); as avatarUrl) {
+        <img [src]="avatarUrl | imageUrl" [alt]="p.autor.ime" class="blog-detail__author-avatar" />
+      }
+      <p class="blog-detail__meta">{{ p.autor.ime }} &middot; {{ p.datumObjave }} &middot; {{ p.vremeCitanja }}</p>
+    </div>
+
+    @if (p.kratakOpis) {
+      <p class="blog-detail__excerpt">{{ p.kratakOpis }}</p>
+    }
+
+    @if (p.kategorijeRefs?.length) {
+      <mat-chip-set>
+        @for (kat of p.kategorijeRefs!; track kat.naziv) {
+          <mat-chip>
+            @if (kat.slug) {
+              <a [routerLink]="['/blog/kategorija', kat.slug]">{{ kat.naziv }}</a>
+            } @else {
+              {{ kat.naziv }}
+            }
+          </mat-chip>
+        }
+      </mat-chip-set>
+    } @else if (p.kategorije.length) {
       <mat-chip-set>
         @for (kategorija of p.kategorije; track kategorija) {
           <mat-chip>{{ kategorija }}</mat-chip>
@@ -15,8 +37,53 @@
       </mat-chip-set>
     }
 
-    <div class="blog-detail__body">
-      <app-content-blocks [blocks]="p.sadrzaj" />
+    @if (p.tagoviRefs?.length) {
+      <mat-chip-set>
+        @for (tag of p.tagoviRefs!; track tag.naziv) {
+          <mat-chip>
+            @if (tag.slug) {
+              <a [routerLink]="['/blog/tag', tag.slug]">{{ tag.naziv }}</a>
+            } @else {
+              {{ tag.naziv }}
+            }
+          </mat-chip>
+        }
+      </mat-chip-set>
+    } @else if (p.tagovi.length) {
+      <mat-chip-set>
+        @for (tag of p.tagovi; track tag) {
+          <mat-chip>{{ tag }}</mat-chip>
+        }
+      </mat-chip-set>
+    }
+
+    <div class="blog-detail__layout">
+      @if (toc().length > 1) {
+        <aside class="blog-detail__toc">
+          <p class="blog-detail__toc-title">Sadržaj</p>
+          <ol class="blog-detail__toc-list">
+            @for (entry of toc(); track entry.id) {
+              <li [class.blog-detail__toc-item--sub]="entry.level === 3">
+                <a [href]="'#' + entry.id" (click)="scrollToHeading(entry.id, $event)">{{ entry.text }}</a>
+              </li>
+            }
+          </ol>
+        </aside>
+      }
+
+      <div class="blog-detail__main">
+        <div class="blog-detail__body">
+          <app-content-blocks [blocks]="p.sadrzaj" />
+        </div>
+
+        @if (p.galerija.length) {
+          <div class="blog-detail__gallery">
+            @for (img of p.galerija; track $index) {
+              <img [src]="img.url | imageUrl" [alt]="img.alt || ''" class="blog-detail__gallery-image" />
+            }
+          </div>
+        }
+      </div>
     </div>
   </article>
 } @else {

@@ -1,0 +1,232 @@
+<div class="sections-builder">
+  @for (section of sections(); track $index; let sIndex = $index) {
+    <mat-card appearance="outlined" class="sections-builder__section">
+      <mat-card-content>
+        <div class="sections-builder__section-header">
+          <mat-form-field appearance="outline" class="sections-builder__title-field">
+            <mat-label>Naslov sekcije</mat-label>
+            <input matInput [ngModel]="section.title" (ngModelChange)="updateSectionTitle(sIndex, $event)" />
+          </mat-form-field>
+
+          <div class="sections-builder__section-controls">
+            <button mat-icon-button type="button" (click)="moveSection(sIndex, -1)" [disabled]="sIndex === 0" aria-label="Pomeri gore">
+              <mat-icon>arrow_upward</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              type="button"
+              (click)="moveSection(sIndex, 1)"
+              [disabled]="sIndex === sections().length - 1"
+              aria-label="Pomeri dole"
+            >
+              <mat-icon>arrow_downward</mat-icon>
+            </button>
+            <button mat-icon-button type="button" color="warn" (click)="removeSection(sIndex)" aria-label="Ukloni sekciju">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pasusi -->
+        <div class="sections-builder__group">
+          <div class="sections-builder__group-label">Pasusi</div>
+          @for (paragraph of section.paragraphs; track $index) {
+            <div class="sections-builder__item-row">
+              <mat-form-field appearance="outline" class="sections-builder__item-field">
+                <textarea
+                  matInput
+                  rows="2"
+                  [ngModel]="paragraph"
+                  (ngModelChange)="updateSectionItem(sIndex, 'paragraphs', $index, $event)"
+                ></textarea>
+              </mat-form-field>
+              <button
+                mat-icon-button
+                type="button"
+                color="warn"
+                (click)="removeSectionItem(sIndex, 'paragraphs', $index)"
+                aria-label="Ukloni pasus"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+          <button mat-stroked-button type="button" (click)="addSectionItem(sIndex, 'paragraphs')">
+            <mat-icon>add</mat-icon>
+            Dodaj pasus
+          </button>
+        </div>
+
+        <!-- Lista -->
+        <div class="sections-builder__group">
+          <div class="sections-builder__group-label">Lista (stavke)</div>
+          @for (item of section.list; track $index) {
+            <div class="sections-builder__item-row">
+              <mat-form-field appearance="outline" class="sections-builder__item-field">
+                <input matInput [ngModel]="item" (ngModelChange)="updateSectionItem(sIndex, 'list', $index, $event)" />
+              </mat-form-field>
+              <button mat-icon-button type="button" color="warn" (click)="removeSectionItem(sIndex, 'list', $index)" aria-label="Ukloni stavku">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+          <button mat-stroked-button type="button" (click)="addSectionItem(sIndex, 'list')">
+            <mat-icon>add</mat-icon>
+            Dodaj stavku liste
+          </button>
+        </div>
+
+        <!-- Završni pasusi -->
+        <div class="sections-builder__group">
+          <div class="sections-builder__group-label">Završni pasusi</div>
+          @for (paragraph of section.closingParagraphs; track $index) {
+            <div class="sections-builder__item-row">
+              <mat-form-field appearance="outline" class="sections-builder__item-field">
+                <textarea
+                  matInput
+                  rows="2"
+                  [ngModel]="paragraph"
+                  (ngModelChange)="updateSectionItem(sIndex, 'closingParagraphs', $index, $event)"
+                ></textarea>
+              </mat-form-field>
+              <button
+                mat-icon-button
+                type="button"
+                color="warn"
+                (click)="removeSectionItem(sIndex, 'closingParagraphs', $index)"
+                aria-label="Ukloni pasus"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+          <button mat-stroked-button type="button" (click)="addSectionItem(sIndex, 'closingParagraphs')">
+            <mat-icon>add</mat-icon>
+            Dodaj završni pasus
+          </button>
+        </div>
+
+        <!-- Pod-sekcije -->
+        <div class="sections-builder__group">
+          <div class="sections-builder__group-label">Pod-sekcije</div>
+          @for (sub of section.subsections; track $index; let subIndex = $index) {
+            <mat-card appearance="outlined" class="sections-builder__subsection">
+              <mat-card-content>
+                <div class="sections-builder__section-header">
+                  <mat-form-field appearance="outline" class="sections-builder__title-field">
+                    <mat-label>Naslov pod-sekcije</mat-label>
+                    <input matInput [ngModel]="sub.title" (ngModelChange)="updateSubsectionTitle(sIndex, subIndex, $event)" />
+                  </mat-form-field>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    color="warn"
+                    (click)="removeSubsection(sIndex, subIndex)"
+                    aria-label="Ukloni pod-sekciju"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+
+                <div class="sections-builder__group">
+                  <div class="sections-builder__group-label">Pasusi</div>
+                  @for (paragraph of sub.paragraphs; track $index) {
+                    <div class="sections-builder__item-row">
+                      <mat-form-field appearance="outline" class="sections-builder__item-field">
+                        <textarea
+                          matInput
+                          rows="2"
+                          [ngModel]="paragraph"
+                          (ngModelChange)="updateSubsectionItem(sIndex, subIndex, 'paragraphs', $index, $event)"
+                        ></textarea>
+                      </mat-form-field>
+                      <button
+                        mat-icon-button
+                        type="button"
+                        color="warn"
+                        (click)="removeSubsectionItem(sIndex, subIndex, 'paragraphs', $index)"
+                        aria-label="Ukloni pasus"
+                      >
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  }
+                  <button mat-stroked-button type="button" (click)="addSubsectionItem(sIndex, subIndex, 'paragraphs')">
+                    <mat-icon>add</mat-icon>
+                    Dodaj pasus
+                  </button>
+                </div>
+
+                <div class="sections-builder__group">
+                  <div class="sections-builder__group-label">Lista (stavke)</div>
+                  @for (item of sub.list; track $index) {
+                    <div class="sections-builder__item-row">
+                      <mat-form-field appearance="outline" class="sections-builder__item-field">
+                        <input
+                          matInput
+                          [ngModel]="item"
+                          (ngModelChange)="updateSubsectionItem(sIndex, subIndex, 'list', $index, $event)"
+                        />
+                      </mat-form-field>
+                      <button
+                        mat-icon-button
+                        type="button"
+                        color="warn"
+                        (click)="removeSubsectionItem(sIndex, subIndex, 'list', $index)"
+                        aria-label="Ukloni stavku"
+                      >
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  }
+                  <button mat-stroked-button type="button" (click)="addSubsectionItem(sIndex, subIndex, 'list')">
+                    <mat-icon>add</mat-icon>
+                    Dodaj stavku liste
+                  </button>
+                </div>
+
+                <div class="sections-builder__group">
+                  <div class="sections-builder__group-label">Završni pasusi</div>
+                  @for (paragraph of sub.closingParagraphs; track $index) {
+                    <div class="sections-builder__item-row">
+                      <mat-form-field appearance="outline" class="sections-builder__item-field">
+                        <textarea
+                          matInput
+                          rows="2"
+                          [ngModel]="paragraph"
+                          (ngModelChange)="updateSubsectionItem(sIndex, subIndex, 'closingParagraphs', $index, $event)"
+                        ></textarea>
+                      </mat-form-field>
+                      <button
+                        mat-icon-button
+                        type="button"
+                        color="warn"
+                        (click)="removeSubsectionItem(sIndex, subIndex, 'closingParagraphs', $index)"
+                        aria-label="Ukloni pasus"
+                      >
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  }
+                  <button mat-stroked-button type="button" (click)="addSubsectionItem(sIndex, subIndex, 'closingParagraphs')">
+                    <mat-icon>add</mat-icon>
+                    Dodaj završni pasus
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+          <button mat-stroked-button type="button" (click)="addSubsection(sIndex)">
+            <mat-icon>add</mat-icon>
+            Dodaj pod-sekciju
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <button mat-flat-button type="button" color="primary" (click)="addSection()">
+    <mat-icon>add</mat-icon>
+    Dodaj sekciju
+  </button>
+</div>

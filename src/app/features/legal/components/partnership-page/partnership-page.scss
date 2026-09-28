@@ -1,0 +1,78 @@
+.partnership-page {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  &__intro {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--mat-sys-on-surface-variant, #555);
+    margin-bottom: 2rem;
+  }
+
+  &__steps {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+  }
+
+  &__step {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__step-number {
+    flex: none;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--mat-sys-primary, #b3568c);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+
+  &__step-body {
+    h3 {
+      margin: 0.15rem 0 0.35rem;
+      font-size: 1.05rem;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.55;
+      color: var(--mat-sys-on-surface-variant, #555);
+    }
+  }
+
+  &__highlights {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+
+    li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      margin-bottom: 0.6rem;
+
+      mat-icon {
+        color: var(--mat-sys-primary, #b3568c);
+        flex: none;
+      }
+    }
+  }
+}

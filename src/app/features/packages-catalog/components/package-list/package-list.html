@@ -11,13 +11,23 @@
     <div class="package-list__grid">
       @for (pkg of packages(); track pkg.id) {
         <a [routerLink]="['/paketi', pkg.slug]" class="package-list__card-link">
-          <mat-card class="package-list__card">
-            @if (pkg.slika?.url) {
-              <img [src]="pkg.slika!.url | imageUrl" [alt]="pkg.slika!.alt || pkg.naziv" class="package-list__image" />
-            }
-            @if (pkg.oznaka) {
-              <span class="package-list__badge">{{ pkg.oznaka }}</span>
-            }
+          <mat-card class="package-list__card" appearance="outlined">
+            <div class="package-list__media">
+              @if (pkg.slika?.url) {
+                <img [src]="pkg.slika!.url | imageUrl" [alt]="pkg.slika!.alt || pkg.naziv" class="package-list__image" />
+              }
+              @if (pkg.najbolji) {
+                <mat-chip class="package-list__badge package-list__badge--best" disableRipple>
+                  <mat-icon matChipAvatar>workspace_premium</mat-icon>
+                  Najbolja vrednost
+                </mat-chip>
+              } @else if (pkg.oznaka) {
+                <mat-chip class="package-list__badge" disableRipple>{{ pkg.oznaka }}</mat-chip>
+              }
+              @if (pkg.ustedaProcenat) {
+                <mat-chip class="package-list__savings" disableRipple>-{{ pkg.ustedaProcenat }}%</mat-chip>
+              }
+            </div>
             <mat-card-title>{{ pkg.naziv }}</mat-card-title>
             <mat-card-content>
               <p>{{ pkg.kratakOpis }}</p>

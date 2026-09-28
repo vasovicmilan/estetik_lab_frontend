@@ -1,0 +1,20 @@
+<div class="faq-page">
+  <h1>Česta pitanja</h1>
+
+  @if (loading()) {
+    <div class="faq-page__spinner">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (content(); as c) {
+    <mat-accordion>
+      @for (item of c.items; track item.pitanje) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>{{ item.pitanje }}</mat-panel-title>
+          </mat-expansion-panel-header>
+          <p [innerHTML]="item.odgovor"></p>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</div>

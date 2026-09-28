@@ -6,18 +6,17 @@
       <mat-spinner diameter="32" />
     </div>
   } @else {
-    <form [formGroup]="form" (ngSubmit)="submit()">
+    <mat-tab-group>
+      <mat-tab label="Opšta podešavanja">
+        <form [formGroup]="form" (ngSubmit)="submit()" class="site-settings-form__tab">
       <app-form-layout>
         <app-form-section title="Hero slika">
-          <div class="site-settings-form__image">
-            @if (heroImage()) {
-              <img [src]="heroImage() | imageUrl" alt="" class="site-settings-form__image-preview" />
-            }
-            <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
-            @if (uploadingImage()) {
-              <mat-spinner diameter="20" />
-            }
-          </div>
+          <app-file-upload
+            [previewUrl]="heroImage()"
+            [uploading]="uploadingImage()"
+            label="Otpremi sliku"
+            (filesSelected)="onImageSelected($event[0])"
+          />
 
           <mat-form-field appearance="outline">
             <mat-label>Alt tekst slike</mat-label>
@@ -93,9 +92,11 @@
       </app-form-layout>
 
       <app-form-actions [saving]="saving()" [saveDisabled]="saving() || form.invalid" />
-    </form>
+        </form>
+      </mat-tab>
 
-    <form [formGroup]="workingHoursForm" (ngSubmit)="saveWorkingHours()" class="site-settings-form__working-hours-form">
+      <mat-tab label="Radno vreme">
+        <form [formGroup]="workingHoursForm" (ngSubmit)="saveWorkingHours()" class="site-settings-form__tab site-settings-form__working-hours-form">
       <app-form-layout>
         <app-form-section title="Radno vreme (prikaz na sajtu)">
           <p class="site-settings-form__hint">
@@ -127,9 +128,11 @@
         [saveDisabled]="savingWorkingHours() || workingHoursForm.invalid"
         saveLabel="Sačuvaj radno vreme"
       />
-    </form>
+        </form>
+      </mat-tab>
 
-    <form (ngSubmit)="saveClosedDates()" class="site-settings-form__closed-dates-form">
+      <mat-tab label="Neradni dani">
+        <form (ngSubmit)="saveClosedDates()" class="site-settings-form__tab site-settings-form__closed-dates-form">
       <app-form-layout>
         <app-form-section title="Neradni dani / praznici">
           <p class="site-settings-form__hint">
@@ -163,6 +166,8 @@
         [saveDisabled]="savingClosedDates() || closedDatesForm.invalid"
         saveLabel="Sačuvaj neradne dane"
       />
-    </form>
+        </form>
+      </mat-tab>
+    </mat-tab-group>
   }
 </div>

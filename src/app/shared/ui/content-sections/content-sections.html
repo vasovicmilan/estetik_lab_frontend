@@ -1,0 +1,43 @@
+@for (section of sections(); track section.title) {
+  <section class="content-sections__section">
+    <h2 class="content-sections__title">{{ section.title }}</h2>
+
+    @for (p of section.paragraphs; track $index) {
+      <p class="content-sections__paragraph" [innerHTML]="p"></p>
+    }
+
+    @if (section.list) {
+      <ul class="content-sections__list">
+        @for (item of section.list; track $index) {
+          <li [innerHTML]="item"></li>
+        }
+      </ul>
+    }
+
+    @for (p of section.closingParagraphs; track $index) {
+      <p class="content-sections__paragraph" [innerHTML]="p"></p>
+    }
+
+    @for (sub of section.subsections; track sub.title) {
+      <div class="content-sections__subsection">
+        <h3 class="content-sections__subtitle">{{ sub.title }}</h3>
+
+        @for (p of sub.paragraphs; track $index) {
+          <p class="content-sections__paragraph" [innerHTML]="p"></p>
+        }
+
+        @if (sub.list) {
+          <ul class="content-sections__list">
+            @for (item of sub.list; track $index) {
+              <li [innerHTML]="item"></li>
+            }
+          </ul>
+        }
+
+        @for (p of sub.closingParagraphs; track $index) {
+          <p class="content-sections__paragraph" [innerHTML]="p"></p>
+        }
+      </div>
+    }
+  </section>
+}

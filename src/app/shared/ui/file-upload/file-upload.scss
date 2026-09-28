@@ -1,0 +1,76 @@
+:host {
+  display: block;
+}
+
+.file-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  button[mat-stroked-button] {
+    align-self: flex-start;
+
+    mat-icon,
+    mat-spinner {
+      margin-right: 0.4rem;
+      vertical-align: middle;
+    }
+  }
+
+  &__preview {
+    position: relative;
+    width: fit-content;
+  }
+
+  &__preview-image {
+    display: block;
+    width: 160px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  &__gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+    max-width: 640px;
+  }
+
+  &__gallery-item {
+    position: relative;
+  }
+
+  &__gallery-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  &__add {
+    height: fit-content;
+    align-self: start;
+  }
+
+  &__remove {
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+    background: white;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+
+    ::ng-deep .mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &__native-input {
+    display: none;
+  }
+}

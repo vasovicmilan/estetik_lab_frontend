@@ -66,10 +66,15 @@
 .home-card {
   height: 100%;
 
+  &__media {
+    position: relative;
+  }
+
   &__image {
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
+    display: block;
 
     &--round {
       aspect-ratio: 1 / 1;
@@ -77,6 +82,42 @@
       max-width: 120px;
       margin: 0 auto;
     }
+  }
+
+  &__badge {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    --mat-chip-elevated-container-color: var(--mat-sys-primary, #b3568c);
+    --mat-chip-label-text-color: var(--mat-sys-on-primary, #fff);
+    --mat-chip-with-avatar-avatar-color: var(--mat-sys-on-primary, #fff);
+
+    &--featured,
+    &--best {
+      --mat-chip-elevated-container-color: var(--mat-sys-secondary, #7c6470);
+      --mat-chip-label-text-color: var(--mat-sys-on-secondary, #fff);
+      --mat-chip-with-avatar-avatar-color: var(--mat-sys-on-secondary, #fff);
+    }
+
+    &--sale {
+      --mat-chip-elevated-container-color: var(--mat-sys-error, #b3261e);
+      --mat-chip-label-text-color: var(--mat-sys-on-error, #fff);
+    }
+  }
+
+  &__savings {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    --mat-chip-elevated-container-color: var(--mat-sys-error, #b3261e);
+    --mat-chip-label-text-color: var(--mat-sys-on-error, #fff);
+  }
+
+  &__title-chip {
+    padding: 0 1rem;
+
+    --mat-chip-elevated-container-color: var(--mat-sys-secondary-container, #e8def8);
+    --mat-chip-label-text-color: var(--mat-sys-on-secondary-container, #1d192b);
   }
 
   &__price {
@@ -93,6 +134,87 @@
   &__meta {
     font-size: 0.8125rem;
     color: var(--mat-sys-on-surface-variant, #888);
+  }
+}
+
+.home-intro {
+  padding: 2.5rem 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+
+  h2 {
+    margin-bottom: 0.75rem;
+  }
+
+  &__lead {
+    font-size: 1.0625rem;
+    max-width: 760px;
+  }
+
+  &__who,
+  &__packages,
+  &__closing {
+    color: var(--mat-sys-on-surface-variant, #555);
+    max-width: 760px;
+  }
+
+  &__massages {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+  }
+
+  &__massage {
+    display: block;
+    padding: 1.25rem;
+    border-radius: 12px;
+    background: var(--mat-sys-surface-container-lowest, #fafafa);
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background: var(--mat-sys-surface-container-low, #f0eaf5);
+    }
+
+    h4 {
+      margin: 0 0 0.5rem;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.9375rem;
+      color: var(--mat-sys-on-surface-variant, #666);
+    }
+  }
+
+  &__why-us {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+}
+
+.home-intro__why-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+
+  mat-icon {
+    flex-shrink: 0;
+    color: var(--mat-sys-primary, #6750a4);
+  }
+
+  h4 {
+    margin: 0 0 0.35rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--mat-sys-on-surface-variant, #666);
   }
 }
 

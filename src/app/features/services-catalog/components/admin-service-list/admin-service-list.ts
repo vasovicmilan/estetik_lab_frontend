@@ -32,6 +32,9 @@ export class AdminServiceList implements OnInit {
   error = signal<string | null>(null);
 
   private limit = 10;
+  /** Backend search over name/shortDescription - see buildServiceFilter in
+   * service.filter.js. Debounced internally by DataTable itself (searchable input). */
+  private search = '';
   /** `naziv`/`aktivna` are plain scalar columns (name, isActive) on the Service
    * schema - see SERVICE_SORT_FIELDS in admin-catalog.controller.js.
    * `kategorije` (populated category names) and `brojVarijanti`
@@ -63,7 +66,13 @@ export class AdminServiceList implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.service
-      .listAdmin({ page, limit: this.limit, sort: this.sort ?? undefined, order: this.order ?? undefined })
+      .listAdmin({
+        page,
+        limit: this.limit,
+        search: this.search || undefined,
+        sort: this.sort ?? undefined,
+        order: this.order ?? undefined,
+      })
       .subscribe({
         next: ({ data, meta }) => {
           this.rows.set(data);
@@ -80,6 +89,11 @@ export class AdminServiceList implements OnInit {
   onPage(event: PageEvent): void {
     this.limit = event.pageSize;
     this.load(event.pageIndex + 1);
+  }
+
+  onSearch(term: string): void {
+    this.search = term;
+    this.load(1);
   }
 
   onSort(sort: Sort): void {

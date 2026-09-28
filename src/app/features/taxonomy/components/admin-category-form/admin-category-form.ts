@@ -10,7 +10,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, Observable } from 'rxjs';
-import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { ImageReference } from '../../../../core/models/upload';
 import { Category } from '../../services/category';
 import { CategoryAdminListItem } from '../../models/category';
@@ -18,6 +17,7 @@ import { CategoryDomain, CategoryEditPayload } from '../../models/category';
 import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
 import { FormSection } from '../../../../shared/ui/form-layout/form-section';
 import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
+import { FileUpload } from '../../../../shared/ui/file-upload/file-upload';
 
 /**
  * Create + edit, same pattern as admin-service-form: loads the RAW edit shape
@@ -45,10 +45,10 @@ import { FormActions } from '../../../../shared/ui/form-actions/form-actions';
     MatSelectModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
-    ImageUrlPipe,
     FormLayout,
     FormSection,
     FormActions,
+    FileUpload,
   ],
   templateUrl: './admin-category-form.html',
   styleUrl: './admin-category-form.scss',
@@ -145,11 +145,7 @@ export class AdminCategoryForm implements OnInit {
     });
   }
 
-  onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
+  onImageSelected(file: File): void {
     this.uploadingImage.set(true);
     this.category
       .uploadImage(file)
@@ -161,6 +157,11 @@ export class AdminCategoryForm implements OnInit {
         },
         error: () => this.snackBar.open('Upload slike nije uspeo.', 'U redu', { duration: 4000 }),
       });
+  }
+
+  onImageRemoved(): void {
+    this.form.patchValue({ featureImage: null });
+    this.imagePreviewUrl.set(null);
   }
 
   submit(): void {

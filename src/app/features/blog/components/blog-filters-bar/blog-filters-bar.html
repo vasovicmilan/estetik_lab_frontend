@@ -1,0 +1,43 @@
+<div class="blog-filters-bar">
+  <mat-form-field appearance="outline" class="blog-filters-bar__search">
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      type="search"
+      placeholder="Pretraži blog..."
+      [value]="search"
+      (input)="onSearchInput($any($event.target).value)"
+    />
+  </mat-form-field>
+
+  @if (filters?.categories?.length) {
+    <div class="blog-filters-bar__tabs">
+      <a routerLink="/blog" class="blog-filters-bar__tab" [class.blog-filters-bar__tab--active]="!activeCategorySlug">
+        Sve objave <span class="blog-filters-bar__count">({{ filters!.totalCount }})</span>
+      </a>
+      @for (cat of filters!.categories; track cat.id) {
+        <a
+          [routerLink]="['/blog/kategorija', cat.slug]"
+          class="blog-filters-bar__tab"
+          [class.blog-filters-bar__tab--active]="cat.slug === activeCategorySlug"
+        >
+          {{ cat.naziv }} <span class="blog-filters-bar__count">({{ cat.count }})</span>
+        </a>
+      }
+    </div>
+  }
+
+  @if (filters?.tags?.length) {
+    <div class="blog-filters-bar__tags">
+      @for (tag of filters!.tags; track tag.id) {
+        <a
+          [routerLink]="['/blog/tag', tag.slug]"
+          class="blog-filters-bar__tag"
+          [class.blog-filters-bar__tag--active]="tag.slug === activeTagSlug"
+        >
+          #{{ tag.naziv }}
+        </a>
+      }
+    </div>
+  }
+</div>

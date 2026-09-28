@@ -67,6 +67,7 @@ export interface PackageCreatePayload {
   isBest?: boolean;
   order?: number;
   image?: ImageReference | null;
+  gallery?: ImageReference[];
   isActive?: boolean;
 }
 
@@ -111,6 +112,15 @@ export interface PackagePublicCard {
   slika: ImageDisplay | null;
 }
 
+/** Matches VideoSchema as returned raw on mapPackageForPublicDetail's `videi`
+ * field - same shape as ServiceVideoDisplay (see services-catalog/models/service.ts). */
+export interface PackageVideoDisplay {
+  url: string;
+  title?: string | null;
+  thumbnail?: string | null;
+  isExternal?: boolean;
+}
+
 export interface PackagePublicDetail {
   id: string;
   naziv: string;
@@ -125,5 +135,6 @@ export interface PackagePublicDetail {
   najbolji: boolean;
   slika: ImageDisplay | null;
   galerija: ImageDisplay[];
+  videi: PackageVideoDisplay[];
   faq: { pitanje: string; odgovor: string }[];
 }

@@ -1,7 +1,7 @@
 import { ImageDisplay, ImageReference } from '../../../core/models/upload';
 // ContentBlock now lives in core/models (shared with shop's ProductPublicDetail.dugiOpis -
 // see core/models/content-block.ts's header comment for why it moved out of here).
-import { ContentBlock } from '../../../core/models/content-block';
+import { ApiContentBlock, ContentBlock } from '../../../core/models/content-block';
 
 export type { ContentBlock } from '../../../core/models/content-block';
 
@@ -14,9 +14,35 @@ export interface PostCard {
   kratakOpis: string;
   slika: ImageDisplay | null;
   kategorije: string[];
+  kategorijeRefs?: { naziv: string; slug: string | null }[];
   autor: string;
   datumObjave: string;
   vremeCitanja: string;
+  istaknut: boolean;
+}
+
+// ---- Blog "chrome" - GET /blog/filters (see catalog.controller.js's
+// getBlogFilters). Category post counts mirror the old EJS presenter's
+// buildCategoryTabs (presenters/blog/blog.presenter.js) - tags intentionally
+// have no count, same as that presenter's buildTagChips. ----
+
+export interface BlogCategory {
+  id: string;
+  naziv: string;
+  slug: string;
+  count: number;
+}
+
+export interface BlogTag {
+  id: string;
+  naziv: string;
+  slug: string;
+}
+
+export interface BlogFilters {
+  categories: BlogCategory[];
+  tags: BlogTag[];
+  totalCount: number;
 }
 
 export interface PostDetail {
@@ -31,7 +57,9 @@ export interface PostDetail {
   galerija: ImageDisplay[];
   autor: { ime: string; avatar: ImageDisplay | string | null };
   kategorije: string[];
+  kategorijeRefs?: { naziv: string; slug: string | null }[];
   tagovi: string[];
+  tagoviRefs?: { naziv: string; slug: string | null }[];
   datumObjave: string;
   poslednjeAzuriranje: string;
   vremeCitanja: string;
@@ -78,6 +106,9 @@ export interface PostAdminDetail {
   galerija: ImageDisplay[];
   seo: { naslov: string; opis: string; kljucneReci: string[] };
   indeksiranje: string;
+  /** "Da" | "Ne" - see post.mapper.js's mapPostForAdminDetail. */
+  istaknut: string;
+  redosledIstaknutog: number;
   vremeCitanja: string;
   pregledi: number;
   datumObjave: string | null;
@@ -102,13 +133,18 @@ export interface PostEditPayload {
   id?: string;
   title: string;
   slug?: string;
+  /** Backend caps this at 300 chars (validatePostCreate/Update) - keep the
+   * form's maxLength in sync or the request 400s. */
   excerpt: string;
   /** Structured content blocks, NOT a plain string/HTML - see ContentBlock's
-   * header comment. admin-blog-form does NOT build a block editor for this (too
-   * complex for this pass): it's loaded into a component field, left untouched,
-   * and merged back into the submit payload unchanged, same as
-   * admin-product-form does for Product's longDescription. */
-  content?: ContentBlock[];
+   * header comment. This is the WIRE shape (English field names, matching the
+   * backend's ContentBlogSchema) - NOT ContentBlock (Serbian field names,
+   * display/editor-only). admin-blog-form's block editor works with
+   * ContentBlock internally and converts at the load/submit boundary via
+   * mapApiBlockToContentBlock / mapContentBlockToApiBlock (see
+   * core/models/content-block.ts), sending `order` set to each block's array
+   * index. */
+  content?: ApiContentBlock[];
   coverImage?: ImageReference | null;
   gallery?: ImageReference[];
   /** ObjectId strings - same simplification note as Expert.services: no
@@ -116,8 +152,10 @@ export interface PostEditPayload {
    * comma-separated-IDs text field. */
   categories?: string[];
   tags?: string[];
-  /** Omitted from the form UI - the backend defaults it to the logged-in admin
-   * when not supplied (see admin-content.controller.js's createPost/updatePost). */
+  /** User-selectable in admin-blog-form (GET admin/users, needs manage_users -
+   * falls back to a read-only label if the logged-in admin lacks that
+   * permission). Left undefined, the backend defaults it to the logged-in
+   * admin (see admin-content.controller.js's createPost/updatePost). */
   author?: string | null;
   status: 'draft' | 'scheduled' | 'published' | 'archived';
   /** "YYYY-MM-DDTHH:mm" local format, directly usable in a native

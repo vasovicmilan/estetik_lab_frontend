@@ -1,0 +1,15 @@
+.faq-page {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+
+  &__spinner {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  mat-expansion-panel {
+    margin-bottom: 0.5rem;
+  }
+}

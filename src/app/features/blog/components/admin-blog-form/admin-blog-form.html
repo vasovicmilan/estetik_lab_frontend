@@ -4,100 +4,568 @@
   <form [formGroup]="form" (ngSubmit)="submit()" class="blog-form">
     <h2>{{ postId() ? 'Izmena objave' : 'Nova objava' }}</h2>
 
-    <app-form-layout>
-      <app-form-section>
-        <mat-form-field appearance="outline">
-          <mat-label>Naslov</mat-label>
-          <input matInput formControlName="title" required />
-          @if (form.get('title')?.hasError('required') && form.get('title')?.touched) {
-            <mat-error>Naslov je obavezan.</mat-error>
-          }
-        </mat-form-field>
+    <mat-stepper [linear]="true" [orientation]="stepperOrientation()" class="blog-form__stepper">
+      <mat-step [stepControl]="basicGroup" label="Osnovno">
+        <app-form-layout>
+          <app-form-section formGroupName="basic">
+            <mat-form-field appearance="outline">
+              <mat-label>Naslov</mat-label>
+              <input matInput formControlName="title" required />
+              @if (basicGroup.get('title')?.hasError('required') && basicGroup.get('title')?.touched) {
+                <mat-error>Naslov je obavezan.</mat-error>
+              }
+            </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Kratak opis (excerpt)</mat-label>
-          <textarea matInput formControlName="excerpt" rows="3" required></textarea>
-          @if (form.get('excerpt')?.hasError('required') && form.get('excerpt')?.touched) {
-            <mat-error>Kratak opis je obavezan.</mat-error>
-          }
-        </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Slug (URL)</mat-label>
+              <input matInput formControlName="slug" placeholder="generiše se automatski iz naslova ako se ostavi prazno" />
+              <mat-hint>Ostavi prazno da se generiše iz naslova. Menjaj samo ako znaš da menjaš i postojeći URL objave.</mat-hint>
+              @if (basicGroup.get('slug')?.hasError('pattern') && basicGroup.get('slug')?.touched) {
+                <mat-error>Slug sme sadržati samo mala slova, brojeve i crticu.</mat-error>
+              }
+            </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Status</mat-label>
-          <mat-select formControlName="status">
-            @for (option of statusOptions; track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            <mat-form-field appearance="outline">
+              <mat-label>Kratak opis (excerpt)</mat-label>
+              <textarea matInput formControlName="excerpt" rows="3" maxlength="300" required></textarea>
+              <mat-hint align="end">{{ basicGroup.get('excerpt')?.value?.length || 0 }}/300</mat-hint>
+              @if (basicGroup.get('excerpt')?.hasError('required') && basicGroup.get('excerpt')?.touched) {
+                <mat-error>Kratak opis je obavezan.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status">
+                @for (option of statusOptions; track option.value) {
+                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            @if (isScheduled) {
+              <mat-form-field appearance="outline">
+                <mat-label>Zakazano za</mat-label>
+                <input matInput type="datetime-local" formControlName="scheduledFor" required />
+                @if (basicGroup.hasError('scheduledForRequired') && basicGroup.get('scheduledFor')?.touched) {
+                  <mat-error>Datum i vreme su obavezni za zakazanu objavu.</mat-error>
+                }
+              </mat-form-field>
             }
-          </mat-select>
-        </mat-form-field>
 
-        @if (isScheduled) {
-          <mat-form-field appearance="outline">
-            <mat-label>Zakazano za</mat-label>
-            <input matInput type="datetime-local" formControlName="scheduledFor" required />
-            @if (form.hasError('scheduledForRequired') && form.get('scheduledFor')?.touched) {
-              <mat-error>Datum i vreme su obavezni za zakazanu objavu.</mat-error>
+            <mat-checkbox formControlName="isIndexable">Indeksabilno (vidljivo pretraživačima)</mat-checkbox>
+            <mat-checkbox formControlName="isFeatured">Istaknuto</mat-checkbox>
+
+            @if (isFeatured) {
+              <mat-form-field appearance="outline">
+                <mat-label>Redosled isticanja</mat-label>
+                <input matInput type="number" formControlName="featuredOrder" />
+              </mat-form-field>
             }
-          </mat-form-field>
-        }
+          </app-form-section>
+        </app-form-layout>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Kategorije</mat-label>
-          <mat-select formControlName="categories" multiple>
-            @for (option of categoryOptions(); track option.id) {
-              <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+        <div class="blog-form__step-actions">
+          <button mat-flat-button color="primary" type="button" matStepperNext (click)="revealErrors(basicGroup)">Dalje</button>
+        </div>
+      </mat-step>
+
+      <mat-step [stepControl]="taxonomyGroup" label="Kategorije, tagovi i autor">
+        <app-form-layout>
+          <app-form-section formGroupName="taxonomy">
+            <mat-form-field appearance="outline">
+              <mat-label>Kategorije</mat-label>
+              <mat-chip-grid #categoryChipGrid aria-label="Izbor kategorija">
+                @for (id of taxonomyGroup.get('categories')?.value; track id) {
+                  <mat-chip-row (removed)="removeCategory(id)">
+                    {{ categoryName(id) }}
+                    <button matChipRemove aria-label="Ukloni kategoriju">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip-row>
+                }
+              </mat-chip-grid>
+              <input
+                placeholder="Pretraži i dodaj kategoriju..."
+                [formControl]="categorySearch"
+                [matChipInputFor]="categoryChipGrid"
+                [matAutocomplete]="categoryAuto"
+                (matChipInputTokenEnd)="onChipInputEvent($event)"
+              />
+              <mat-autocomplete #categoryAuto="matAutocomplete" (optionSelected)="addCategory($event)">
+                @for (option of filteredCategoryOptions(); track option.id) {
+                  <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Tagovi</mat-label>
+              <mat-chip-grid #tagChipGrid aria-label="Izbor tagova">
+                @for (id of taxonomyGroup.get('tags')?.value; track id) {
+                  <mat-chip-row (removed)="removeTag(id)">
+                    {{ tagName(id) }}
+                    <button matChipRemove aria-label="Ukloni tag">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip-row>
+                }
+              </mat-chip-grid>
+              <input
+                placeholder="Pretraži i dodaj tag..."
+                [formControl]="tagSearch"
+                [matChipInputFor]="tagChipGrid"
+                [matAutocomplete]="tagAuto"
+                (matChipInputTokenEnd)="onChipInputEvent($event)"
+              />
+              <mat-autocomplete #tagAuto="matAutocomplete" (optionSelected)="addTag($event)">
+                @for (option of filteredTagOptions(); track option.id) {
+                  <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+
+            @if (authorPickerAvailable()) {
+              <mat-form-field appearance="outline">
+                <mat-label>Autor</mat-label>
+                <mat-select formControlName="author">
+                  <mat-option [value]="null">Ulogovani administrator (podrazumevano)</mat-option>
+                  @for (option of userOptions(); track option.id) {
+                    <mat-option [value]="option.id">{{ option.imePrezime }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            } @else {
+              <p class="blog-form__readonly-note">Autor: {{ authorDisplayLabel() }}</p>
             }
-          </mat-select>
-        </mat-form-field>
+          </app-form-section>
+        </app-form-layout>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Tagovi</mat-label>
-          <mat-select formControlName="tags" multiple>
-            @for (option of tagOptions(); track option.id) {
-              <mat-option [value]="option.id">{{ option.naziv }}</mat-option>
+        <div class="blog-form__step-actions">
+          <button mat-button type="button" matStepperPrevious>Nazad</button>
+          <button mat-flat-button color="primary" type="button" matStepperNext (click)="revealErrors(taxonomyGroup)">Dalje</button>
+        </div>
+      </mat-step>
+
+      <mat-step [stepControl]="imagesGroup" label="Slike">
+        <app-form-layout>
+          <app-form-section title="Naslovna slika *" formGroupName="images">
+            <app-file-upload
+              [previewUrl]="imagePreviewUrl()"
+              [uploading]="uploadingImage()"
+              label="Otpremi sliku"
+              (filesSelected)="onImageSelected($event[0])"
+              (removed)="onImageRemoved()"
+            />
+            @if (submitted() && !coverImageSatisfied()) {
+              <mat-error>Naslovna slika je obavezna.</mat-error>
             }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-checkbox formControlName="isIndexable">Indeksabilno (vidljivo pretraživačima)</mat-checkbox>
-        <mat-checkbox formControlName="isFeatured">Istaknuto</mat-checkbox>
-
-        @if (isFeatured) {
-          <mat-form-field appearance="outline">
-            <mat-label>Redosled isticanja</mat-label>
-            <input matInput type="number" formControlName="featuredOrder" />
-          </mat-form-field>
-        }
-      </app-form-section>
-
-      <app-form-section title="Naslovna slika *">
-        @if (imagePreviewUrl()) {
-          <img [src]="imagePreviewUrl() | imageUrl" alt="" class="blog-form__image-preview" />
-        }
-        <input type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="uploadingImage()" />
-        @if (uploadingImage()) {
-          <mat-spinner diameter="20" />
-        }
-        @if (!coverImageSatisfied()) {
-          <mat-error>Naslovna slika je obavezna.</mat-error>
-        }
-      </app-form-section>
-
-      <app-form-section title="Galerija">
-        @if (galleryPreview().length) {
-          <div class="blog-form__gallery-grid">
-            @for (img of galleryPreview(); track $index) {
-              <img [src]="img.img | imageUrl" alt="" class="blog-form__gallery-image" />
+            @if (imagesGroup.get('coverImage')?.value) {
+              <mat-form-field appearance="outline">
+                <mat-label>Alt tekst (naslovna slika) *</mat-label>
+                <input
+                  matInput
+                  [value]="imagesGroup.get('coverImage')?.value?.imgDesc || ''"
+                  (input)="onCoverAltChanged($any($event.target).value)"
+                  required
+                />
+                @if (submitted() && !coverImageAltSatisfied()) {
+                  <mat-error>Alt tekst je obavezan za naslovnu sliku.</mat-error>
+                }
+              </mat-form-field>
             }
-          </div>
-        }
-        <input type="file" accept="image/*" multiple (change)="onGallerySelected($event)" [disabled]="uploadingGallery()" />
-        @if (uploadingGallery()) {
-          <mat-spinner diameter="20" />
-        }
-      </app-form-section>
-    </app-form-layout>
+          </app-form-section>
 
-    <app-form-actions [saving]="saving()" [saveDisabled]="saving() || form.invalid || !coverImageSatisfied()" cancelRoute="/admin/blog" />
+          <app-form-section title="Galerija" formGroupName="images">
+            <app-file-upload
+              multiple
+              [previewImages]="galleryPreview()"
+              [uploading]="uploadingGallery()"
+              [disabled]="galleryAtCap()"
+              label="Dodaj slike"
+              (filesSelected)="onGallerySelected($event)"
+              (removedAt)="onGalleryImageRemoved($event)"
+            />
+            <p class="blog-form__gallery-count" [class.blog-form__gallery-count--full]="galleryAtCap()">
+              {{ galleryCount() }}/10 slika
+              @if (galleryAtCap()) {
+                — dostignut je maksimalan broj slika u galeriji.
+              }
+            </p>
+
+            @if (galleryPreview().length) {
+              <div class="blog-form__gallery-alt-list">
+                @for (img of galleryPreview(); track img.img; let i = $index) {
+                  <mat-form-field appearance="outline" class="blog-form__gallery-alt-field">
+                    <mat-label>Alt tekst (slika {{ i + 1 }}) *</mat-label>
+                    <input matInput [value]="img.imgDesc" (input)="onGalleryAltChanged(i, $any($event.target).value)" required />
+                    @if (submitted() && !img.imgDesc.trim()) {
+                      <mat-error>Alt tekst je obavezan.</mat-error>
+                    }
+                  </mat-form-field>
+                }
+              </div>
+            }
+          </app-form-section>
+        </app-form-layout>
+
+        <div class="blog-form__step-actions">
+          <button mat-button type="button" matStepperPrevious>Nazad</button>
+          <button mat-flat-button color="primary" type="button" matStepperNext (click)="revealErrors(imagesGroup)">Dalje</button>
+        </div>
+      </mat-step>
+
+      <mat-step [stepControl]="contentGroup" label="Sadržaj">
+        <app-form-layout>
+          <app-form-section title="Blokovi sadržaja">
+            <div class="blog-form__add-block">
+              <mat-form-field appearance="outline">
+                <mat-label>Tip bloka</mat-label>
+                <mat-select [formControl]="newBlockType">
+                  @for (option of blockTypeOptions; track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <button mat-stroked-button type="button" (click)="addBlock()">
+                <mat-icon>add</mat-icon>
+                Dodaj blok
+              </button>
+            </div>
+
+            @for (block of contentBlocks(); track block; let i = $index) {
+              <div class="blog-form__block">
+                <div class="blog-form__block-header">
+                  <span class="blog-form__block-type">{{ blockLabel(block.tip) }}</span>
+                  <div class="blog-form__block-actions">
+                    <button mat-icon-button type="button" [disabled]="i === 0" (click)="moveBlockUp(i)" aria-label="Pomeri gore">
+                      <mat-icon>arrow_upward</mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      [disabled]="i === contentBlocks().length - 1"
+                      (click)="moveBlockDown(i)"
+                      aria-label="Pomeri dole"
+                    >
+                      <mat-icon>arrow_downward</mat-icon>
+                    </button>
+                    <button mat-icon-button type="button" color="warn" (click)="removeBlock(i)" aria-label="Obriši blok">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="blog-form__block-body">
+                  @switch (block.tip) {
+                    @case ('paragraph') {
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tekst</mat-label>
+                        <textarea matInput rows="3" [value]="block.tekst" (input)="updateBlock(i, { tekst: $any($event.target).value })"></textarea>
+                      </mat-form-field>
+                    }
+                    @case ('heading') {
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tekst naslova</mat-label>
+                        <input matInput [value]="block.tekst" (input)="updateBlock(i, { tekst: $any($event.target).value })" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Nivo</mat-label>
+                        <mat-select [value]="block.nivo" (selectionChange)="updateBlock(i, { nivo: $event.value })">
+                          <mat-option [value]="2">H2</mat-option>
+                          <mat-option [value]="3">H3</mat-option>
+                          <mat-option [value]="4">H4</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    }
+                    @case ('quote') {
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tekst citata</mat-label>
+                        <textarea matInput rows="2" [value]="block.tekst" (input)="updateBlock(i, { tekst: $any($event.target).value })"></textarea>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Izvor / atribucija (opciono)</mat-label>
+                        <input matInput [value]="block.izvor" (input)="updateBlock(i, { izvor: $any($event.target).value })" />
+                      </mat-form-field>
+                    }
+                    @case ('image') {
+                      <app-file-upload
+                        [previewUrl]="block.slika?.url ?? null"
+                        label="Otpremi sliku"
+                        (filesSelected)="onBlockImageSelected(i, $event[0])"
+                        (removed)="onBlockImageRemoved(i)"
+                      />
+                      @if (block.slika?.url) {
+                        <mat-form-field appearance="outline">
+                          <mat-label>Alt tekst</mat-label>
+                          <input matInput [value]="block.slika?.alt" (input)="onBlockImageAltChanged(i, $any($event.target).value)" />
+                        </mat-form-field>
+                      }
+                    }
+                    @case ('gallery') {
+                      <app-file-upload
+                        multiple
+                        [previewImages]="blockGalleryPreview(i)"
+                        label="Dodaj slike"
+                        (filesSelected)="onBlockGallerySelected(i, $event)"
+                        (removedAt)="onBlockGalleryImageRemoved(i, $event)"
+                      />
+                      @if (block.galerija?.length) {
+                        <div class="blog-form__gallery-alt-list">
+                          @for (img of block.galerija; track $index; let gi = $index) {
+                            <mat-form-field appearance="outline" class="blog-form__gallery-alt-field">
+                              <mat-label>Alt tekst (slika {{ gi + 1 }})</mat-label>
+                              <input matInput [value]="img.alt" (input)="onBlockGalleryAltChanged(i, gi, $any($event.target).value)" />
+                            </mat-form-field>
+                          }
+                        </div>
+                      }
+                    }
+                    @case ('video') {
+                      <mat-form-field appearance="outline">
+                        <mat-label>URL videa</mat-label>
+                        <input
+                          matInput
+                          [value]="block.video?.url"
+                          (input)="updateBlock(i, { video: { ...block.video, url: $any($event.target).value } })"
+                        />
+                        @if (!isSafeUrl(block.video?.url)) {
+                          <mat-error>Nebezbedan URL (dozvoljeno: http(s), mailto, tel ili /putanja).</mat-error>
+                        }
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Naslov (opciono)</mat-label>
+                        <input
+                          matInput
+                          [value]="block.video?.title"
+                          (input)="updateBlock(i, { video: { ...block.video, title: $any($event.target).value } })"
+                        />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Thumbnail URL (opciono)</mat-label>
+                        <input
+                          matInput
+                          [value]="block.video?.thumbnail"
+                          (input)="updateBlock(i, { video: { ...block.video, thumbnail: $any($event.target).value } })"
+                        />
+                      </mat-form-field>
+                      <mat-checkbox
+                        [checked]="block.video?.isExternal"
+                        (change)="updateBlock(i, { video: { ...block.video, isExternal: $event.checked } })"
+                      >
+                        Eksterni video
+                      </mat-checkbox>
+                    }
+                    @case ('list') {
+                      <mat-checkbox [checked]="block.uredjeno" (change)="updateBlock(i, { uredjeno: $event.checked })">Numerisana lista</mat-checkbox>
+                      @for (item of block.stavke; track $index; let li = $index) {
+                        <div class="blog-form__sub-row">
+                          <mat-form-field appearance="outline">
+                            <mat-label>Stavka {{ li + 1 }}</mat-label>
+                            <input matInput [value]="item" (input)="updateListItem(i, li, $any($event.target).value)" />
+                          </mat-form-field>
+                          <button mat-icon-button type="button" color="warn" (click)="removeListItem(i, li)" aria-label="Obriši stavku">
+                            <mat-icon>close</mat-icon>
+                          </button>
+                        </div>
+                      }
+                      <button mat-stroked-button type="button" (click)="addListItem(i)">Dodaj stavku</button>
+                    }
+                    @case ('table') {
+                      <p class="blog-form__sub-label">Kolone</p>
+                      @for (col of block.kolone; track $index; let ci = $index) {
+                        <div class="blog-form__sub-row">
+                          <mat-form-field appearance="outline">
+                            <mat-label>Kolona {{ ci + 1 }}</mat-label>
+                            <input matInput [value]="col" (input)="updateTableColumn(i, ci, $any($event.target).value)" />
+                          </mat-form-field>
+                          <button mat-icon-button type="button" color="warn" (click)="removeTableColumn(i, ci)" aria-label="Obriši kolonu">
+                            <mat-icon>close</mat-icon>
+                          </button>
+                        </div>
+                      }
+                      <button mat-stroked-button type="button" (click)="addTableColumn(i)">Dodaj kolonu</button>
+
+                      <p class="blog-form__sub-label">Redovi</p>
+                      @for (row of block.redovi; track $index; let ri = $index) {
+                        <div class="blog-form__table-row">
+                          <mat-form-field appearance="outline">
+                            <mat-label>Naziv reda</mat-label>
+                            <input matInput [value]="row.label" (input)="updateTableRowLabel(i, ri, $any($event.target).value)" />
+                          </mat-form-field>
+                          @for (value of row.values; track $index; let vi = $index) {
+                            <mat-form-field appearance="outline">
+                              <mat-label>{{ block.kolone?.[vi] || 'Vrednost ' + (vi + 1) }}</mat-label>
+                              <input matInput [value]="value" (input)="updateTableRowValue(i, ri, vi, $any($event.target).value)" />
+                            </mat-form-field>
+                          }
+                          <button mat-icon-button type="button" color="warn" (click)="removeTableRow(i, ri)" aria-label="Obriši red">
+                            <mat-icon>close</mat-icon>
+                          </button>
+                        </div>
+                      }
+                      <button mat-stroked-button type="button" (click)="addTableRow(i)">Dodaj red</button>
+                    }
+                    @case ('cards') {
+                      @for (card of block.kartice; track $index; let ci = $index) {
+                        <div class="blog-form__card-row">
+                          <mat-form-field appearance="outline">
+                            <mat-label>Ikonica (opciono)</mat-label>
+                            <input matInput [value]="card.icon" (input)="updateCard(i, ci, { icon: $any($event.target).value })" />
+                          </mat-form-field>
+                          <mat-form-field appearance="outline">
+                            <mat-label>Naslov</mat-label>
+                            <input matInput [value]="card.title" (input)="updateCard(i, ci, { title: $any($event.target).value })" />
+                          </mat-form-field>
+                          <mat-form-field appearance="outline">
+                            <mat-label>Tekst</mat-label>
+                            <input matInput [value]="card.text" (input)="updateCard(i, ci, { text: $any($event.target).value })" />
+                          </mat-form-field>
+                          <button mat-icon-button type="button" color="warn" (click)="removeCard(i, ci)" aria-label="Obriši karticu">
+                            <mat-icon>close</mat-icon>
+                          </button>
+                        </div>
+                      }
+                      <button mat-stroked-button type="button" (click)="addCard(i)">Dodaj karticu</button>
+                    }
+                    @case ('callout') {
+                      <mat-form-field appearance="outline">
+                        <mat-label>Naslov (opciono)</mat-label>
+                        <input matInput [value]="block.naslovBloka" (input)="updateBlock(i, { naslovBloka: $any($event.target).value })" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tekst</mat-label>
+                        <textarea matInput rows="2" [value]="block.tekst" (input)="updateBlock(i, { tekst: $any($event.target).value })"></textarea>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Varijanta</mat-label>
+                        <mat-select [value]="block.varijanta" (selectionChange)="updateBlock(i, { varijanta: $event.value })">
+                          <mat-option value="info">Info</mat-option>
+                          <mat-option value="success">Uspeh</mat-option>
+                          <mat-option value="warning">Upozorenje</mat-option>
+                          <mat-option value="danger">Opasnost</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    }
+                    @case ('faq') {
+                      <mat-form-field appearance="outline">
+                        <mat-label>Naslov sekcije (opciono)</mat-label>
+                        <input matInput [value]="block.naslovBloka" (input)="updateBlock(i, { naslovBloka: $any($event.target).value })" />
+                      </mat-form-field>
+                      @for (item of block.faqStavke; track $index; let fi = $index) {
+                        <div class="blog-form__faq-item">
+                          <mat-form-field appearance="outline">
+                            <mat-label>Pitanje</mat-label>
+                            <input matInput [value]="item.question" (input)="updateFaqItem(i, fi, { question: $any($event.target).value })" />
+                          </mat-form-field>
+                          <mat-form-field appearance="outline">
+                            <mat-label>Odgovor</mat-label>
+                            <textarea matInput rows="2" [value]="item.answer" (input)="updateFaqItem(i, fi, { answer: $any($event.target).value })"></textarea>
+                          </mat-form-field>
+                          <button mat-icon-button type="button" color="warn" (click)="removeFaqItem(i, fi)" aria-label="Obriši pitanje">
+                            <mat-icon>close</mat-icon>
+                          </button>
+                        </div>
+                      }
+                      <button mat-stroked-button type="button" (click)="addFaqItem(i)">Dodaj pitanje</button>
+                    }
+                    @case ('cta') {
+                      <mat-form-field appearance="outline">
+                        <mat-label>Naslov (opciono)</mat-label>
+                        <input matInput [value]="block.naslovBloka" (input)="updateBlock(i, { naslovBloka: $any($event.target).value })" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tekst dugmeta</mat-label>
+                        <input matInput [value]="block.dugme?.tekst" (input)="updateBlock(i, { dugme: { ...block.dugme, tekst: $any($event.target).value } })" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>URL dugmeta</mat-label>
+                        <input matInput [value]="block.dugme?.url" (input)="updateBlock(i, { dugme: { ...block.dugme, url: $any($event.target).value } })" />
+                        @if (!isSafeUrl(block.dugme?.url)) {
+                          <mat-error>Nebezbedan URL (dozvoljeno: http(s), mailto, tel ili /putanja).</mat-error>
+                        }
+                      </mat-form-field>
+                    }
+                    @case ('serviceReference') {
+                      <p class="blog-form__sub-label">Jednostavan link/dugme (ne bira konkretnu uslugu iz kataloga).</p>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Naslov (opciono)</mat-label>
+                        <input matInput [value]="block.naslovBloka" (input)="updateBlock(i, { naslovBloka: $any($event.target).value })" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tekst dugmeta</mat-label>
+                        <input matInput [value]="block.dugme?.tekst" (input)="updateBlock(i, { dugme: { ...block.dugme, tekst: $any($event.target).value } })" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>URL dugmeta</mat-label>
+                        <input matInput [value]="block.dugme?.url" (input)="updateBlock(i, { dugme: { ...block.dugme, url: $any($event.target).value } })" />
+                        @if (!isSafeUrl(block.dugme?.url)) {
+                          <mat-error>Nebezbedan URL (dozvoljeno: http(s), mailto, tel ili /putanja).</mat-error>
+                        }
+                      </mat-form-field>
+                    }
+                    @case ('productReference') {
+                      <p class="blog-form__sub-label">Jednostavan link/dugme (ne bira konkretan proizvod iz kataloga).</p>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Naslov (opciono)</mat-label>
+                        <input matInput [value]="block.naslovBloka" (input)="updateBlock(i, { naslovBloka: $any($event.target).value })" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tekst dugmeta</mat-label>
+                        <input matInput [value]="block.dugme?.tekst" (input)="updateBlock(i, { dugme: { ...block.dugme, tekst: $any($event.target).value } })" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>URL dugmeta</mat-label>
+                        <input matInput [value]="block.dugme?.url" (input)="updateBlock(i, { dugme: { ...block.dugme, url: $any($event.target).value } })" />
+                        @if (!isSafeUrl(block.dugme?.url)) {
+                          <mat-error>Nebezbedan URL (dozvoljeno: http(s), mailto, tel ili /putanja).</mat-error>
+                        }
+                      </mat-form-field>
+                    }
+                    @case ('divider') {
+                      <p class="blog-form__sub-label">Razdvajač nema dodatna polja.</p>
+                    }
+                  }
+                </div>
+              </div>
+            }
+          </app-form-section>
+        </app-form-layout>
+
+        <div class="blog-form__step-actions">
+          <button mat-button type="button" matStepperPrevious>Nazad</button>
+          <button mat-flat-button color="primary" type="button" matStepperNext>Dalje</button>
+        </div>
+      </mat-step>
+
+      <mat-step [stepControl]="seoGroup" label="SEO">
+        <app-form-layout>
+          <app-form-section formGroupName="seo">
+            <mat-form-field appearance="outline">
+              <mat-label>SEO naslov</mat-label>
+              <input matInput formControlName="seoTitle" maxlength="70" />
+              <mat-hint align="end">{{ seoGroup.get('seoTitle')?.value?.length || 0 }}/70</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>SEO opis</mat-label>
+              <textarea matInput formControlName="seoDescription" rows="2" maxlength="160"></textarea>
+              <mat-hint align="end">{{ seoGroup.get('seoDescription')?.value?.length || 0 }}/160</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>SEO ključne reči</mat-label>
+              <input matInput formControlName="seoKeywords" placeholder="odvojene zarezom" />
+            </mat-form-field>
+          </app-form-section>
+        </app-form-layout>
+
+        <div class="blog-form__step-actions">
+          <button mat-button type="button" matStepperPrevious>Nazad</button>
+        </div>
+
+        <app-form-actions [saving]="saving()" [saveDisabled]="saving() || form.invalid" cancelRoute="/admin/blog" />
+      </mat-step>
+    </mat-stepper>
   </form>
 }

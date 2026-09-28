@@ -1,12 +1,11 @@
 <div class="admin-blog-list">
   <div class="admin-blog-list__header">
     <h1>Blog</h1>
-    <a mat-flat-button color="primary" routerLink="/admin/blog/novi">Nova objava</a>
-  </div>
-
-  <div class="admin-blog-list__taxonomy-links">
-    <a routerLink="/admin/kategorije">Upravljaj kategorijama</a>
-    <a routerLink="/admin/tagovi">Upravljaj tagovima</a>
+    <div class="admin-blog-list__header-actions">
+      <a mat-stroked-button routerLink="/admin/kategorije">Upravljaj kategorijama</a>
+      <a mat-stroked-button routerLink="/admin/tagovi">Upravljaj tagovima</a>
+      <a mat-flat-button color="primary" routerLink="/admin/blog/novi">Nova objava</a>
+    </div>
   </div>
 
   <app-data-table
@@ -20,7 +19,10 @@
     [pageIndex]="(meta()?.page ?? 1) - 1"
     [pageSizeOptions]="[10, 25, 50, 100]"
     [actions]="actions"
+    [searchable]="true"
+    searchPlaceholder="Pretraga objava..."
     (pageChange)="onPage($event)"
+    (searchChange)="onSearch($event)"
     (sortChange)="onSort($event)"
     (retry)="load(meta()?.page ?? 1)"
   >

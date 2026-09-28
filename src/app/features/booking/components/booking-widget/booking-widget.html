@@ -100,7 +100,7 @@
         </div>
         @if (couponResult(); as coupon) {
           <p class="booking-widget__coupon-success">
-            Kupon primenjen - popust {{ coupon.discountAmount }} RSD (cena: {{ coupon.finalPrice }} RSD).
+            Kupon primenjen - popust {{ coupon.discountAmount | number: '1.0-0' }} RSD (cena: {{ coupon.finalPrice | number: '1.0-0' }} RSD).
             <button mat-button type="button" (click)="clearCoupon()">Ukloni</button>
           </p>
         }

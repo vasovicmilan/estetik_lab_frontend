@@ -1,0 +1,86 @@
+.blog-filters-bar {
+  margin-bottom: 1.5rem;
+
+  &__search {
+    display: block;
+    max-width: 420px;
+
+    // Native <mat-form-field> vertical rhythm leaves too much air for a
+    // toolbar-style search box sitting above a pill row - tighten it.
+    ::ng-deep .mat-mdc-text-field-wrapper {
+      height: 44px;
+    }
+
+    ::ng-deep .mat-mdc-form-field-infix {
+      min-height: 0;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+  }
+
+  &__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  &__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    background: var(--mat-sys-surface-container-low, #f7f2fa);
+    color: var(--mat-sys-on-surface, #333);
+    font-size: 0.875rem;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background: var(--mat-sys-surface-container, #f0e9f1);
+    }
+
+    &--active {
+      background: var(--mat-sys-primary, #b3568c);
+      color: var(--mat-sys-on-primary, #fff);
+    }
+  }
+
+  &__count {
+    opacity: 0.75;
+    font-size: 0.8125rem;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+
+  &__tag {
+    display: inline-block;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.15));
+    color: var(--mat-sys-on-surface-variant, #555);
+    font-size: 0.8125rem;
+    text-decoration: none;
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover {
+      border-color: var(--mat-sys-primary, #b3568c);
+      color: var(--mat-sys-primary, #b3568c);
+    }
+
+    &--active {
+      border-color: var(--mat-sys-primary, #b3568c);
+      background: var(--mat-sys-primary, #b3568c);
+      color: var(--mat-sys-on-primary, #fff);
+    }
+  }
+}

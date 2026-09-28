@@ -78,4 +78,11 @@ export class Api {
     files.forEach((file) => formData.append(fieldName, file));
     return this.http.post<ApiResponse<T>>(`${this.baseUrl}/${path}`, formData).pipe(map((res) => res.data));
   }
+
+  /** For the rare binary-file endpoint (e.g. a PDF export) that doesn't follow
+   * the { success, data } envelope every other route here uses - responseType
+   * 'blob' skips JSON parsing entirely, unlike every method above. */
+  downloadBlob(path: string, params?: Record<string, unknown>): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${path}`, { params: this.buildParams(params), responseType: 'blob' });
+  }
 }

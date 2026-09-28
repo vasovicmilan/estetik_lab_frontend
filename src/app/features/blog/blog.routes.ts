@@ -6,6 +6,20 @@ export const BLOG_ROUTES: Routes = [
     path: '',
     loadComponent: () => import('./components/blog-list/blog-list').then((m) => m.BlogList),
   },
+  // Category/tag archive pages - MUST come before the generic ':slug' post-detail
+  // route below, or Angular would match "kategorija"/"tag" as a post slug instead.
+  // Mounted here (rather than under the leaf ':slug'/:slug route) so the final URL
+  // is /blog/kategorija/:slug and /blog/tag/:slug (see app.routes.ts's 'blog' entry).
+  {
+    path: 'kategorija/:slug',
+    loadComponent: () => import('./components/blog-archive/blog-archive').then((m) => m.BlogArchive),
+    data: { filterType: 'category' },
+  },
+  {
+    path: 'tag/:slug',
+    loadComponent: () => import('./components/blog-archive/blog-archive').then((m) => m.BlogArchive),
+    data: { filterType: 'tag' },
+  },
   {
     path: ':slug',
     loadComponent: () => import('./components/blog-detail/blog-detail').then((m) => m.BlogDetail),

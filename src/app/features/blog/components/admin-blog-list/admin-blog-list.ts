@@ -30,6 +30,7 @@ export class AdminBlogList implements OnInit {
   error = signal<string | null>(null);
 
   private limit = 10;
+  private search = '';
   /** `naslov`/`status`/`pregledi`/`istaknut`/`kreiran` are plain scalar columns
    * (title, status, views, isFeatured, createdAt) on the Post schema - see
    * BLOG_SORT_FIELDS in admin-marketing.controller.js. `autor` (populated
@@ -70,6 +71,7 @@ export class AdminBlogList implements OnInit {
       .listAdmin({
         page,
         limit: this.limit,
+        search: this.search || undefined,
         sort: this.sort ?? undefined,
         order: this.order ?? undefined,
       })
@@ -89,6 +91,11 @@ export class AdminBlogList implements OnInit {
   onPage(event: PageEvent): void {
     this.limit = event.pageSize;
     this.load(event.pageIndex + 1);
+  }
+
+  onSearch(term: string): void {
+    this.search = term;
+    this.load(1);
   }
 
   onSort(sort: Sort): void {

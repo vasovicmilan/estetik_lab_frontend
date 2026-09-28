@@ -2,29 +2,34 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { Product } from '../../services/product';
 import { ProductPublicCard } from '../../models/product';
 import { ApiMeta } from '../../../../core/models/api-response';
+import { Seo } from '../../../../core/services/seo';
 
 /** Public list - mounted at /prodavnica (see shop.routes.ts). Same paginated-grid
  * pattern as service-list/package-list. */
 @Component({
   selector: 'app-product-list',
-  imports: [CommonModule, RouterLink, MatCardModule, MatPaginatorModule, MatProgressSpinnerModule, ImageUrlPipe],
+  imports: [CommonModule, RouterLink, MatCardModule, MatChipsModule, MatIconModule, MatPaginatorModule, MatProgressSpinnerModule, ImageUrlPipe],
   templateUrl: './product-list.html',
   styleUrl: './product-list.scss',
 })
 export class ProductList implements OnInit {
   private product = inject(Product);
+  private seo = inject(Seo);
 
   products = signal<ProductPublicCard[]>([]);
   meta = signal<ApiMeta | null>(null);
   loading = signal(true);
 
   ngOnInit(): void {
+    this.seo.applyStatic('Prodavnica | Estetik Lab', 'Kozmetički proizvodi i preparati za negu kože iz Estetik Lab prodavnice.');
     this.load(1);
   }
 
