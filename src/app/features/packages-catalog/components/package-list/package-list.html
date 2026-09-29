@@ -1,5 +1,5 @@
 <div class="package-list">
-  <h1>Paketi</h1>
+  <app-list-intro [intro]="intro()" fallbackTitle="Paketi" />
 
   @if (loading()) {
     <div class="package-list__spinner">
@@ -44,7 +44,7 @@
     </div>
 
     @if (meta(); as m) {
-      <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" (page)="onPage($event)" />
+      <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" [pageSizeOptions]="pageSizeOptions" showFirstLastButtons (page)="onPage($event)" />
     }
   }
 </div>

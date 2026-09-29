@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
+import { pageSeoResolver } from '../../core/resolvers/page-seo-resolver';
 import { postDetailResolver } from './resolvers/post-detail-resolver';
 
 export const BLOG_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () => import('./components/blog-list/blog-list').then((m) => m.BlogList),
+    resolve: { seo: pageSeoResolver('blog') },
   },
   // Category/tag archive pages - MUST come before the generic ':slug' post-detail
   // route below, or Angular would match "kategorija"/"tag" as a post slug instead.

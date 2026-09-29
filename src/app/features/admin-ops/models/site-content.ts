@@ -82,6 +82,18 @@ export interface SiteContentTeamIntro {
   highlights: SiteContentWhyUsItem[];
 }
 
+/** One static/listing page's SEO. `label`/`path` are read-only (defined in backend code,
+ * not stored) so this UI never keeps its own list of pages. */
+export interface SiteContentPageSeoEntry {
+  label: string;
+  path: string;
+  title: string;
+  description: string;
+  noIndex: boolean;
+}
+
+export type SiteContentPageSeo = Record<string, SiteContentPageSeoEntry>;
+
 /** GET /admin/site-content response - everything in one call, same reasoning
  * as SiteSettings's getSiteSettingsForEdit(). */
 export interface SiteContentAll {
@@ -93,4 +105,5 @@ export interface SiteContentAll {
   homeIntro: SiteContentHomeIntro;
   whyUs: SiteContentWhyUsItem[];
   teamIntro: SiteContentTeamIntro;
+  pageSeo: SiteContentPageSeo;
 }

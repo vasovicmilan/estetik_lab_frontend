@@ -1,0 +1,29 @@
+@if (location(); as loc) {
+  <section class="location">
+    <div class="location__text">
+      <p class="location__eyebrow">Gde se nalazimo</p>
+      <h2>{{ loc.address }}</h2>
+
+      @if (hasHours()) {
+        <h3>Radno vreme</h3>
+        <ul class="location__hours">
+          @for (wh of hours(); track wh.day) {
+            <li>
+              <span>{{ wh.label }}</span>
+              <span>{{ wh.isOpen ? wh.from + ' - ' + wh.to : 'Zatvoreno' }}</span>
+            </li>
+          }
+        </ul>
+      }
+
+      @if (loc.googleDataNotice) {
+        <p class="location__notice">{{ loc.googleDataNotice }}</p>
+        <a [routerLink]="loc.privacyUrl">Pročitajte više u našoj Politici privatnosti</a>
+      }
+    </div>
+
+    @if (mapUrl(); as url) {
+      <iframe class="location__map" [src]="url" [title]="loc.address" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+    }
+  </section>
+}

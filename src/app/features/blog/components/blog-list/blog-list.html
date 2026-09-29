@@ -1,23 +1,9 @@
 <div class="blog-list">
-  <section class="blog-list__intro">
-    <h1>Blog</h1>
-    <p class="blog-list__intro-lead">
-      Saveti, vodiči i novosti o nezi kože i estetskim tretmanima - pišu ih terapeuti i stručnjaci Estetik Lab tima,
-      da biste pre svake odluke imali proverene i razumljive informacije.
-    </p>
-
-    <div class="blog-list__intro-grid">
-      @for (topic of introTopics; track topic.title) {
-        <div class="blog-list__intro-item">
-          <mat-icon>{{ topic.icon }}</mat-icon>
-          <div>
-            <p class="blog-list__intro-item-title">{{ topic.title }}</p>
-            <p class="blog-list__intro-item-text">{{ topic.text }}</p>
-          </div>
-        </div>
-      }
-    </div>
-  </section>
+  @if (!search()) {
+    <app-list-intro [intro]="intro()" fallbackTitle="Blog" />
+  } @else {
+    <h1>Rezultati pretrage</h1>
+  }
 
   <app-blog-filters-bar [filters]="filters()" [search]="search()" (searchChange)="onSearchChange($event)" />
 
@@ -34,17 +20,7 @@
       }
     </p>
   } @else {
-    <div class="blog-list__toolbar">
-      <span class="blog-list__count">{{ meta()?.total || posts().length }} tekstova</span>
-      <mat-form-field appearance="outline" class="blog-list__page-size">
-        <mat-label>Po strani</mat-label>
-        <mat-select [value]="pageSize()" (selectionChange)="onPageSizeChange($event.value)">
-          @for (size of pageSizeOptions; track size) {
-            <mat-option [value]="size">{{ size }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
+    <p class="blog-list__count">{{ meta()?.total || posts().length }} tekstova</p>
 
     <div class="blog-list__grid">
       @for (post of posts(); track post.id) {
@@ -79,7 +55,7 @@
     </div>
 
     @if (meta(); as m) {
-      <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" (page)="onPage($event)" />
+      <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" [pageSizeOptions]="pageSizeOptions" showFirstLastButtons (page)="onPage($event)" />
     }
   }
 </div>

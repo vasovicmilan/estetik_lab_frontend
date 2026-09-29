@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
+import { pageSeoResolver } from '../../core/resolvers/page-seo-resolver';
 import { teamDetailResolver } from './resolvers/team-detail-resolver';
 
 export const TEAM_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () => import('./components/team-list/team-list').then((m) => m.TeamList),
+    resolve: { seo: pageSeoResolver('team') },
   },
   {
     path: ':slug',

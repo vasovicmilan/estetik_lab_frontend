@@ -62,6 +62,90 @@
           </mat-form-field>
         </app-form-section>
 
+        <app-form-section title="Podaci o firmi">
+          <p class="site-settings-form__hint">
+            Footer, kontakt, e-mailovi, SEO i llms.txt — važe odmah po čuvanju (bez restarta).
+          </p>
+          <mat-form-field appearance="outline">
+            <mat-label>Naziv sajta / salona</mat-label>
+            <input matInput formControlName="businessName" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Pravni naziv firme</mat-label>
+            <input matInput formControlName="businessLegalName" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Alternativni naziv (opciono)</mat-label>
+            <input matInput formControlName="businessAlternateName" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Kontakt email</mat-label>
+            <input matInput type="email" formControlName="businessEmail" />
+            <mat-hint>Javni email i adresa za podršku u e-mailovima.</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Email za obaveštenja administratoru</mat-label>
+            <input matInput type="email" formControlName="businessAdminEmail" />
+            <mat-hint>Termini, porudžbine, poruke. Prazno = kontakt email.</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Telefon</mat-label>
+            <input matInput formControlName="businessPhone" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>PIB</mat-label>
+            <input matInput formControlName="businessTaxId" />
+            <mat-hint>9 cifara; prazno ako nije registrovano.</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Matični broj</mat-label>
+            <input matInput formControlName="businessRegistrationNumber" />
+            <mat-hint>8 cifara.</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Ulica i broj</mat-label>
+            <input matInput formControlName="businessStreetAddress" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Grad</mat-label>
+            <input matInput formControlName="businessAddressLocality" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Poštanski broj</mat-label>
+            <input matInput formControlName="businessPostalCode" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Država (kod)</mat-label>
+            <input matInput formControlName="businessAddressCountry" maxlength="2" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Geografska širina</mat-label>
+            <input matInput type="number" step="any" formControlName="businessLatitude" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Geografska dužina</mat-label>
+            <input matInput type="number" step="any" formControlName="businessLongitude" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Društvene mreže (jedan link po redu)</mat-label>
+            <textarea matInput rows="4" formControlName="businessSameAsText"></textarea>
+            <mat-hint>Linkovi moraju počinjati sa https://</mat-hint>
+          </mat-form-field>
+        </app-form-section>
+
+        <app-form-section title="Dostava i provizije partnera">
+          <mat-form-field appearance="outline">
+            <mat-label>Cena dostave (fiksna)</mat-label>
+            <input matInput type="number" min="0" formControlName="defaultShippingPrice" />
+            <mat-hint>Za porudžbine bez glomaznih artikala.</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Rok pre odobravanja provizije partnera (dani)</mat-label>
+            <input matInput type="number" min="0" max="365" formControlName="orderCommissionGraceDays" />
+            <mat-hint>Provizija čeka ovoliko dana (pravo na odustanak).</mat-hint>
+          </mat-form-field>
+        </app-form-section>
+
         <app-form-section title="Valuta">
           <mat-form-field appearance="outline">
             <mat-label>Kod valute</mat-label>

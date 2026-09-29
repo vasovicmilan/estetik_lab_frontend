@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,6 +7,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Contact } from '../../services/contact';
+import { SiteContent } from '../../../../core/services/site-content';
+import { ContactPageContent } from '../../../../core/models/site-content';
+import { LocationInfo } from '../../../../shared/ui/location-info/location-info';
 
 // Matches validateContactCreate exactly (contact.validator.js) - same field
 // set, same min/max-length rules. Error handling mirrors auth/register.ts:
@@ -15,12 +18,21 @@ import { Contact } from '../../services/contact';
 // shape to surface here beyond the one inline banner (same as Register/Login).
 @Component({
   selector: 'app-contact-page',
-  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatCheckboxModule, MatProgressSpinnerModule],
+  imports: [LocationInfo, CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatCheckboxModule, MatProgressSpinnerModule],
   templateUrl: './contact-page.html',
   styleUrl: './contact-page.scss',
 })
-export class ContactPage {
+export class ContactPage implements OnInit {
   private fb = inject(FormBuilder);
+  private siteContent = inject(SiteContent);
+
+  /** Intro, contact details, location and working hours - all from GET /contact-page (backend/DB). */
+  page = signal<ContactPageContent | null>(null);
+
+  ngOnInit(): void {
+    this.siteContent.getContactPage().subscribe({ next: (page) => this.page.set(page), error: () => this.page.set(null) });
+  }
+
   private contact = inject(Contact);
 
   loading = signal(false);

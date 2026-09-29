@@ -126,12 +126,4 @@ export interface BusinessPartnerPublicDetail {
   ctaLabel: string;
   /** renderContentBlocks() output - feed straight into <app-content-blocks>. */
   sadrzaj: ContentBlock[];
-  /** NOT the same SeoData shape Seo.apply() expects (see catalog.controller.js's
-   * getBusinessPartner - unlike getService/getPost/etc it does NOT call the shared
-   * generateSeo() dispatcher, service-layer buildPageSeo() output ends up here
-   * instead, keyed pageTitle/pageDescription/canonical/robots/og/twitter, no
-   * jsonLd/meta). Left as an opaque bag rather than wired into Seo.apply(), which
-   * would throw on the missing `meta` key - business-partner-detail sets the page
-   * title directly off `naziv` instead. */
-  seo: Record<string, unknown>;
 }

@@ -61,7 +61,7 @@ export class Product {
 
   // ---- Public ----
 
-  listPublic(params: { category?: string; tag?: string; search?: string; page?: number }): Observable<{
+  listPublic(params: { category?: string; tag?: string; search?: string; page?: number; limit?: number }): Observable<{
     data: ProductPublicCard[];
     meta?: ApiMeta;
   }> {

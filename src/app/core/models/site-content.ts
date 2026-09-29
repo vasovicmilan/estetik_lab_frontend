@@ -87,3 +87,84 @@ export interface TeamIntroContent {
   lead: string;
   highlights: WhyUsItem[];
 }
+
+// ---- Listing page intros, home page and contact page (GET /list-intro/:page,
+// /home, /contact-page, /testimonials). Same content the EJS site renders; the
+// backend (SiteContent in MongoDB) is the single source of truth. ----
+
+/** GET /list-intro/:page - page is services | packages | products | blog. */
+export interface ListIntroContent {
+  eyebrow: string;
+  title: string;
+  lead: string;
+  paragraphs: string[];
+  /** services / packages / blog */
+  highlights?: WhyUsItem[];
+  /** products only */
+  trust?: WhyUsItem[];
+  faq?: { pitanje: string; odgovor: string }[];
+}
+
+export interface WorkingHoursDay {
+  day: string;
+  isOpen: boolean;
+  from: string;
+  to: string;
+}
+
+export interface LocationContent {
+  address: string;
+  mapEmbedUrl: string | null;
+  googleDataNotice: string;
+  privacyUrl: string;
+  workingHours: WorkingHoursDay[];
+}
+
+export interface HomeHeroContent {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  ctaLabel: string;
+  ctaUrl: string;
+  secondaryCtaLabel: string;
+  secondaryCtaUrl: string;
+  image: string;
+  imageAlt: string;
+  imageVariants?: { thumb?: string; medium?: string; original?: string };
+}
+
+export interface PublicTestimonial {
+  id: string;
+  ime: string;
+  slika: { url: string; alt?: string } | null;
+  ocena: number;
+  ocenaZvezdice: string;
+  komentar: string;
+  usluga: string | null;
+  uslugaSlug: string | null;
+  paket: string | null;
+  paketSlug: string | null;
+  proizvod: string | null;
+  proizvodSlug: string | null;
+  datum: string;
+}
+
+export interface HomePageContent {
+  hero: HomeHeroContent;
+  testimonials: PublicTestimonial[];
+  location: LocationContent;
+}
+
+export interface ContactPageContent {
+  intro: { eyebrow: string; title: string; lead: string };
+  contact: {
+    company: string;
+    address: string | null;
+    email: string;
+    phone: string;
+    phoneHref: string;
+    taxId: string | null;
+    registrationNumber: string | null;
+  };
+  location: LocationContent;
+}

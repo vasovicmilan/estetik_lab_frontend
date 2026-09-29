@@ -8,6 +8,10 @@ import {
   PartnershipContent,
   HomeIntroContent,
   TeamIntroContent,
+  ListIntroContent,
+  HomePageContent,
+  ContactPageContent,
+  PublicTestimonial,
 } from '../models/site-content';
 
 /**
@@ -46,5 +50,22 @@ export class SiteContent {
 
   getTeamIntro(): Observable<TeamIntroContent> {
     return this.api.get<TeamIntroContent>('team/intro');
+  }
+
+  /** page: services | packages | products | blog */
+  getListIntro(page: 'services' | 'packages' | 'products' | 'blog'): Observable<ListIntroContent> {
+    return this.api.get<ListIntroContent>(`list-intro/${page}`);
+  }
+
+  getHomePage(): Observable<HomePageContent> {
+    return this.api.get<HomePageContent>('home');
+  }
+
+  getContactPage(): Observable<ContactPageContent> {
+    return this.api.get<ContactPageContent>('contact-page');
+  }
+
+  getTestimonials(limit = 6): Observable<PublicTestimonial[]> {
+    return this.api.get<PublicTestimonial[]>('testimonials', { limit });
   }
 }

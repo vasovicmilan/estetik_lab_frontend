@@ -75,6 +75,12 @@ export class Post {
    * archive - fetched once per page load, in parallel with list()/whatever
    * posts request that page also makes (see catalog.controller.js's
    * getBlogFilters for why this isn't just folded into list()). */
+  /** GET /blog/archive/:type/:slug - real category/tag name + description and the
+   * page's `seo` (title, canonical, robots, JSON-LD), all from the backend. type: 'kategorija' | 'tag'. */
+  getArchive(type: 'category' | 'tag', slug: string): Observable<ApiResponse<{ naziv: string; slug: string; description: string; total: number }>> {
+    return this.api.getWithSeo(`blog/archive/${type === 'tag' ? 'tag' : 'kategorija'}/${slug}`);
+  }
+
   getFilters(): Observable<BlogFilters> {
     return this.api.get<BlogFilters>('blog/filters');
   }

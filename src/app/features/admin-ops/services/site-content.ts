@@ -4,6 +4,7 @@ import { Api } from '../../../core/services/api';
 import {
   SiteContentAbout,
   SiteContentAll,
+  SiteContentPageSeo,
   SiteContentFaq,
   SiteContentHomeIntro,
   SiteContentLegalPage,
@@ -54,5 +55,10 @@ export class AdminSiteContent {
 
   updateTeamIntro(payload: SiteContentTeamIntro): Observable<SiteContentTeamIntro> {
     return this.api.put<SiteContentTeamIntro>('admin/site-content/tim-uvod', payload);
+  }
+
+  /** Only the pages present in `pages` are updated (`{ home: { title, description, noIndex? } }`). */
+  updatePageSeo(pages: Record<string, { title: string; description: string; noIndex?: boolean }>): Observable<SiteContentPageSeo> {
+    return this.api.put<SiteContentPageSeo>('admin/site-content/seo-stranica', { pages });
   }
 }

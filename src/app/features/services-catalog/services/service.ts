@@ -62,7 +62,7 @@ export class Service {
 
   // ---- Public ----
 
-  listPublic(params: { category?: string; tag?: string; page?: number }): Observable<{ data: ServicePublicCard[]; meta?: ApiMeta }> {
+  listPublic(params: { category?: string; tag?: string; page?: number; limit?: number }): Observable<{ data: ServicePublicCard[]; meta?: ApiMeta }> {
     return this.api.getList<ServicePublicCard[]>('services', params);
   }
 

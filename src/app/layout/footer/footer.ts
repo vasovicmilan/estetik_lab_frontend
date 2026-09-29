@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subscriber } from '../../features/newsletter/services/subscriber';
 import { Api } from '../../core/services/api';
@@ -22,6 +23,7 @@ import { BusinessInfo, BusinessInfoResponse, toBusinessInfo } from '../../core/m
     MatButtonModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
+    MatIconModule,
   ],
   templateUrl: './footer.html',
   styleUrl: './footer.scss',

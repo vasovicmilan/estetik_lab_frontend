@@ -149,6 +149,25 @@ export class AdminSiteSettingsForm implements OnInit {
     currencySymbol: ['', Validators.required],
     currencySymbolPosition: ['after' as 'before' | 'after', Validators.required],
     minimumSessionCommission: [0, [Validators.required, Validators.min(0)]],
+    // Podaci o firmi
+    businessName: ['', Validators.required],
+    businessLegalName: ['', Validators.required],
+    businessAlternateName: [''],
+    businessEmail: ['', [Validators.required, Validators.email]],
+    businessAdminEmail: ['', Validators.email],
+    businessPhone: ['', Validators.required],
+    businessTaxId: ['', Validators.pattern(/^(\d{9})?$/)],
+    businessRegistrationNumber: ['', Validators.pattern(/^(\d{8})?$/)],
+    businessStreetAddress: ['', Validators.required],
+    businessAddressLocality: ['', Validators.required],
+    businessPostalCode: [''],
+    businessAddressCountry: ['RS', [Validators.required, Validators.pattern(/^[A-Za-z]{2}$/)]],
+    businessLatitude: [null as number | null],
+    businessLongitude: [null as number | null],
+    businessSameAsText: [''],
+    // Dostava i provizije
+    defaultShippingPrice: [0, [Validators.required, Validators.min(0)]],
+    orderCommissionGraceDays: [14, [Validators.required, Validators.min(0), Validators.max(365)]],
   });
 
   ngOnInit(): void {
@@ -180,6 +199,23 @@ export class AdminSiteSettingsForm implements OnInit {
       currencySymbol: settings.currency.symbol,
       currencySymbolPosition: settings.currency.symbolPosition,
       minimumSessionCommission: settings.commissionPolicy.minimumSessionCommission,
+      businessName: settings.business?.name ?? '',
+      businessLegalName: settings.business?.legalName ?? '',
+      businessAlternateName: settings.business?.alternateName ?? '',
+      businessEmail: settings.business?.email ?? '',
+      businessAdminEmail: settings.business?.adminEmail ?? '',
+      businessPhone: settings.business?.phone ?? '',
+      businessTaxId: settings.business?.taxId ?? '',
+      businessRegistrationNumber: settings.business?.registrationNumber ?? '',
+      businessStreetAddress: settings.business?.streetAddress ?? '',
+      businessAddressLocality: settings.business?.addressLocality ?? '',
+      businessPostalCode: settings.business?.postalCode ?? '',
+      businessAddressCountry: settings.business?.addressCountry ?? 'RS',
+      businessLatitude: settings.business?.latitude ?? null,
+      businessLongitude: settings.business?.longitude ?? null,
+      businessSameAsText: (settings.business?.sameAs ?? []).join('\n'),
+      defaultShippingPrice: settings.shopPolicy?.defaultShippingPrice ?? 0,
+      orderCommissionGraceDays: settings.shopPolicy?.orderCommissionGraceDays ?? 14,
     });
 
     for (const entry of settings.workingHours ?? []) {
@@ -237,6 +273,26 @@ export class AdminSiteSettingsForm implements OnInit {
         currencySymbol: raw.currencySymbol,
         currencySymbolPosition: raw.currencySymbolPosition,
         minimumSessionCommission: raw.minimumSessionCommission,
+        businessName: raw.businessName,
+        businessLegalName: raw.businessLegalName,
+        businessAlternateName: raw.businessAlternateName ?? '',
+        businessEmail: raw.businessEmail,
+        businessAdminEmail: raw.businessAdminEmail ?? '',
+        businessPhone: raw.businessPhone,
+        businessTaxId: raw.businessTaxId ?? '',
+        businessRegistrationNumber: raw.businessRegistrationNumber ?? '',
+        businessStreetAddress: raw.businessStreetAddress,
+        businessAddressLocality: raw.businessAddressLocality,
+        businessPostalCode: raw.businessPostalCode ?? '',
+        businessAddressCountry: raw.businessAddressCountry,
+        businessLatitude: raw.businessLatitude ?? null,
+        businessLongitude: raw.businessLongitude ?? null,
+        businessSameAs: String(raw.businessSameAsText ?? '')
+          .split(/\r?\n/)
+          .map((u: string) => u.trim())
+          .filter(Boolean),
+        defaultShippingPrice: raw.defaultShippingPrice,
+        orderCommissionGraceDays: raw.orderCommissionGraceDays,
       })
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({

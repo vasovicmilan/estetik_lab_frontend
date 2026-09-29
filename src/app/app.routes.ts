@@ -4,11 +4,13 @@ import { permissionGuard } from './core/guards/permission-guard';
 import { employeeGuard } from './core/guards/employee-guard';
 import { partnerGuard } from './core/guards/partner-guard';
 import { AdminShell } from './layout/admin-shell/admin-shell';
+import { pageSeoResolver } from './core/resolvers/page-seo-resolver';
 
 export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./features/home/home').then((m) => m.Home),
+    resolve: { seo: pageSeoResolver('home') },
   },
   {
     path: 'prijava',
@@ -52,10 +54,14 @@ export const routes: Routes = [
     path: 'paketi',
     loadChildren: () => import('./features/packages-catalog/packages-catalog.routes').then((m) => m.PACKAGES_CATALOG_ROUTES),
   },
+  // Public URL matches the backend's canonical/sitemap/llms.txt (/nas-tim). The old
+  // /tim (and /tim/:slug) links keep working via the redirects below.
   {
-    path: 'tim',
+    path: 'nas-tim',
     loadChildren: () => import('./features/team/team.routes').then((m) => m.TEAM_ROUTES),
   },
+  { path: 'tim', pathMatch: 'full', redirectTo: 'nas-tim' },
+  { path: 'tim/:slug', redirectTo: 'nas-tim/:slug' },
   {
     path: 'blog',
     loadChildren: () => import('./features/blog/blog.routes').then((m) => m.BLOG_ROUTES),
@@ -67,6 +73,7 @@ export const routes: Routes = [
   {
     path: 'kontakt',
     loadComponent: () => import('./features/contacts/components/contact-page/contact-page').then((m) => m.ContactPage),
+    resolve: { seo: pageSeoResolver('contact') },
   },
   /**
    * Static/legal marketing pages - DB-backed content (see
@@ -76,22 +83,27 @@ export const routes: Routes = [
   {
     path: 'o-nama',
     loadComponent: () => import('./features/legal/components/about-page/about-page').then((m) => m.AboutPage),
+    resolve: { seo: pageSeoResolver('about') },
   },
   {
     path: 'faq',
     loadComponent: () => import('./features/legal/components/faq-page/faq-page').then((m) => m.FaqPage),
+    resolve: { seo: pageSeoResolver('faq') },
   },
   {
     path: 'politika-privatnosti',
     loadComponent: () => import('./features/legal/components/privacy-policy-page/privacy-policy-page').then((m) => m.PrivacyPolicyPage),
+    resolve: { seo: pageSeoResolver('privacyPolicy') },
   },
   {
     path: 'uslovi-koriscenja',
     loadComponent: () => import('./features/legal/components/terms-page/terms-page').then((m) => m.TermsPage),
+    resolve: { seo: pageSeoResolver('termsAndConditions') },
   },
   {
     path: 'partnerski-program',
     loadComponent: () => import('./features/legal/components/partnership-page/partnership-page').then((m) => m.PartnershipPage),
+    resolve: { seo: pageSeoResolver('partnership') },
   },
   /**
    * Standalone public testimonial-submission form - no dedicated public

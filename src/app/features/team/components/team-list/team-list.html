@@ -34,7 +34,7 @@
   } @else {
     <div class="team-list__grid">
       @for (member of members(); track member.id) {
-        <a [routerLink]="['/tim', member.slug]" class="team-list__card-link">
+        <a [routerLink]="['/nas-tim', member.slug]" class="team-list__card-link">
           <mat-card class="team-list__card" appearance="outlined">
             @if (member.slika?.url) {
               <img [src]="member.slika!.url | imageUrl" [alt]="member.slika!.alt || member.imePrezime" class="team-list__photo" />

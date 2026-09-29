@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Api } from '../../../core/services/api';
-import { ApiMeta } from '../../../core/models/api-response';
+import { ApiMeta, ApiResponse } from '../../../core/models/api-response';
 import { ImageReference } from '../../../core/models/upload';
 import { FilterParams } from '../../../core/models/filter-params';
 import {
@@ -69,5 +69,11 @@ export class BusinessPartner {
 
   getPublicBySlug(slug: string): Observable<BusinessPartnerPublicDetail> {
     return this.api.get<BusinessPartnerPublicDetail>(`business-partners/${slug}`);
+  }
+
+  /** Includes the top-level `seo` (see ApiResponse.seo) so the detail resolver can
+   * hand it to Seo.apply() - same pattern as Service.getBySlugWithSeo(). */
+  getPublicBySlugWithSeo(slug: string): Observable<ApiResponse<BusinessPartnerPublicDetail>> {
+    return this.api.getWithSeo<BusinessPartnerPublicDetail>(`business-partners/${slug}`);
   }
 }

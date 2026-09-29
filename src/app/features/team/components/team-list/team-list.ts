@@ -8,7 +8,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { Team } from '../../services/team';
 import { TeamMemberCard } from '../../models/expert';
-import { Seo } from '../../../../core/services/seo';
 import { SiteContent } from '../../../../core/services/site-content';
 import { TeamIntroContent } from '../../../../core/models/site-content';
 import { biIconToMaterial } from '../../../../core/utils/bi-icon-map';
@@ -21,7 +20,6 @@ import { biIconToMaterial } from '../../../../core/utils/bi-icon-map';
 })
 export class TeamList implements OnInit {
   private team = inject(Team);
-  private seo = inject(Seo);
   private siteContent = inject(SiteContent);
 
   members = signal<TeamMemberCard[]>([]);
@@ -29,7 +27,6 @@ export class TeamList implements OnInit {
   intro = signal<TeamIntroContent | null>(null);
 
   ngOnInit(): void {
-    this.seo.applyStatic('Naš tim | Estetik Lab', 'Upoznajte sertifikovane terapeute i stručnjake Estetik Lab tima.');
     this.team.list().subscribe({
       next: (members) => {
         this.members.set(members);

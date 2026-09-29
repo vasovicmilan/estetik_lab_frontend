@@ -30,7 +30,7 @@
           <p>
             {{ d.povezaniEkspert.imePrezime ?? d.povezaniEkspert.id }}
             @if (d.povezaniEkspert.slug) {
-              <a [routerLink]="['/tim', d.povezaniEkspert.slug]">(javni profil)</a>
+              <a [routerLink]="['/nas-tim', d.povezaniEkspert.slug]">(javni profil)</a>
             }
           </p>
         } @else {

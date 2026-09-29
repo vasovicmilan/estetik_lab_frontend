@@ -4,23 +4,24 @@ import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { PUBLIC_PAGE_SIZES } from '../../../../shared/ui/pagination/page-size';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { Post } from '../../services/post';
 import { BlogFilters, PostCard } from '../../models/post';
 import { ApiMeta } from '../../../../core/models/api-response';
-import { Seo } from '../../../../core/services/seo';
 import { BlogFiltersBar } from '../blog-filters-bar/blog-filters-bar';
+import { SiteContent } from '../../../../core/services/site-content';
+import { ListIntroContent } from '../../../../core/models/site-content';
+import { ListIntro } from '../../../../shared/ui/list-intro/list-intro';
 
 /** Selectable page sizes for "broj prikazanih postova" - 9 matches the old
  * EJS site's default (blog.presenter.js/blog.service.js both default to 9,
  * a clean 3x3 grid), the rest are just wider steps around it. Backend clamps
  * whatever comes through to [1, 100] regardless (see pagination.util.js's
  * resolveLimit), so these are purely a frontend UX choice, not a backend limit. */
-const PAGE_SIZE_OPTIONS = [6, 9, 12, 24];
+const PAGE_SIZE_OPTIONS = PUBLIC_PAGE_SIZES;
 const DEFAULT_PAGE_SIZE = 9;
 
 @Component({
@@ -31,30 +32,21 @@ const DEFAULT_PAGE_SIZE = 9;
     MatCardModule,
     MatChipsModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatSelectModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
     ImageUrlPipe,
     BlogFiltersBar,
+    ListIntro,
   ],
   templateUrl: './blog-list.html',
   styleUrl: './blog-list.scss',
 })
 export class BlogList implements OnInit {
   private post = inject(Post);
-  private seo = inject(Seo);
 
-  /** Static editorial framing for the intro section (no backend content
-   * source for this - mirrors how the SEO descriptions for listing pages are
-   * hand-written copy, not data from an endpoint). Purely descriptive of the
-   * kinds of posts on the blog, not a live category filter. */
-  readonly introTopics = [
-    { icon: 'spa', title: 'Saveti za negu', text: 'Svakodnevna rutina i praktični saveti za zdravu kožu.' },
-    { icon: 'auto_awesome', title: 'Vodiči kroz tretmane', text: 'Šta da očekujete pre, tokom i posle tretmana.' },
-    { icon: 'newspaper', title: 'Novosti iz estetike', text: 'Nove metode, tehnologije i trendovi u struci.' },
-    { icon: 'chat_bubble', title: 'Iskustva i pitanja', text: 'Odgovori na najčešća pitanja naših klijenata.' },
-  ];
+  private siteContent = inject(SiteContent);
+  /** Intro (eyebrow, H1, lead, highlights) - from the backend (GET /list-intro/blog), same as the EJS site. */
+  intro = signal<ListIntroContent | null>(null);
 
   readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
 
@@ -66,7 +58,7 @@ export class BlogList implements OnInit {
   search = signal('');
 
   ngOnInit(): void {
-    this.seo.applyStatic('Blog | Estetik Lab', 'Saveti, novosti i stručni tekstovi o nezi kože i tretmanima sa Estetik Lab bloga.');
+    this.siteContent.getListIntro('blog').subscribe({ next: (intro) => this.intro.set(intro), error: () => this.intro.set(null) });
     // Filter chrome (category counts, tags) doesn't depend on the current
     // page/search - fetched once, independently, not re-requested on every
     // page flip or search keystroke (see Post.getFilters()'s own comment).
@@ -90,12 +82,12 @@ export class BlogList implements OnInit {
   }
 
   onPage(event: PageEvent): void {
+    if (event.pageSize !== this.pageSize()) {
+      this.pageSize.set(event.pageSize);
+      this.load(1);
+      return;
+    }
     this.load(event.pageIndex + 1);
-  }
-
-  onPageSizeChange(size: number): void {
-    this.pageSize.set(size);
-    this.load(1);
   }
 
   onSearchChange(value: string): void {

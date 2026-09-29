@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { pageSeoResolver } from '../../core/resolvers/page-seo-resolver';
 import { businessPartnerDetailResolver } from './resolvers/business-partner-detail-resolver';
 
 /** Public routes - mounted at /saradnici (see app.routes.ts), same
@@ -7,6 +8,7 @@ export const BUSINESS_PARTNERS_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () => import('./components/business-partner-list/business-partner-list').then((m) => m.BusinessPartnerList),
+    resolve: { seo: pageSeoResolver('partners') },
   },
   {
     path: ':slug',

@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
+import { pageSeoResolver } from '../../core/resolvers/page-seo-resolver';
 import { packageDetailResolver } from './resolvers/package-detail-resolver';
 
 export const PACKAGES_CATALOG_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () => import('./components/package-list/package-list').then((m) => m.PackageList),
+    resolve: { seo: pageSeoResolver('packages') },
   },
   {
     path: ':slug',

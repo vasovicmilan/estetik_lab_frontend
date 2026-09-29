@@ -1,5 +1,5 @@
 <div class="product-list">
-  <h1>Prodavnica</h1>
+  <app-list-intro [intro]="intro()" fallbackTitle="Prodavnica" part="intro" />
 
   @if (loading()) {
     <div class="product-list__spinner">
@@ -14,45 +14,51 @@
           <mat-card class="product-list__card" appearance="outlined">
             <div class="product-list__media">
               @if (product.slika?.url) {
-                <img [src]="product.slika!.url | imageUrl" [alt]="product.slika!.alt || product.naziv" class="product-list__image" />
+                <img
+                  [src]="product.slika!.url | imageUrl"
+                  [alt]="product.slika!.alt || product.naziv"
+                  class="product-list__image"
+                  [class.product-list__image--sold-out]="!product.naStanju"
+                  loading="lazy"
+                />
+              } @else {
+                <div class="product-list__image product-list__image--empty"><mat-icon>shopping_bag</mat-icon></div>
               }
               @if (product.oznaka) {
                 <mat-chip class="product-list__badge" [class.product-list__badge--sale]="product.oznakaRaw === 'sale'" disableRipple>
                   {{ product.oznaka }}
                 </mat-chip>
               }
-            </div>
-            <mat-card-title>{{ product.naziv }}</mat-card-title>
-            <mat-card-content>
-              @if (product.kategorije.length) {
-                <mat-chip-set class="product-list__categories">
-                  @for (kategorija of product.kategorije.slice(0, 2); track kategorija) {
-                    <mat-chip disableRipple>{{ kategorija }}</mat-chip>
-                  }
-                </mat-chip-set>
-              }
-              <p>{{ product.kratakOpis }}</p>
-              <p class="product-list__price">
-                @if (product.naUpit) {
-                  Cena na upit
-                } @else if (product.cena) {
-                  {{ product.cena }}
-                }
-              </p>
               @if (!product.naStanju) {
-                <mat-chip class="product-list__stock" disableRipple>
-                  <mat-icon matChipAvatar>inventory_2</mat-icon>
-                  Nema na stanju
-                </mat-chip>
+                <mat-chip class="product-list__stock" disableRipple>Nema na stanju</mat-chip>
               }
-            </mat-card-content>
+            </div>
+            <div class="product-list__body">
+              @if (product.kategorije.length) {
+                <p class="product-list__category">{{ product.kategorije[0] }}</p>
+              }
+              <h3 class="product-list__title">{{ product.naziv }}</h3>
+              <p class="product-list__desc">{{ product.kratakOpis }}</p>
+              <div class="product-list__footer">
+                <span class="product-list__price">
+                  @if (product.naUpit) {
+                    Cena na upit
+                  } @else if (product.cena) {
+                    {{ product.cena }}
+                  }
+                </span>
+                <span class="product-list__more">Detalji <mat-icon>arrow_forward</mat-icon></span>
+              </div>
+            </div>
           </mat-card>
         </a>
       }
     </div>
 
     @if (meta(); as m) {
-      <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" (page)="onPage($event)" />
+      <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" [pageSizeOptions]="pageSizeOptions" showFirstLastButtons (page)="onPage($event)" />
     }
   }
+
+  <app-list-intro [intro]="intro()" part="faq" />
 </div>

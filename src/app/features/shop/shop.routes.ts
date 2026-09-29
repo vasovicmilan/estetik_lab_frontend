@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { pageSeoResolver } from '../../core/resolvers/page-seo-resolver';
 import { productDetailResolver } from './resolvers/product-detail-resolver';
 
 /** Public catalog routes - mounted at /prodavnica (see app.routes.ts). SSR-critical:
@@ -8,6 +9,7 @@ export const SHOP_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () => import('./components/product-list/product-list').then((m) => m.ProductList),
+    resolve: { seo: pageSeoResolver('products') },
   },
   {
     path: ':slug',

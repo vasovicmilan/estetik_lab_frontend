@@ -1,13 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
-import { Title } from '@angular/platform-browser';
+import { Seo } from '../../../../core/services/seo';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { PUBLIC_PAGE_SIZES } from '../../../../shared/ui/pagination/page-size';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { Post } from '../../services/post';
@@ -17,7 +16,7 @@ import { BlogFiltersBar } from '../blog-filters-bar/blog-filters-bar';
 
 type ArchiveFilterType = 'category' | 'tag';
 
-const PAGE_SIZE_OPTIONS = [6, 9, 12, 24];
+const PAGE_SIZE_OPTIONS = PUBLIC_PAGE_SIZES;
 const DEFAULT_PAGE_SIZE = 9;
 
 /**
@@ -46,8 +45,6 @@ const DEFAULT_PAGE_SIZE = 9;
     MatCardModule,
     MatChipsModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatSelectModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
     ImageUrlPipe,
@@ -59,13 +56,14 @@ const DEFAULT_PAGE_SIZE = 9;
 export class BlogArchive implements OnInit {
   private post = inject(Post);
   private route = inject(ActivatedRoute);
-  private titleService = inject(Title);
+  private seo = inject(Seo);
 
   readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
 
   filterType: ArchiveFilterType = 'category';
   slug = signal('');
   heading = signal('');
+  description = signal('');
   posts = signal<PostCard[]>([]);
   meta = signal<ApiMeta | null>(null);
   filters = signal<BlogFilters | null>(null);
@@ -106,9 +104,18 @@ export class BlogArchive implements OnInit {
       // page, so both reset here rather than only on an explicit search/page
       // interaction.
       this.search.set('');
-      const label = this.slugToLabel(slug);
-      this.heading.set(label);
-      this.titleService.setTitle(`${this.filterType === 'tag' ? 'Tag' : 'Kategorija'}: ${label} | Estetik Lab Blog`);
+      // Real name/description + SEO come from the backend; the slug-derived label is only
+      // the placeholder shown until (or if the request fails before) that arrives.
+      this.heading.set(this.slugToLabel(slug));
+      this.description.set('');
+      this.post.getArchive(this.filterType, slug).subscribe({
+        next: (res) => {
+          this.heading.set(res.data.naziv);
+          this.description.set(res.data.description);
+          if (res.seo) this.seo.apply(res.seo);
+        },
+        error: () => undefined,
+      });
       this.load(1);
     });
   }
@@ -127,12 +134,12 @@ export class BlogArchive implements OnInit {
   }
 
   onPage(event: PageEvent): void {
+    if (event.pageSize !== this.pageSize()) {
+      this.pageSize.set(event.pageSize);
+      this.load(1);
+      return;
+    }
     this.load(event.pageIndex + 1);
-  }
-
-  onPageSizeChange(size: number): void {
-    this.pageSize.set(size);
-    this.load(1);
   }
 
   onSearchChange(value: string): void {

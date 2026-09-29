@@ -1,6 +1,9 @@
 <div class="blog-archive">
   <a routerLink="/blog" class="blog-archive__back">&larr; Nazad na blog</a>
-  <h1>{{ filterType === 'tag' ? 'Tag' : 'Kategorija' }}: {{ heading() }}</h1>
+  <h1>{{ filterType === 'tag' ? '#' + heading() : heading() }}</h1>
+  @if (description()) {
+    <p class="blog-archive__description">{{ description() }}</p>
+  }
 
   <app-blog-filters-bar
     [filters]="filters()"
@@ -23,17 +26,7 @@
       }
     </p>
   } @else {
-    <div class="blog-archive__toolbar">
-      <span class="blog-archive__count">{{ meta()?.total || posts().length }} tekstova</span>
-      <mat-form-field appearance="outline" class="blog-archive__page-size">
-        <mat-label>Po strani</mat-label>
-        <mat-select [value]="pageSize()" (selectionChange)="onPageSizeChange($event.value)">
-          @for (size of pageSizeOptions; track size) {
-            <mat-option [value]="size">{{ size }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
+    <p class="blog-archive__count">{{ meta()?.total || posts().length }} tekstova</p>
 
     <div class="blog-archive__grid">
       @for (post of posts(); track post.id) {
@@ -68,7 +61,7 @@
     </div>
 
     @if (meta(); as m) {
-      <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" (page)="onPage($event)" />
+      <mat-paginator [length]="m.total" [pageSize]="m.limit" [pageIndex]="m.page - 1" [pageSizeOptions]="pageSizeOptions" showFirstLastButtons (page)="onPage($event)" />
     }
   }
 </div>

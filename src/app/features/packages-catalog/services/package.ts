@@ -49,7 +49,7 @@ export class Package {
 
   // ---- Public ----
 
-  listPublic(params: { page?: number }): Observable<{ data: PackagePublicCard[]; meta?: ApiMeta }> {
+  listPublic(params: { page?: number; limit?: number }): Observable<{ data: PackagePublicCard[]; meta?: ApiMeta }> {
     return this.api.getList<PackagePublicCard[]>('packages', params);
   }
 

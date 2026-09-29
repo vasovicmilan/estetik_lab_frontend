@@ -6,7 +6,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ImageUrlPipe } from '../../../../core/pipes/image-url-pipe';
 import { BusinessPartner } from '../../services/business-partner';
 import { BusinessPartnerPublicListItem } from '../../models/business-partner';
-import { Seo } from '../../../../core/services/seo';
 
 /** Public "Saradnici" list - GET /business-partners (unauthenticated, no
  * pagination: backend returns every active partner in one call), structural
@@ -19,13 +18,11 @@ import { Seo } from '../../../../core/services/seo';
 })
 export class BusinessPartnerList implements OnInit {
   private businessPartner = inject(BusinessPartner);
-  private seo = inject(Seo);
 
   partners = signal<BusinessPartnerPublicListItem[]>([]);
   loading = signal(true);
 
   ngOnInit(): void {
-    this.seo.applyStatic('Saradnici | Estetik Lab', 'Poslovni saradnici i partneri Estetik Lab-a.');
     this.businessPartner.listPublic().subscribe({
       next: (data) => {
         this.partners.set(data);

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SiteContent } from '../../../../core/services/site-content';
 import { AboutContent } from '../../../../core/models/site-content';
-import { Seo } from '../../../../core/services/seo';
 import { ContentSections } from '../../../../shared/ui/content-sections/content-sections';
 
 /** Public "O nama" page at /o-nama - DB-backed content (see
@@ -18,13 +17,11 @@ import { ContentSections } from '../../../../shared/ui/content-sections/content-
 })
 export class AboutPage implements OnInit {
   private siteContent = inject(SiteContent);
-  private seo = inject(Seo);
 
   content = signal<AboutContent | null>(null);
   loading = signal(true);
 
   ngOnInit(): void {
-    this.seo.applyStatic('O nama | Estetik Lab', 'Upoznajte Estetik Lab - kozmetički i wellness centar u Novom Sadu.');
     this.siteContent.getAbout().subscribe({
       next: (content) => {
         this.content.set(content);

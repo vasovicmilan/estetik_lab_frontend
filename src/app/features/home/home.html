@@ -1,12 +1,30 @@
-<section class="hero">
-  <div class="hero__content">
-    <h1>Estetik Lab</h1>
-    <p class="hero__lead">
-      Profesionalna ESMA oprema, sertifikovani terapeuti i individualan pristup -
-      vaša transformacija počinje ovde.
-    </p>
-    <a mat-flat-button color="primary" routerLink="/usluge" class="hero__cta">Pogledajte usluge</a>
-  </div>
+<section class="hero" [class.hero--image]="page()?.hero?.image">
+  @if (page(); as pg) {
+    @if (pg.hero.image) {
+      <img
+        class="hero__bg"
+        [src]="pg.hero.image | imageUrl"
+        [attr.srcset]="heroSrcset()"
+        sizes="100vw"
+        [alt]="pg.hero.imageAlt || ''"
+        fetchpriority="high"
+      />
+      <div class="hero__overlay"></div>
+    }
+    <div class="hero__content">
+      <p class="hero__eyebrow">{{ pg.hero.eyebrow }}</p>
+      <h1>{{ pg.hero.title }}</h1>
+      <p class="hero__lead">{{ pg.hero.subtitle }}</p>
+      <div class="hero__actions">
+        <a mat-flat-button color="primary" [routerLink]="pg.hero.ctaUrl" class="hero__cta">{{ pg.hero.ctaLabel }}</a>
+        <a mat-stroked-button [routerLink]="pg.hero.secondaryCtaUrl">{{ pg.hero.secondaryCtaLabel }}</a>
+      </div>
+    </div>
+  } @else {
+    <div class="hero__content">
+      <h1>Estetik Lab</h1>
+    </div>
+  }
 </section>
 
 @if (!loadingIntro() && intro(); as intro) {
@@ -75,6 +93,33 @@
         </a>
       }
     </div>
+  </section>
+}
+
+@if (page(); as pg) {
+  <section class="home-section home-testimonials">
+    <div class="home-section__header">
+      <h2>Šta kažu naši klijenti</h2>
+      <a routerLink="/utisci/ostavi">Ostavite utisak &rarr;</a>
+    </div>
+    @if (pg.testimonials.length) {
+      <div class="home-section__grid">
+        @for (t of pg.testimonials; track t.id) {
+          <mat-card class="home-card" appearance="outlined">
+            <mat-card-content>
+              <p class="home-testimonial__stars" [attr.aria-label]="'Ocena ' + t.ocena + ' od 5'">{{ t.ocenaZvezdice }}</p>
+              <p class="home-testimonial__text">&ldquo;{{ t.komentar }}&rdquo;</p>
+              <p class="home-card__meta">
+                <strong>{{ t.ime }}</strong>
+                @if (t.usluga) { &middot; {{ t.usluga }} } @else if (t.paket) { &middot; {{ t.paket }} } @else if (t.proizvod) { &middot; {{ t.proizvod }} }
+              </p>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    } @else {
+      <p>Budite prvi koji će podeliti svoje iskustvo.</p>
+    }
   </section>
 }
 
@@ -173,11 +218,11 @@
   <section class="home-section">
     <div class="home-section__header">
       <h2>Naš tim</h2>
-      <a routerLink="/tim">Ceo tim &rarr;</a>
+      <a routerLink="/nas-tim">Ceo tim &rarr;</a>
     </div>
     <div class="home-section__grid home-section__grid--team">
       @for (member of teamPreview(); track member.id) {
-        <a [routerLink]="['/tim', member.slug]" class="home-card-link">
+        <a [routerLink]="['/nas-tim', member.slug]" class="home-card-link">
           <mat-card class="home-card" appearance="outlined">
             @if (member.slika?.url) {
               <img [src]="member.slika!.url | imageUrl" [alt]="member.slika!.alt || member.imePrezime" class="home-card__image home-card__image--round" />
@@ -237,3 +282,5 @@
   <p>Zakažite svoj prvi termin danas i otkrijte razliku profesionalnog pristupa.</p>
   <a mat-flat-button color="primary" routerLink="/usluge">Zakažite termin</a>
 </section>
+
+<app-location-info [location]="page()?.location ?? null" />

@@ -1,0 +1,56 @@
+@if (showIntro()) {
+@if (intro(); as i) {
+  <section class="list-intro">
+    <p class="list-intro__eyebrow">{{ i.eyebrow }}</p>
+    <h1>{{ i.title }}</h1>
+    <p class="list-intro__lead">{{ i.lead }}</p>
+    @for (p of i.paragraphs; track $index) {
+      <p class="list-intro__text">{{ p }}</p>
+    }
+
+    @if (cards().length) {
+      <div class="list-intro__grid">
+        @for (item of cards(); track item.title) {
+          <div class="list-intro__item">
+            <mat-icon>{{ icon(item.icon) }}</mat-icon>
+            <div>
+              <p class="list-intro__item-title">{{ item.title }}</p>
+              <p class="list-intro__item-text">{{ item.text }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+} @else if (fallbackTitle()) {
+  <h1>{{ fallbackTitle() }}</h1>
+}
+
+@if (trust().length) {
+  <section class="list-intro list-intro--trust">
+    <div class="list-intro__grid">
+      @for (item of trust(); track item.title) {
+        <div class="list-intro__item">
+          <mat-icon>{{ icon(item.icon) }}</mat-icon>
+          <div>
+            <p class="list-intro__item-title">{{ item.title }}</p>
+            <p class="list-intro__item-text">{{ item.text }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+}
+}
+
+@if (showFaq() && faq().length) {
+  <section class="list-intro list-intro--faq">
+    <h2>Česta pitanja</h2>
+    @for (q of faq(); track q.pitanje) {
+      <details class="list-intro__faq-item">
+        <summary>{{ q.pitanje }}</summary>
+        <p>{{ q.odgovor }}</p>
+      </details>
+    }
+  </section>
+}

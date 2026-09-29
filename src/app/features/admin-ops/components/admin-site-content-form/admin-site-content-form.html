@@ -337,6 +337,33 @@
           <app-form-actions [saving]="savingTeamIntro()" [saveDisabled]="savingTeamIntro()" />
         </form>
       </mat-tab>
+
+      <!-- SEO stranica -->
+      <mat-tab label="SEO stranica">
+        <form [formGroup]="pageSeoWrapper" (ngSubmit)="submitPageSeo()" class="site-content-form__tab">
+          <app-form-layout>
+            @for (group of pageSeoGroups; track group.value.key) {
+              <app-form-section [title]="group.value.label + ' (' + group.value.path + ')'">
+                <div [formGroup]="group" class="site-content-form__full">
+                  <mat-form-field appearance="outline">
+                    <mat-label>SEO naslov (title)</mat-label>
+                    <input matInput formControlName="title" maxlength="120" />
+                    <mat-hint>Preporuka do 60 karaktera</mat-hint>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="site-content-form__full">
+                    <mat-label>SEO opis (meta description)</mat-label>
+                    <textarea matInput formControlName="description" rows="2" maxlength="320"></textarea>
+                    <mat-hint>Preporuka 120-160 karaktera</mat-hint>
+                  </mat-form-field>
+                  <mat-checkbox formControlName="noIndex">Sakrij od pretraživača (noindex)</mat-checkbox>
+                </div>
+              </app-form-section>
+            }
+          </app-form-layout>
+
+          <app-form-actions [saving]="savingPageSeo()" [saveDisabled]="savingPageSeo()" />
+        </form>
+      </mat-tab>
     </mat-tab-group>
   }
 </div>

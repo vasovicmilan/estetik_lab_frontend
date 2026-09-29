@@ -1,6 +1,21 @@
 <div class="contact-page">
-  <h1>Kontakt</h1>
-  <p class="contact-page__lead">Imate pitanje ili želite da zakažete termin? Pošaljite nam poruku.</p>
+  @if (page(); as pg) {
+    <p class="contact-page__eyebrow">{{ pg.intro.eyebrow }}</p>
+    <h1>{{ pg.intro.title }}</h1>
+    <p class="contact-page__lead">{{ pg.intro.lead }}</p>
+
+    <address class="contact-page__details">
+      <span>{{ pg.contact.company }}</span>
+      @if (pg.contact.address) { <span>{{ pg.contact.address }}</span> }
+      <a [href]="'tel:' + pg.contact.phoneHref">{{ pg.contact.phone }}</a>
+      <a [href]="'mailto:' + pg.contact.email">{{ pg.contact.email }}</a>
+      @if (pg.contact.taxId) { <span>PIB: {{ pg.contact.taxId }}</span> }
+      @if (pg.contact.registrationNumber) { <span>Matični broj: {{ pg.contact.registrationNumber }}</span> }
+    </address>
+  } @else {
+    <h1>Kontakt</h1>
+    <p class="contact-page__lead">Imate pitanje ili želite da zakažete termin? Pošaljite nam poruku.</p>
+  }
 
   <form class="contact-page__form" [formGroup]="form" (ngSubmit)="submit()">
     @if (errorMessage()) {
@@ -81,3 +96,5 @@
     }
   </form>
 </div>
+
+<app-location-info [location]="page()?.location ?? null" />

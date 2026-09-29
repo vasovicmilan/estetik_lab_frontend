@@ -27,6 +27,30 @@ export interface SiteSettingsClosedDate {
   recurringYearly: boolean;
 }
 
+/** Effective business identity (admin-saved values over code/env defaults) - Podešavanja sajta -> Podaci o firmi. */
+export interface SiteSettingsBusiness {
+  name: string;
+  legalName: string;
+  alternateName: string;
+  email: string;
+  adminEmail: string;
+  phone: string;
+  taxId: string;
+  registrationNumber: string;
+  streetAddress: string;
+  addressLocality: string;
+  postalCode: string;
+  addressCountry: string;
+  latitude: number | null;
+  longitude: number | null;
+  sameAs: string[];
+}
+
+export interface SiteSettingsShopPolicy {
+  defaultShippingPrice: number;
+  orderCommissionGraceDays: number;
+}
+
 export interface SiteSettings {
   hero: { image: string | null; imageAlt: string };
   bookingPolicy: {
@@ -39,6 +63,8 @@ export interface SiteSettings {
   };
   currency: { code: string; symbol: string; symbolPosition: 'before' | 'after' };
   commissionPolicy: { minimumSessionCommission: number };
+  business: SiteSettingsBusiness;
+  shopPolicy: SiteSettingsShopPolicy;
   workingHours: SiteSettingsWorkingHoursDay[];
   closedDates: SiteSettingsClosedDate[];
 }
@@ -61,12 +87,30 @@ export interface SiteSettingsUpdatePayload {
   currencySymbol?: string;
   currencySymbolPosition?: 'before' | 'after';
   minimumSessionCommission?: number;
+  businessName?: string;
+  businessLegalName?: string;
+  businessAlternateName?: string;
+  businessEmail?: string;
+  businessAdminEmail?: string;
+  businessPhone?: string;
+  businessTaxId?: string;
+  businessRegistrationNumber?: string;
+  businessStreetAddress?: string;
+  businessAddressLocality?: string;
+  businessPostalCode?: string;
+  businessAddressCountry?: string;
+  businessLatitude?: number | null;
+  businessLongitude?: number | null;
+  /** one URL per array item */
+  businessSameAs?: string[];
+  defaultShippingPrice?: number;
+  orderCommissionGraceDays?: number;
 }
 
 /** PUT response shape - does NOT re-include `hero`, only the updated policy
  * blocks (see updateSiteSettings's comment on the backend). Callers merge this
  * back onto the hero fields they already have, or re-fetch GET. */
-export type SiteSettingsPolicyUpdate = Pick<SiteSettings, 'bookingPolicy' | 'currency' | 'commissionPolicy'>;
+export type SiteSettingsPolicyUpdate = Pick<SiteSettings, 'bookingPolicy' | 'currency' | 'commissionPolicy'> & Partial<Pick<SiteSettings, 'business' | 'shopPolicy'>>;
 
 /** PUT admin/site-settings/radno-vreme body - always the full 7-day list (the
  * backend's updateWorkingHours requires exactly 7 entries, one per day, no

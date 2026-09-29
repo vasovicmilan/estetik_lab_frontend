@@ -17,9 +17,10 @@ import { Product } from '../shop/services/product';
 import { ProductPublicCard } from '../shop/models/product';
 import { Post } from '../blog/services/post';
 import { PostCard } from '../blog/models/post';
-import { Seo } from '../../core/services/seo';
 import { SiteContent } from '../../core/services/site-content';
-import { HomeIntroContent } from '../../core/models/site-content';
+import { HomeIntroContent, HomePageContent } from '../../core/models/site-content';
+import { LocationInfo } from '../../shared/ui/location-info/location-info';
+import { resolveImageUrl } from '../../core/utils/image-url';
 import { biIconToMaterial } from '../../core/utils/bi-icon-map';
 
 /**
@@ -32,7 +33,7 @@ import { biIconToMaterial } from '../../core/utils/bi-icon-map';
  */
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, RouterLink, MatButtonModule, MatCardModule, MatChipsModule, MatIconModule, MatProgressSpinnerModule, ImageUrlPipe],
+  imports: [LocationInfo, CommonModule, RouterLink, MatButtonModule, MatCardModule, MatChipsModule, MatIconModule, MatProgressSpinnerModule, ImageUrlPipe],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -42,7 +43,6 @@ export class Home implements OnInit {
   private teamApi = inject(Team);
   private productApi = inject(Product);
   private postApi = inject(Post);
-  private seo = inject(Seo);
   private siteContent = inject(SiteContent);
 
   featuredServices = signal<ServicePublicCard[]>([]);
@@ -51,6 +51,8 @@ export class Home implements OnInit {
   featuredProducts = signal<ProductPublicCard[]>([]);
   recentPosts = signal<PostCard[]>([]);
   intro = signal<HomeIntroContent | null>(null);
+  /** Hero texts + image, testimonials and location - all from GET /home (backend/DB is the source of truth). */
+  page = signal<HomePageContent | null>(null);
 
   // Six independent fetches - true only until every one of them has settled
   // (success or error), so the loading state clears even if one endpoint fails.
@@ -61,11 +63,19 @@ export class Home implements OnInit {
   loadingPosts = signal(true);
   loadingIntro = signal(true);
 
+  /** srcset from the backend's responsive variants (thumb 300w / medium 800w / original 1600w), like the EJS <img>. */
+  heroSrcset(): string | null {
+    const variants = this.page()?.hero.imageVariants;
+    if (!variants) return null;
+    const parts: string[] = [];
+    if (variants.thumb) parts.push(`${resolveImageUrl(variants.thumb)} 300w`);
+    if (variants.medium) parts.push(`${resolveImageUrl(variants.medium)} 800w`);
+    if (variants.original) parts.push(`${resolveImageUrl(variants.original)} 1600w`);
+    return parts.length > 1 ? parts.join(', ') : null;
+  }
+
   ngOnInit(): void {
-    this.seo.applyStatic(
-      'Estetik Lab | Profesionalna nega i estetski tretmani',
-      'Estetik Lab - sertifikovani terapeuti, profesionalna oprema i individualan pristup. Zakažite termin online.'
-    );
+    this.siteContent.getHomePage().subscribe({ next: (page) => this.page.set(page), error: () => this.page.set(null) });
     this.serviceApi.listPublic({ page: 1 }).subscribe({
       next: ({ data }) => {
         this.featuredServices.set(data.slice(0, 4));

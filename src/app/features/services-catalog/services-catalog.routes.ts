@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { pageSeoResolver } from '../../core/resolvers/page-seo-resolver';
 import { serviceDetailResolver } from './resolvers/service-detail-resolver';
 
 /** Public routes - mounted at /usluge (see app.routes.ts). SSR-critical: the
@@ -7,6 +8,7 @@ export const SERVICES_CATALOG_ROUTES: Routes = [
   {
     path: '',
     loadComponent: () => import('./components/service-list/service-list').then((m) => m.ServiceList),
+    resolve: { seo: pageSeoResolver('services') },
   },
   {
     path: ':slug',

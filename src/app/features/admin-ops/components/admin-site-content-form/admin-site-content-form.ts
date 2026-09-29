@@ -6,12 +6,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { AdminSiteContent } from '../../services/site-content';
-import { SiteContentAll, SiteContentWhyUsItem } from '../../models/site-content';
+import { SiteContentAll, SiteContentPageSeoEntry, SiteContentWhyUsItem } from '../../models/site-content';
 import { ContentSection } from '../../../../core/models/site-content';
 import { FormLayout } from '../../../../shared/ui/form-layout/form-layout';
 import { FormSection } from '../../../../shared/ui/form-layout/form-section';
@@ -59,6 +60,7 @@ import { SectionsBuilder } from '../../../../shared/ui/sections-builder/sections
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatCheckboxModule,
     MatProgressSpinnerModule,
     MatTabsModule,
     FormLayout,
@@ -83,6 +85,7 @@ export class AdminSiteContentForm implements OnInit {
   savingHomeIntro = signal(false);
   savingWhyUs = signal(false);
   savingTeamIntro = signal(false);
+  savingPageSeo = signal(false);
 
   /** Known icon slugs the public frontend actually maps to a Material icon
    * (see core/utils/bi-icon-map.ts) - any other Bootstrap Icons class still
@@ -197,6 +200,23 @@ export class AdminSiteContentForm implements OnInit {
     this.whyUsForm.removeAt(index);
   }
 
+  // ---- SEO stranica (title + meta description; backend je izvor, frontend samo prikazuje) ----
+  pageSeoForm: FormArray = this.fb.array([]) as FormArray;
+  pageSeoWrapper: FormGroup = this.fb.group({ pages: this.pageSeoForm });
+  get pageSeoGroups(): FormGroup[] {
+    return this.pageSeoForm.controls as FormGroup[];
+  }
+  private buildPageSeoGroup(key: string, entry: SiteContentPageSeoEntry): FormGroup {
+    return this.fb.group({
+      key: [key],
+      label: [entry.label],
+      path: [entry.path],
+      title: [entry.title, [Validators.required, Validators.maxLength(120)]],
+      description: [entry.description, [Validators.required, Validators.maxLength(320)]],
+      noIndex: [entry.noIndex],
+    });
+  }
+
   // ---- Tim strana - uvod ----
   teamIntroForm: FormGroup = this.fb.group({
     eyebrow: ['', Validators.required],
@@ -261,6 +281,9 @@ export class AdminSiteContentForm implements OnInit {
 
     this.whyUsForm.clear();
     for (const item of content.whyUs) this.whyUsForm.push(this.buildIconItemGroup(item.icon, item.title, item.text));
+
+    this.pageSeoForm.clear();
+    for (const [key, entry] of Object.entries(content.pageSeo ?? {})) this.pageSeoForm.push(this.buildPageSeoGroup(key, entry));
 
     this.teamIntroForm.patchValue({ eyebrow: content.teamIntro.eyebrow, title: content.teamIntro.title, lead: content.teamIntro.lead });
     this.teamHighlightsForm.clear();
@@ -401,6 +424,26 @@ export class AdminSiteContentForm implements OnInit {
       .pipe(finalize(() => this.savingTeamIntro.set(false)))
       .subscribe({
         next: () => this.snackBar.open('Uvod tim stranice je sačuvan.', 'U redu', { duration: 3000 }),
+        error: (error) => this.snackBar.open(error?.message || 'Čuvanje nije uspelo.', 'U redu', { duration: 4000 }),
+      });
+  }
+
+  submitPageSeo(): void {
+    if (this.pageSeoForm.invalid) {
+      this.pageSeoForm.markAllAsTouched();
+      return;
+    }
+    const pages: Record<string, { title: string; description: string; noIndex: boolean }> = {};
+    for (const row of this.pageSeoForm.getRawValue() as Array<{ key: string; title: string; description: string; noIndex: boolean }>) {
+      pages[row.key] = { title: row.title, description: row.description, noIndex: row.noIndex };
+    }
+
+    this.savingPageSeo.set(true);
+    this.siteContent
+      .updatePageSeo(pages)
+      .pipe(finalize(() => this.savingPageSeo.set(false)))
+      .subscribe({
+        next: () => this.snackBar.open('SEO stranica je sačuvan.', 'U redu', { duration: 3000 }),
         error: (error) => this.snackBar.open(error?.message || 'Čuvanje nije uspelo.', 'U redu', { duration: 4000 }),
       });
   }
