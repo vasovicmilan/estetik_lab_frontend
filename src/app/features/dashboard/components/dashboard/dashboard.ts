@@ -1,3 +1,5 @@
+import { SiteInfo } from '../../../../core/services/site-info';
+import { SiteModules } from '../../../../core/models/business-info';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -8,6 +10,8 @@ import { DashboardData } from '../../models/dashboard';
 
 interface StatTile {
   key: keyof DashboardData['stats'];
+  /** Prikazuje se samo ako je taj modul uključen u ovoj instanci. */
+  module?: keyof SiteModules;
   label: string;
   /** Admin route this count plausibly maps to, or null when no admin section
    * exists yet for it (most stats - see this feature's header comment in
@@ -33,31 +37,34 @@ interface StatTile {
 export class Dashboard implements OnInit {
   private dashboardService = inject(DashboardService);
   auth = inject(Auth);
+  protected readonly site = inject(SiteInfo);
 
   loading = signal(true);
   data = signal<DashboardData | null>(null);
 
   readonly tileDefs: StatTile[] = [
-    { key: 'pendingAppointments', label: 'Termini na čekanju', link: null, linkPermission: null },
-    { key: 'confirmedAppointments', label: 'Potvrđeni termini', link: null, linkPermission: null },
-    { key: 'unassignedAppointments', label: 'Nedodeljeni termini', link: null, linkPermission: null },
-    { key: 'todayAppointments', label: 'Termini danas', link: null, linkPermission: null },
+    { key: 'pendingAppointments', label: 'Termini na čekanju', link: null, linkPermission: null, module: 'booking' },
+    { key: 'confirmedAppointments', label: 'Potvrđeni termini', link: null, linkPermission: null, module: 'booking' },
+    { key: 'unassignedAppointments', label: 'Nedodeljeni termini', link: null, linkPermission: null, module: 'booking' },
+    { key: 'todayAppointments', label: 'Termini danas', link: null, linkPermission: null, module: 'booking' },
     { key: 'newContacts', label: 'Novi kontakti', link: null, linkPermission: null },
-    { key: 'activeEmployees', label: 'Aktivni zaposleni', link: '/admin/tim', linkPermission: 'manage_employees' },
+    { key: 'activeEmployees', label: 'Aktivni zaposleni', link: '/admin/tim', linkPermission: 'manage_employees', module: 'employees' },
     { key: 'totalUsers', label: 'Ukupno korisnika', link: null, linkPermission: null },
-    { key: 'activePackagePurchases', label: 'Aktivne kupovine paketa', link: null, linkPermission: null },
-    { key: 'pendingOrders', label: 'Porudžbine na čekanju', link: '/admin/porudzbine', linkPermission: 'manage_orders' },
-    { key: 'outOfStockProducts', label: 'Proizvodi bez zalihe', link: '/admin/prodavnica', linkPermission: 'manage_products' },
-    { key: 'pendingPayoutRequests', label: 'Zahtevi za isplatu', link: null, linkPermission: null },
+    { key: 'activePackagePurchases', label: 'Aktivne kupovine paketa', link: null, linkPermission: null, module: 'booking' },
+    { key: 'pendingOrders', label: 'Porudžbine na čekanju', link: '/admin/porudzbine', linkPermission: 'manage_orders', module: 'shop' },
+    { key: 'outOfStockProducts', label: 'Proizvodi bez zalihe', link: '/admin/prodavnica', linkPermission: 'manage_products', module: 'shop' },
+    { key: 'pendingPayoutRequests', label: 'Zahtevi za isplatu', link: null, linkPermission: null, module: 'partners' },
     { key: 'pendingTestimonials', label: 'Utisci na čekanju', link: null, linkPermission: null },
-    { key: 'inactiveResources', label: 'Neaktivni resursi', link: '/admin/resursi', linkPermission: 'manage_resources' },
+    { key: 'inactiveResources', label: 'Neaktivni resursi', link: '/admin/resursi', linkPermission: 'manage_resources', module: 'booking' },
     { key: 'newsletterSubscribers', label: 'Pretplatnici na newsletter', link: null, linkPermission: null },
   ];
 
   tiles = computed(() => {
     const stats = this.data()?.stats;
     if (!stats) return [];
-    return this.tileDefs.map((def) => {
+    return this.tileDefs
+      .filter((def) => !def.module || this.site.modules()[def.module])
+      .map((def) => {
       const value = stats[def.key];
       const canLink = def.link !== null && value > 0 && (def.linkPermission === null || this.auth.hasPermission(def.linkPermission));
       return { ...def, value, link: canLink ? def.link : null };

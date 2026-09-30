@@ -118,6 +118,7 @@
       </mat-tab>
 
       <!-- Partnerski program -->
+@if (site.modules().partners) {
       <mat-tab label="Partnerski program">
         <form (ngSubmit)="submitPartnership()" class="site-content-form__tab">
           <app-form-layout>
@@ -178,6 +179,7 @@
           <app-form-actions [saving]="savingPartnership()" [saveDisabled]="savingPartnership()" />
         </form>
       </mat-tab>
+}
 
       <!-- Početna strana - uvod -->
       <mat-tab label="Početna - uvod">

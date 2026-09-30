@@ -23,6 +23,7 @@
     </div>
 
     <div class="dashboard__recent">
+      @if (site.modules().booking) {
       <div class="dashboard__recent-section">
         <h2>Termini na čekanju</h2>
         @if (d.recent.pendingAppointments.length) {
@@ -38,7 +39,9 @@
           <p class="dashboard__recent-empty">Nema stavki</p>
         }
       </div>
+      }
 
+      @if (site.modules().booking) {
       <div class="dashboard__recent-section">
         <h2>Nedodeljeni termini</h2>
         @if (d.recent.unassignedAppointments.length) {
@@ -54,6 +57,7 @@
           <p class="dashboard__recent-empty">Nema stavki</p>
         }
       </div>
+      }
 
       <div class="dashboard__recent-section">
         <h2>Novi kontakti</h2>
@@ -71,6 +75,7 @@
         }
       </div>
 
+      @if (site.modules().shop) {
       <div class="dashboard__recent-section">
         <h2>Porudžbine na čekanju</h2>
         @if (d.recent.orders.length) {
@@ -93,6 +98,7 @@
           <p class="dashboard__recent-empty">Nema stavki</p>
         }
       </div>
+      }
     </div>
   }
 </div>

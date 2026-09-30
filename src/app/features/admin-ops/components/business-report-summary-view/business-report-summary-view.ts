@@ -1,7 +1,8 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { Card } from '../../../../shared/ui/card/card';
+import { SiteInfo } from '../../../../core/services/site-info';
 import { BusinessReportSummary } from '../../models/business-report';
 
 /** Presentational-only - stat cards (app-card, variant="stat") + top-N tables
@@ -17,6 +18,8 @@ import { BusinessReportSummary } from '../../models/business-report';
   styleUrl: './business-report-summary-view.scss',
 })
 export class BusinessReportSummaryView {
+  protected readonly site = inject(SiteInfo);
+
   summary = input.required<BusinessReportSummary>();
 
   /** Same 3 columns (label/count/value) shared by all 4 top-N tables below. */

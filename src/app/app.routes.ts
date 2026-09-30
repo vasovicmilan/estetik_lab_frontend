@@ -4,6 +4,7 @@ import { permissionGuard } from './core/guards/permission-guard';
 import { employeeGuard } from './core/guards/employee-guard';
 import { partnerGuard } from './core/guards/partner-guard';
 import { AdminShell } from './layout/admin-shell/admin-shell';
+import { moduleGuard } from './core/guards/module-guard';
 import { pageSeoResolver } from './core/resolvers/page-seo-resolver';
 
 export const routes: Routes = [
@@ -48,10 +49,12 @@ export const routes: Routes = [
   },
   {
     path: 'usluge',
+    canMatch: [moduleGuard('booking')],
     loadChildren: () => import('./features/services-catalog/services-catalog.routes').then((m) => m.SERVICES_CATALOG_ROUTES),
   },
   {
     path: 'paketi',
+    canMatch: [moduleGuard('booking')],
     loadChildren: () => import('./features/packages-catalog/packages-catalog.routes').then((m) => m.PACKAGES_CATALOG_ROUTES),
   },
   // Public URL matches the backend's canonical/sitemap/llms.txt (/nas-tim). The old
@@ -64,6 +67,7 @@ export const routes: Routes = [
   { path: 'tim/:slug', redirectTo: 'nas-tim/:slug' },
   {
     path: 'blog',
+    canMatch: [moduleGuard('blog')],
     loadChildren: () => import('./features/blog/blog.routes').then((m) => m.BLOG_ROUTES),
   },
   {
@@ -102,6 +106,7 @@ export const routes: Routes = [
   },
   {
     path: 'partnerski-program',
+    canMatch: [moduleGuard('partners')],
     loadComponent: () => import('./features/legal/components/partnership-page/partnership-page').then((m) => m.PartnershipPage),
     resolve: { seo: pageSeoResolver('partnership') },
   },
@@ -118,10 +123,12 @@ export const routes: Routes = [
   },
   {
     path: 'prodavnica',
+    canMatch: [moduleGuard('shop')],
     loadChildren: () => import('./features/shop/shop.routes').then((m) => m.SHOP_ROUTES),
   },
   {
     path: 'korpa',
+    canMatch: [moduleGuard('shop')],
     loadChildren: () => import('./features/shop/shop.routes').then((m) => m.CART_ROUTES),
   },
   /**
@@ -153,6 +160,7 @@ export const routes: Routes = [
    */
   {
     path: 'zaposleni-panel',
+    canMatch: [moduleGuard('employees')],
     loadComponent: () => import('./features/employee-portal/components/employee-shell/employee-shell').then((m) => m.EmployeeShell),
     canActivate: [employeeGuard],
     children: [
@@ -175,6 +183,7 @@ export const routes: Routes = [
    */
   {
     path: 'partner-panel',
+    canMatch: [moduleGuard('partners')],
     loadComponent: () => import('./features/partner-portal/components/partner-shell/partner-shell').then((m) => m.PartnerShell),
     canActivate: [partnerGuard],
     children: [
@@ -212,36 +221,42 @@ export const routes: Routes = [
       },
       {
         path: 'zakazivanja',
+        canMatch: [moduleGuard('booking')],
         canActivate: [permissionGuard],
         data: { permission: 'manage_appointments_all' },
         loadChildren: () => import('./features/appointments/appointments.routes').then((m) => m.APPOINTMENTS_ADMIN_ROUTES),
       },
       {
         path: 'usluge',
+        canMatch: [moduleGuard('booking')],
         canActivate: [permissionGuard],
         data: { permission: 'manage_services' },
         loadChildren: () => import('./features/services-catalog/services-catalog.routes').then((m) => m.SERVICES_CATALOG_ADMIN_ROUTES),
       },
       {
         path: 'paketi',
+        canMatch: [moduleGuard('booking')],
         canActivate: [permissionGuard],
         data: { permission: 'manage_packages' },
         loadChildren: () => import('./features/packages-catalog/packages-catalog.routes').then((m) => m.PACKAGES_CATALOG_ADMIN_ROUTES),
       },
       {
         path: 'prodavnica',
+        canMatch: [moduleGuard('shop')],
         canActivate: [permissionGuard],
         data: { permission: 'manage_products' },
         loadChildren: () => import('./features/shop/shop.routes').then((m) => m.SHOP_ADMIN_ROUTES),
       },
       {
         path: 'porudzbine',
+        canMatch: [moduleGuard('shop')],
         canActivate: [permissionGuard],
         data: { permission: 'manage_orders' },
         loadChildren: () => import('./features/orders/orders.routes').then((m) => m.ORDERS_ADMIN_ROUTES),
       },
       {
         path: 'privremene-porudzbine',
+        canMatch: [moduleGuard('shop')],
         canActivate: [permissionGuard],
         data: { permission: 'manage_orders' },
         loadChildren: () => import('./features/temporary-orders/temporary-orders.routes').then((m) => m.TEMPORARY_ORDERS_ADMIN_ROUTES),
@@ -266,12 +281,14 @@ export const routes: Routes = [
       },
       {
         path: 'zaposleni',
+        canMatch: [moduleGuard('employees')],
         canActivate: [permissionGuard],
         data: { permission: 'manage_employees' },
         loadChildren: () => import('./features/employees/employees.routes').then((m) => m.EMPLOYEES_ADMIN_ROUTES),
       },
       {
         path: 'blog',
+        canMatch: [moduleGuard('blog')],
         canActivate: [permissionGuard],
         data: { permission: 'manage_blog' },
         loadChildren: () => import('./features/blog/blog.routes').then((m) => m.BLOG_ADMIN_ROUTES),
@@ -290,12 +307,14 @@ export const routes: Routes = [
       },
       {
         path: 'resursi',
+        canMatch: [moduleGuard('booking')],
         canActivate: [permissionGuard],
         data: { permission: 'manage_resources' },
         loadChildren: () => import('./features/taxonomy/taxonomy.routes').then((m) => m.RESOURCES_ADMIN_ROUTES),
       },
       {
         path: 'partneri',
+        canMatch: [moduleGuard('partners')],
         canActivate: [permissionGuard],
         data: { permission: 'manage_partners' },
         loadChildren: () => import('./features/partners/partners.routes').then((m) => m.PARTNERS_ADMIN_ROUTES),
@@ -308,12 +327,14 @@ export const routes: Routes = [
       },
       {
         path: 'kuponi',
+        canMatch: [moduleGuard('coupons')],
         canActivate: [permissionGuard],
         data: { permission: 'manage_coupons' },
         loadChildren: () => import('./features/coupons/coupons.routes').then((m) => m.COUPONS_ADMIN_ROUTES),
       },
       {
         path: 'kupljeni-paketi',
+        canMatch: [moduleGuard('booking')],
         canActivate: [permissionGuard],
         data: { permission: 'manage_packages' },
         loadChildren: () => import('./features/package-purchases/package-purchases.routes').then((m) => m.PACKAGE_PURCHASES_ADMIN_ROUTES),

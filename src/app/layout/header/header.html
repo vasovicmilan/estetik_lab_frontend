@@ -1,5 +1,5 @@
 <header class="header">
-  <a class="header__brand" routerLink="/" (click)="closeMenu()">Estetik Lab</a>
+  <a class="header__brand" routerLink="/" (click)="closeMenu()">{{ site.name() }}</a>
 
   @if (isHandset()) {
     <button
@@ -15,11 +15,19 @@
 
   <nav class="header__nav" [class.header__nav--open]="!isHandset() || menuOpen()">
     <a routerLink="/o-nama" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">O nama</a>
-    <a routerLink="/usluge" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Usluge</a>
-    <a routerLink="/paketi" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Paketi</a>
+    @if (site.modules().booking) {
+      <a routerLink="/usluge" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Usluge</a>
+    }
+    @if (site.modules().booking) {
+      <a routerLink="/paketi" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Paketi</a>
+    }
     <a routerLink="/nas-tim" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Naš tim</a>
-    <a routerLink="/blog" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Blog</a>
-    <a routerLink="/prodavnica" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Prodavnica</a>
+    @if (site.modules().blog) {
+      <a routerLink="/blog" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Blog</a>
+    }
+    @if (site.modules().shop) {
+      <a routerLink="/prodavnica" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Prodavnica</a>
+    }
     <a routerLink="/saradnici" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Saradnici</a>
     <a routerLink="/kontakt" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Kontakt</a>
 
@@ -35,6 +43,7 @@
       <a routerLink="/partner-panel" routerLinkActive="header__link--active" class="header__link" (click)="closeMenu()">Panel partnera</a>
     }
 
+    @if (site.modules().shop) {
     <a
       routerLink="/korpa"
       routerLinkActive="header__link--active"
@@ -44,6 +53,7 @@
     >
       <mat-icon>shopping_cart</mat-icon>
     </a>
+    }
 
     @if (auth.currentUser(); as user) {
       <a routerLink="/moj-nalog" routerLinkActive="header__link--active" class="header__user" title="Moj nalog" (click)="closeMenu()">{{

@@ -24,6 +24,7 @@
           </mat-form-field>
         </app-form-section>
 
+@if (site.modules().booking) {
         <app-form-section title="Pravila zakazivanja">
           <mat-form-field appearance="outline">
             <mat-label>Bafer između termina (min)</mat-label>
@@ -61,6 +62,7 @@
             <mat-hint>Najmanje vreme unapred za novi termin prilikom pomeranja.</mat-hint>
           </mat-form-field>
         </app-form-section>
+}
 
         <app-form-section title="Podaci o firmi">
           <p class="site-settings-form__hint">
@@ -133,6 +135,7 @@
           </mat-form-field>
         </app-form-section>
 
+@if (site.modules().shop) {
         <app-form-section title="Dostava i provizije partnera">
           <mat-form-field appearance="outline">
             <mat-label>Cena dostave (fiksna)</mat-label>
@@ -145,6 +148,7 @@
             <mat-hint>Provizija čeka ovoliko dana (pravo na odustanak).</mat-hint>
           </mat-form-field>
         </app-form-section>
+}
 
         <app-form-section title="Valuta">
           <mat-form-field appearance="outline">
@@ -167,12 +171,14 @@
           </mat-form-field>
         </app-form-section>
 
+@if (site.modules().booking) {
         <app-form-section title="Provizije">
           <mat-form-field appearance="outline">
             <mat-label>Minimalna provizija po terminu (RSD)</mat-label>
             <input matInput type="number" min="0" formControlName="minimumSessionCommission" />
           </mat-form-field>
         </app-form-section>
+}
       </app-form-layout>
 
       <app-form-actions [saving]="saving()" [saveDisabled]="saving() || form.invalid" />
@@ -215,6 +221,7 @@
         </form>
       </mat-tab>
 
+@if (site.modules().booking) {
       <mat-tab label="Neradni dani">
         <form (ngSubmit)="saveClosedDates()" class="site-settings-form__tab site-settings-form__closed-dates-form">
       <app-form-layout>
@@ -252,6 +259,7 @@
       />
         </form>
       </mat-tab>
+}
     </mat-tab-group>
   }
 </div>

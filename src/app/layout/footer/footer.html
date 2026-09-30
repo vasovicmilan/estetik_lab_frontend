@@ -1,8 +1,10 @@
 <footer class="footer">
   <div class="footer__grid">
     <section class="footer__col footer__brand">
-      <h2 class="footer__brand-name">Estetik Lab</h2>
-      <p class="footer__tagline">Vaš prostor za opuštanje i negu.</p>
+      <h2 class="footer__brand-name">{{ site.name() }}</h2>
+      @if (site.tagline()) {
+        <p class="footer__tagline">{{ site.tagline() }}</p>
+      }
 
       @if (businessInfo(); as info) {
         <ul class="footer__contact">
@@ -39,13 +41,23 @@
     <nav class="footer__col" aria-label="Brzi linkovi">
       <h3 class="footer__heading">Brzi linkovi</h3>
       <ul class="footer__links">
-        <li><a routerLink="/usluge">Usluge</a></li>
-        <li><a routerLink="/paketi">Paketi</a></li>
-        <li><a routerLink="/prodavnica">Prodavnica</a></li>
-        <li><a routerLink="/blog">Blog</a></li>
+        @if (site.modules().booking) {
+          <li><a routerLink="/usluge">Usluge</a></li>
+        }
+        @if (site.modules().booking) {
+          <li><a routerLink="/paketi">Paketi</a></li>
+        }
+        @if (site.modules().shop) {
+          <li><a routerLink="/prodavnica">Prodavnica</a></li>
+        }
+        @if (site.modules().blog) {
+          <li><a routerLink="/blog">Blog</a></li>
+        }
         <li><a routerLink="/nas-tim">Naš tim</a></li>
         <li><a routerLink="/saradnici">Naši saradnici</a></li>
-        <li><a routerLink="/partnerski-program">Partnerski program</a></li>
+        @if (site.modules().partners) {
+          <li><a routerLink="/partnerski-program">Partnerski program</a></li>
+        }
         <li><a routerLink="/faq">Česta pitanja</a></li>
         <li><a routerLink="/o-nama">O nama</a></li>
         <li><a routerLink="/kontakt">Kontakt</a></li>
@@ -95,7 +107,7 @@
   </div>
 
   <div class="footer__bottom">
-    <p class="footer__text">&copy; {{ year }} Estetik Lab. Sva prava zadržana.</p>
+    <p class="footer__text">&copy; {{ year }} {{ site.name() }}. Sva prava zadržana.</p>
     <nav class="footer__legal" aria-label="Pravne informacije">
       <a routerLink="/politika-privatnosti">Politika privatnosti</a>
       <a routerLink="/uslovi-koriscenja">Uslovi korišćenja</a>

@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subscriber } from '../../features/newsletter/services/subscriber';
 import { Api } from '../../core/services/api';
+import { SiteInfo } from '../../core/services/site-info';
 import { BusinessInfo, BusinessInfoResponse, toBusinessInfo } from '../../core/models/business-info';
 
 @Component({
@@ -40,6 +41,7 @@ export class Footer implements OnInit {
   private fb = inject(FormBuilder);
   private subscriber = inject(Subscriber);
   private api = inject(Api);
+  protected readonly site = inject(SiteInfo);
 
   ngOnInit(): void {
     this.api.get<BusinessInfoResponse>('business-info').subscribe({

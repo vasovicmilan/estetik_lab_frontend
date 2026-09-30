@@ -22,28 +22,31 @@
     </div>
   } @else {
     <div class="hero__content">
-      <h1>Estetik Lab</h1>
+      <h1>{{ site.name() }}</h1>
     </div>
   }
 </section>
 
 @if (!loadingIntro() && intro(); as intro) {
+  @if (intro.lead || intro.who || intro.closing || intro.whyUs.length) {
   <section class="home-intro">
     <h2>{{ intro.title }}</h2>
-    <p class="home-intro__lead">{{ intro.lead }}</p>
-    <p class="home-intro__who">{{ intro.who }}</p>
+    @if (intro.lead) { <p class="home-intro__lead">{{ intro.lead }}</p> }
+    @if (intro.who) { <p class="home-intro__who">{{ intro.who }}</p> }
 
-    <div class="home-intro__massages">
-      @for (massage of intro.massages; track massage.title) {
-        <a [routerLink]="massage.href" class="home-intro__massage">
-          <h4>{{ massage.title }}</h4>
-          <p>{{ massage.text }}</p>
-        </a>
-      }
-    </div>
+    @if (site.modules().booking && intro.massages.length) {
+      <div class="home-intro__massages">
+        @for (massage of intro.massages; track massage.title) {
+          <a [routerLink]="massage.href" class="home-intro__massage">
+            <h4>{{ massage.title }}</h4>
+            <p>{{ massage.text }}</p>
+          </a>
+        }
+      </div>
+    }
 
-    <p class="home-intro__packages">{{ intro.packages }}</p>
-    <p class="home-intro__closing">{{ intro.closing }}</p>
+    @if (site.modules().booking && intro.packages) { <p class="home-intro__packages">{{ intro.packages }}</p> }
+    @if (intro.closing) { <p class="home-intro__closing">{{ intro.closing }}</p> }
 
     <div class="home-intro__why-us">
       @for (item of intro.whyUs; track item.title) {
@@ -57,6 +60,7 @@
       }
     </div>
   </section>
+  }
 }
 
 @if (loadingServices()) {

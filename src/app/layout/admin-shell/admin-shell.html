@@ -10,40 +10,42 @@
     <mat-nav-list class="admin-shell__nav" (click)="onNavClick()">
       <a mat-list-item routerLink="/admin" routerLinkActive="admin-shell__link--active" [routerLinkActiveOptions]="{ exact: true }">Početna</a>
 
-      @if (auth.hasPermission('manage_appointments_all')) {
+      @if (auth.hasPermission('manage_appointments_all') && site.modules().booking) {
         <a mat-list-item routerLink="/admin/zakazivanja" routerLinkActive="admin-shell__link--active">Zakazivanja</a>
       }
 
-      @if (auth.hasPermission('manage_services') || auth.hasPermission('manage_packages') || auth.hasPermission('manage_products') || auth.hasPermission('manage_orders') || auth.hasPermission('manage_coupons')) {
+      @if ((site.modules().booking && (auth.hasPermission('manage_services') || auth.hasPermission('manage_packages'))) || (site.modules().shop && (auth.hasPermission('manage_products') || auth.hasPermission('manage_orders'))) || (site.modules().coupons && auth.hasPermission('manage_coupons'))) {
         <div class="admin-shell__group-label">Katalog</div>
 
-        @if (auth.hasPermission('manage_services')) {
+        @if (auth.hasPermission('manage_services') && site.modules().booking) {
           <a mat-list-item routerLink="/admin/usluge" routerLinkActive="admin-shell__link--active">Usluge</a>
         }
-        @if (auth.hasPermission('manage_packages')) {
+        @if (auth.hasPermission('manage_packages') && site.modules().booking) {
           <a mat-list-item routerLink="/admin/paketi" routerLinkActive="admin-shell__link--active">Paketi</a>
           <a mat-list-item routerLink="/admin/kupljeni-paketi" routerLinkActive="admin-shell__link--active">Kupljeni paketi</a>
         }
-        @if (auth.hasPermission('manage_products')) {
+        @if (auth.hasPermission('manage_products') && site.modules().shop) {
           <a mat-list-item routerLink="/admin/prodavnica" routerLinkActive="admin-shell__link--active">Prodavnica</a>
         }
-        @if (auth.hasPermission('manage_orders')) {
+        @if (auth.hasPermission('manage_orders') && site.modules().shop) {
           <a mat-list-item routerLink="/admin/porudzbine" routerLinkActive="admin-shell__link--active">Porudžbine</a>
           <a mat-list-item routerLink="/admin/privremene-porudzbine" routerLinkActive="admin-shell__link--active">Privremene porudžbine</a>
         }
-        @if (auth.hasPermission('manage_coupons')) {
+        @if (auth.hasPermission('manage_coupons') && site.modules().coupons) {
           <a mat-list-item routerLink="/admin/kuponi" routerLinkActive="admin-shell__link--active">Kuponi</a>
         }
       }
 
-      @if (auth.hasPermission('manage_employees') || auth.hasPermission('manage_blog')) {
+      @if (auth.hasPermission('manage_employees') || (auth.hasPermission('manage_blog') && site.modules().blog)) {
         <div class="admin-shell__group-label">Sadržaj</div>
 
         @if (auth.hasPermission('manage_employees')) {
           <a mat-list-item routerLink="/admin/tim" routerLinkActive="admin-shell__link--active">Tim</a>
-          <a mat-list-item routerLink="/admin/zaposleni" routerLinkActive="admin-shell__link--active">Zaposleni</a>
+          @if (site.modules().employees) {
+            <a mat-list-item routerLink="/admin/zaposleni" routerLinkActive="admin-shell__link--active">Zaposleni</a>
+          }
         }
-        @if (auth.hasPermission('manage_blog')) {
+        @if (auth.hasPermission('manage_blog') && site.modules().blog) {
           <a mat-list-item routerLink="/admin/blog" routerLinkActive="admin-shell__link--active">Blog</a>
         }
       }
@@ -58,22 +60,22 @@
         }
       }
 
-      @if (auth.hasPermission('manage_taxonomy') || auth.hasPermission('manage_resources')) {
+      @if (auth.hasPermission('manage_taxonomy') || (auth.hasPermission('manage_resources') && site.modules().booking)) {
         <div class="admin-shell__group-label">Podešavanja</div>
 
         @if (auth.hasPermission('manage_taxonomy')) {
           <a mat-list-item routerLink="/admin/kategorije" routerLinkActive="admin-shell__link--active">Kategorije</a>
           <a mat-list-item routerLink="/admin/tagovi" routerLinkActive="admin-shell__link--active">Tagovi</a>
         }
-        @if (auth.hasPermission('manage_resources')) {
+        @if (auth.hasPermission('manage_resources') && site.modules().booking) {
           <a mat-list-item routerLink="/admin/resursi" routerLinkActive="admin-shell__link--active">Resursi</a>
         }
       }
 
-      @if (auth.hasPermission('manage_partners') || auth.hasPermission('manage_marketing')) {
+      @if ((auth.hasPermission('manage_partners') && site.modules().partners) || auth.hasPermission('manage_marketing')) {
         <div class="admin-shell__group-label">Partneri</div>
 
-        @if (auth.hasPermission('manage_partners')) {
+        @if (auth.hasPermission('manage_partners') && site.modules().partners) {
           <a mat-list-item routerLink="/admin/partneri" routerLinkActive="admin-shell__link--active">Partneri</a>
         }
         @if (auth.hasPermission('manage_marketing')) {
@@ -93,7 +95,7 @@
       @if (auth.hasPermission('manage_payouts') || auth.hasPermission('view_logs') || auth.hasPermission('view_business_reports') || auth.hasPermission('manage_site_content')) {
         <div class="admin-shell__group-label">Sistem</div>
 
-        @if (auth.hasPermission('manage_payouts')) {
+        @if (auth.hasPermission('manage_payouts') && (site.modules().employees || site.modules().partners)) {
           <a mat-list-item routerLink="/admin/isplate" routerLinkActive="admin-shell__link--active">Isplate</a>
         }
         @if (auth.hasPermission('view_logs')) {

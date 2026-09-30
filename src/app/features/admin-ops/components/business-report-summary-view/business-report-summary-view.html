@@ -6,59 +6,82 @@
   </div>
 
   <div class="business-report-summary__cards">
+    @if (site.modules().booking) {
     <app-card variant="stat">
       <span cardTitle>{{ summary().appointments.total }}</span>
       <span cardSubtitle>Termini</span>
       <span cardTrend>{{ money(summary().appointments.revenue) }}</span>
     </app-card>
+    }
+    @if (site.modules().booking) {
     <app-card variant="stat">
       <span cardTitle>{{ summary().appointments.noShowRate | percent: '1.0-0' }}</span>
       <span cardSubtitle>Stopa nedolazaka</span>
     </app-card>
+    }
+    @if (site.modules().shop) {
     <app-card variant="stat">
       <span cardTitle>{{ summary().orders.total }}</span>
       <span cardSubtitle>Porudžbine</span>
       <span cardTrend>{{ money(summary().orders.revenue) }}</span>
     </app-card>
+    }
+    @if (site.modules().shop) {
     <app-card variant="stat">
       <span cardTitle>{{ money(summary().orders.avgOrderValue) }}</span>
       <span cardSubtitle>Prosečna vrednost porudžbine</span>
     </app-card>
+    }
+    @if (site.modules().booking) {
     <app-card variant="stat">
       <span cardTitle>{{ summary().packages.totalPurchased }}</span>
       <span cardSubtitle>Kupljeni paketi</span>
       <span cardTrend>{{ money(summary().packages.revenue) }}</span>
     </app-card>
+    }
+    @if (site.modules().coupons) {
     <app-card variant="stat">
       <span cardTitle>{{ summary().coupons.totalRedemptions }}</span>
       <span cardSubtitle>Iskorišćeni kuponi</span>
       <span cardTrend>{{ money(summary().coupons.totalDiscountGiven) }} popusta</span>
     </app-card>
+    }
   </div>
 
+  @if (site.modules().employees || site.modules().partners) {
   <div class="business-report-summary__commissions">
     <h3>Provizije</h3>
     <div class="business-report-summary__cards">
+      @if (site.modules().employees) {
       <app-card variant="stat">
         <span cardTitle>{{ money(summary().commissions.employeeEarned) }}</span>
         <span cardSubtitle>Zaposleni - zarađeno</span>
       </app-card>
+      }
+      @if (site.modules().employees) {
       <app-card variant="stat">
         <span cardTitle>{{ money(summary().commissions.employeePaid) }}</span>
         <span cardSubtitle>Zaposleni - isplaćeno</span>
       </app-card>
+      }
+      @if (site.modules().partners) {
       <app-card variant="stat">
         <span cardTitle>{{ money(summary().commissions.partnerEarned) }}</span>
         <span cardSubtitle>Partneri - zarađeno</span>
       </app-card>
+      }
+      @if (site.modules().partners) {
       <app-card variant="stat">
         <span cardTitle>{{ money(summary().commissions.partnerPaid) }}</span>
         <span cardSubtitle>Partneri - isplaćeno</span>
       </app-card>
+      }
     </div>
   </div>
+  }
 
   <div class="business-report-summary__tables">
+    @if (site.modules().booking) {
     <section class="business-report-summary__table-section">
       <h3>Najprodavanije usluge</h3>
       @if (summary().appointments.byService.length) {
@@ -84,7 +107,9 @@
         <p class="business-report-summary__empty">Nema podataka.</p>
       }
     </section>
+    }
 
+    @if (site.modules().employees) {
     <section class="business-report-summary__table-section">
       <h3>Zaposleni po prihodu</h3>
       @if (summary().appointments.byEmployee.length) {
@@ -110,7 +135,9 @@
         <p class="business-report-summary__empty">Nema podataka.</p>
       }
     </section>
+    }
 
+    @if (site.modules().shop) {
     <section class="business-report-summary__table-section">
       <h3>Najprodavaniji artikli</h3>
       @if (summary().orders.byProduct.length) {
@@ -136,7 +163,9 @@
         <p class="business-report-summary__empty">Nema podataka.</p>
       }
     </section>
+    }
 
+    @if (site.modules().coupons) {
     <section class="business-report-summary__table-section">
       <h3>Kuponi</h3>
       @if (summary().coupons.byCoupon.length) {
@@ -162,5 +191,6 @@
         <p class="business-report-summary__empty">Nema podataka.</p>
       }
     </section>
+    }
   </div>
 </div>

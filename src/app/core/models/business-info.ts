@@ -15,9 +15,27 @@ export interface BusinessInfoResponse {
   telefonHref?: string;
   adresa?: string;
   drustveneMreze?: string[];
+  slogan?: string | null;
+  /** Koji moduli postoje u ovoj instanci (ENABLED_MODULES na backendu + izvedeni). */
+  moduli?: Partial<SiteModules>;
 }
 
+export interface SiteModules {
+  blog: boolean;
+  shop: boolean;
+  booking: boolean;
+  coupons: boolean;
+  partners: boolean;
+  employees: boolean;
+}
+
+/** Dok info nije stigao (ili API padne) pretpostavlja se sve uključeno - ista ponašanja kao pre. */
+export const ALL_MODULES_ON: SiteModules = { blog: true, shop: true, booking: true, coupons: true, partners: true, employees: true };
+
 export interface BusinessInfo {
+  name?: string;
+  tagline?: string;
+  modules: SiteModules;
   email?: string;
   phone?: string;
   phoneHref?: string;
@@ -58,6 +76,9 @@ export function toBusinessInfo(response: BusinessInfoResponse): BusinessInfo {
   }
 
   return {
+    name: response.naziv,
+    tagline: response.slogan || undefined,
+    modules: { ...ALL_MODULES_ON, ...(response.moduli ?? {}) },
     email: response.email,
     phone: response.telefon,
     phoneHref: response.telefonHref,

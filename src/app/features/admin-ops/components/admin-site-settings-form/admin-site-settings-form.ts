@@ -1,3 +1,4 @@
+import { SiteInfo } from '../../../../core/services/site-info';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -65,6 +66,7 @@ export class AdminSiteSettingsForm implements OnInit {
   private fb = inject(FormBuilder);
   private siteSettings = inject(AdminSiteSettings);
   private snackBar = inject(MatSnackBar);
+  protected readonly site = inject(SiteInfo);
 
   loading = signal(false);
   saving = signal(false);

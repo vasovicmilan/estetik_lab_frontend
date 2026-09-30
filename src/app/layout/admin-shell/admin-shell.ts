@@ -9,6 +9,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { Auth } from '../../core/services/auth';
+import { SiteInfo } from '../../core/services/site-info';
 
 /**
  * Layout for every /admin/* section - a sidebar (grouped, permission-gated links to
@@ -32,6 +33,9 @@ import { Auth } from '../../core/services/auth';
   styleUrl: './admin-shell.scss',
 })
 export class AdminShell {
+  /** Uključeni moduli ove instance - stavke menija za isključen modul se ne prikazuju. */
+  protected readonly site = inject(SiteInfo);
+
   auth = inject(Auth);
   private breakpointObserver = inject(BreakpointObserver);
 

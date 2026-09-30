@@ -6,6 +6,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { Auth } from '../../core/services/auth';
+import { SiteInfo } from '../../core/services/site-info';
 
 @Component({
   selector: 'app-header',
@@ -15,6 +16,7 @@ import { Auth } from '../../core/services/auth';
 })
 export class Header {
   auth = inject(Auth);
+  protected readonly site = inject(SiteInfo);
   private breakpointObserver = inject(BreakpointObserver);
 
   /** Same 768px breakpoint as AdminShell/DataTable, for the same reason - below

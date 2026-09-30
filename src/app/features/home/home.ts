@@ -18,6 +18,7 @@ import { ProductPublicCard } from '../shop/models/product';
 import { Post } from '../blog/services/post';
 import { PostCard } from '../blog/models/post';
 import { SiteContent } from '../../core/services/site-content';
+import { SiteInfo } from '../../core/services/site-info';
 import { HomeIntroContent, HomePageContent } from '../../core/models/site-content';
 import { LocationInfo } from '../../shared/ui/location-info/location-info';
 import { resolveImageUrl } from '../../core/utils/image-url';
@@ -44,6 +45,7 @@ export class Home implements OnInit {
   private productApi = inject(Product);
   private postApi = inject(Post);
   private siteContent = inject(SiteContent);
+  protected readonly site = inject(SiteInfo);
 
   featuredServices = signal<ServicePublicCard[]>([]);
   featuredPackages = signal<PackagePublicCard[]>([]);
@@ -76,27 +78,35 @@ export class Home implements OnInit {
 
   ngOnInit(): void {
     this.siteContent.getHomePage().subscribe({ next: (page) => this.page.set(page), error: () => this.page.set(null) });
-    this.serviceApi.listPublic({ page: 1 }).subscribe({
-      next: ({ data }) => {
-        this.featuredServices.set(data.slice(0, 4));
-        this.loadingServices.set(false);
-      },
-      error: () => {
-        this.featuredServices.set([]);
-        this.loadingServices.set(false);
-      },
-    });
+    if (this.site.modules().booking) {
+      this.serviceApi.listPublic({ page: 1 }).subscribe({
+        next: ({ data }) => {
+          this.featuredServices.set(data.slice(0, 4));
+          this.loadingServices.set(false);
+        },
+        error: () => {
+          this.featuredServices.set([]);
+          this.loadingServices.set(false);
+        },
+      });
+    } else {
+      this.loadingServices.set(false);
+    }
 
-    this.packageApi.listPublic({ page: 1 }).subscribe({
-      next: ({ data }) => {
-        this.featuredPackages.set(data.slice(0, 3));
-        this.loadingPackages.set(false);
-      },
-      error: () => {
-        this.featuredPackages.set([]);
-        this.loadingPackages.set(false);
-      },
-    });
+    if (this.site.modules().booking) {
+      this.packageApi.listPublic({ page: 1 }).subscribe({
+        next: ({ data }) => {
+          this.featuredPackages.set(data.slice(0, 3));
+          this.loadingPackages.set(false);
+        },
+        error: () => {
+          this.featuredPackages.set([]);
+          this.loadingPackages.set(false);
+        },
+      });
+    } else {
+      this.loadingPackages.set(false);
+    }
 
     this.teamApi.list().subscribe({
       next: (members) => {
@@ -109,27 +119,35 @@ export class Home implements OnInit {
       },
     });
 
-    this.productApi.listPublic({ page: 1 }).subscribe({
-      next: ({ data }) => {
-        this.featuredProducts.set(data.slice(0, 4));
-        this.loadingProducts.set(false);
-      },
-      error: () => {
-        this.featuredProducts.set([]);
-        this.loadingProducts.set(false);
-      },
-    });
+    if (this.site.modules().shop) {
+      this.productApi.listPublic({ page: 1 }).subscribe({
+        next: ({ data }) => {
+          this.featuredProducts.set(data.slice(0, 4));
+          this.loadingProducts.set(false);
+        },
+        error: () => {
+          this.featuredProducts.set([]);
+          this.loadingProducts.set(false);
+        },
+      });
+    } else {
+      this.loadingProducts.set(false);
+    }
 
-    this.postApi.list({ page: 1 }).subscribe({
-      next: ({ data }) => {
-        this.recentPosts.set(data.slice(0, 3));
-        this.loadingPosts.set(false);
-      },
-      error: () => {
-        this.recentPosts.set([]);
-        this.loadingPosts.set(false);
-      },
-    });
+    if (this.site.modules().blog) {
+      this.postApi.list({ page: 1 }).subscribe({
+        next: ({ data }) => {
+          this.recentPosts.set(data.slice(0, 3));
+          this.loadingPosts.set(false);
+        },
+        error: () => {
+          this.recentPosts.set([]);
+          this.loadingPosts.set(false);
+        },
+      });
+    } else {
+      this.loadingPosts.set(false);
+    }
 
     // DB-backed "Šta je Estetik Lab" intro + "Zašto mi" section (see
     // core/services/site-content.ts) - used to be a hardcoded constant here,
